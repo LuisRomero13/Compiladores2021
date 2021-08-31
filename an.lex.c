@@ -5,5 +5,6 @@
 int main(){
     printf("holi");
     getch();
+    system("pause");
     return 0;
 }
