@@ -57,7 +57,7 @@
                 <mxCell id="28" value="digito" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fontColor=#E4FDE1;" parent="1" vertex="1">
                     <mxGeometry x="180" y="340" width="40" height="20" as="geometry"/>
                 </mxCell>
-                <mxCell id="44" value="F" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#F45B69;strokeColor=#028090;fontColor=#E4FDE1;" parent="1" vertex="1">
+                <mxCell id="44" value="F&lt;br&gt;28" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#F45B69;strokeColor=#028090;fontColor=#E4FDE1;" parent="1" vertex="1">
                     <mxGeometry x="544" y="310" width="80" height="80" as="geometry"/>
                 </mxCell>
                 <mxCell id="48" value="" style="curved=1;endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0;entryDx=0;entryDy=0;strokeColor=#028090;labelBackgroundColor=#114B5F;fontColor=#E4FDE1;" parent="1" source="4" target="44" edge="1">
@@ -116,8 +116,8 @@
                 <mxCell id="64" value="caracter o digito excepto &quot;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fontColor=#E4FDE1;" parent="1" vertex="1">
                     <mxGeometry x="205" y="420" width="150" height="20" as="geometry"/>
                 </mxCell>
-                <mxCell id="66" value="fin de linea&lt;br&gt;&lt;br&gt;tabulacion" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fontColor=#E4FDE1;" parent="1" vertex="1">
-                    <mxGeometry y="260" width="70" height="50" as="geometry"/>
+                <mxCell id="66" value="fin de linea&lt;br&gt;&lt;br&gt;tabulacion&lt;br&gt;&lt;br&gt;espacios" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fontColor=#E4FDE1;" parent="1" vertex="1">
+                    <mxGeometry y="250" width="70" height="70" as="geometry"/>
                 </mxCell>
                 <mxCell id="TTyH1HmlyQCVDBMM2mBQ-66" value="" style="curved=1;endArrow=classic;html=1;exitX=0.22;exitY=0.02;exitDx=0;exitDy=0;entryX=1;entryY=0;entryDx=0;entryDy=0;strokeColor=#028090;labelBackgroundColor=#114B5F;fontColor=#E4FDE1;exitPerimeter=0;" parent="1" source="6" target="6" edge="1">
                     <mxGeometry width="50" height="50" relative="1" as="geometry">
@@ -165,8 +165,8 @@
                 <mxCell id="TTyH1HmlyQCVDBMM2mBQ-77" value="18 y 19" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#F45B69;strokeColor=#028090;fontColor=#E4FDE1;" parent="1" vertex="1">
                     <mxGeometry x="275" width="50" height="50" as="geometry"/>
                 </mxCell>
-                <mxCell id="TTyH1HmlyQCVDBMM2mBQ-78" value="1- ID y Palabras reservadas&lt;br&gt;2- Constantes núm enteras&lt;br&gt;3-Constantes núm reales&lt;br&gt;4-Constante String&lt;br&gt;5-Comp Mayor o Mayor igual&lt;br&gt;6-Comp Menor o Menor igual o distinto&lt;br&gt;7-Operador Asign o Comp Igual&lt;br&gt;8-Division o Posible Comentario que abre&lt;br&gt;9-Comentario que abre&lt;br&gt;10-Comentario que cierra&lt;br&gt;11-Suma o posible Concatenación de strings&lt;br&gt;12-Concatenación de strings&lt;br&gt;13-Posible AND&lt;br&gt;14-AND&lt;br&gt;15-Posible OR&lt;br&gt;16-OR&lt;br&gt;17-NOT&lt;br&gt;18 a 27-Otros" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fontColor=#E4FDE1;" parent="1" vertex="1">
-                    <mxGeometry x="569" y="35" width="250" height="240" as="geometry"/>
+                <mxCell id="TTyH1HmlyQCVDBMM2mBQ-78" value="1- ID y Palabras reservadas&lt;br&gt;2- Constantes núm enteras&lt;br&gt;3-Constantes núm reales&lt;br&gt;4-Constante String&lt;br&gt;5-Comp Mayor o Mayor igual&lt;br&gt;6-Comp Menor o Menor igual o distinto&lt;br&gt;7-Operador Asign o Comp Igual&lt;br&gt;8-Division o Posible Comentario que abre&lt;br&gt;9-Comentario que abre&lt;br&gt;10-Comentario que cierra&lt;br&gt;11-Suma o posible Concatenación de strings&lt;br&gt;12-Concatenación de strings&lt;br&gt;13-Posible AND&lt;br&gt;14-AND&lt;br&gt;15-Posible OR&lt;br&gt;16-OR&lt;br&gt;17-NOT&lt;br&gt;18 a 27-Otros&lt;br&gt;28-Final" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fontColor=#E4FDE1;" parent="1" vertex="1">
+                    <mxGeometry x="569" y="25" width="250" height="260" as="geometry"/>
                 </mxCell>
                 <mxCell id="hIyj2-_jxFQF1N7yce7v-73" value="5" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#F45B69;strokeColor=#028090;fontColor=#E4FDE1;" parent="1" vertex="1">
                     <mxGeometry x="270" y="525" width="50" height="50" as="geometry"/>
