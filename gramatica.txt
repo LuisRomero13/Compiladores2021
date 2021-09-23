@@ -1,0 +1,24 @@
+programa: DECLARE declaracion ENDDCLARE bloque
+bloque: sentencia | sentencia  bloque 
+declaracion: type variables PUNTOYC | type variables PUNTOYC declaración 
+type: INT|REAL|STRING
+variables: ID| variables COMA ID
+sentencia: asignación PUNTOYC | iteración | seleccion 
+asignación: ID ASIGN expresión| ID multiple ASIGN expresión
+multiple: ASIGN ID |ASIGN ID multiple
+operador: SUMA | RESTA
+expresión: termino | termino operador expresión | CTESTRING CONCAT termino
+termino: factor | termino MULTI factor | termino DIV factor
+factor: ID | CENT | CREAL | CSTRING 
+iteración: WHILE PARENTA condición PARENTC LLAVEA	bloque LLAVEC
+condición: NOT PARENTA condicion PARENTC| comparación
+comparación: expresión comparador expresión | PARENTA condicion PARENTC logico comparacion | PARENTA expresión comparador expresión PARENTC
+comparador: MAYOR | MENOR | MENORIGUAL | MAYORIGUAL | IGUAL | DISTINTO
+logico: AND | OR
+seleccion: IF PARENTA condición PARENTC LLAVEA bloque LLAVEC ELSE LLAVEA bloque LLAVEC
+
+dudas: 
+-la relacion con vacio en la gramatica. En un bloque no haya nada.
+-expresiones y terminos con diferentes factores.
+
+for declare,enddeclare arrays corchea corchec comentarios
