@@ -45,6 +45,8 @@
 
 %start programa
 %token CSTRING 
+%token CENT
+%token CREAL
 %token WHILE
 %token IF
 %token ELSE
@@ -79,25 +81,25 @@
 %token COMA
 
 %%
-programa: DECLARE declaración ENDDCLARE bloque | bloque
+programa: DECLARE declaracion ENDDECLARE bloque | bloque
 bloque: sentencia | sentencia  bloque 
-declaración: type variables PUNTOYC | type variables PUNTOYC declaración 
+declaracion: type variables PUNTOYC | type variables PUNTOYC declaracion 
 type: INT|REAL|STRING
 variables: ID| ID COMA variables
-sentencia: asignación PUNTOYC | iteración | selección | entrada  PUNTOYC | salida PUNTOYC
-asignación: ID ASIGN expresión| ID asign_múltiple ASIGN expresión
-asign_múltiple: ASIGN ID |ASIGN ID asign_múltiple
-expresión: expresión_num | expresión_string
-expresión_num: término | término SUMA expresión_num | término RESTA expresión_num
-expresión_string: CSTRING CONCAT CSTRING | ID CONCAT CSTRING | ID CONCAT ID | CSTRING CONCAT ID
-término: factor | término MULTI factor | término DIV factor
-factor: ID | CENT | CREAL | PARENTA expresión_num PARENTC
+sentencia: asignacion PUNTOYC | iteracion | seleccion | entrada  PUNTOYC | salida PUNTOYC
+asignacion: ID ASIGN expresion| ID asign_multiple ASIGN expresion
+asign_multiple: ASIGN ID |ASIGN ID asign_multiple
+expresion: expresion_num | expresion_string
+expresion_num: termino | termino SUMA expresion_num | termino RESTA expresion_num
+expresion_string: CSTRING CONCAT CSTRING | ID CONCAT CSTRING | ID CONCAT ID | CSTRING CONCAT ID
+termino: factor | termino MULT factor | termino DIV factor
+factor: ID | CENT | CREAL | PARENTA expresion_num PARENTC
 comparador: MAYOR | MENOR | MENORIGUAL | MAYORIGUAL | IGUAL | DISTINTO
-comparación: PARENTA expresión PARENTC comparador PARENTA expresión PARENTC
-comp_lógico: PARENTA comparación PARENTC AND PARENTA comparación PARENTC | PARENTA comparación PARENTC OR PARENTA comparación PARENTC
-condición: NOT PARENTA condición PARENTC| comparación | comp_lógico
-iteración: WHILE PARENTA condición PARENTC LLAVEA bloque LLAVEC 
-selección: IF PARENTA condición PARENTC LLAVEA bloque LLAVEC ELSE LLAVEA bloque LLAVEC 
+comparacion: PARENTA expresion PARENTC comparador PARENTA expresion PARENTC
+comp_logico: PARENTA comparacion PARENTC AND PARENTA comparacion PARENTC | PARENTA comparacion PARENTC OR PARENTA comparacion PARENTC
+condicion: NOT PARENTA condicion PARENTC| comparacion | comp_logico
+iteracion: WHILE PARENTA condicion PARENTC LLAVEA bloque LLAVEC 
+seleccion: IF PARENTA condicion PARENTC LLAVEA bloque LLAVEC ELSE LLAVEA bloque LLAVEC 
 entrada: PUT CSTRING | PUT CENT | PUT CREAL
 salida: GET ID
 %%
