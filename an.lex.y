@@ -58,11 +58,11 @@
 %token GET
 %token PUT
 %token ID
-%token SUMA
-%token RESTA
+%left SUMA
+%left RESTA
 %token MULT
 %token DIV
-%token ASIGN
+%right ASIGN
 %token CONCAT
 %token AND
 %token OR
@@ -86,14 +86,15 @@ bloque: sentencia | sentencia  bloque
 declaracion: type variables PUNTOYC | type variables PUNTOYC declaracion 
 type: INT|REAL|STRING
 variables: ID| ID COMA variables
-sentencia: asignacion PUNTOYC | iteracion | seleccion | entrada  PUNTOYC | salida PUNTOYC
-asignacion: ID ASIGN expresion| ID asign_multiple ASIGN expresion
-asign_multiple: ASIGN ID |ASIGN ID asign_multiple
+sentencia: asignacion PUNTOYC | asign_multiple PUNTOYC | iteracion | seleccion | entrada  PUNTOYC | salida PUNTOYC
+asignacion: ID ASIGN expresion
+asign_multiple:  ID ASIGN ID ASIGN multiple
+multiple: ID ASIGN asign_multiple expresion | expresion
 expresion: expresion_num | expresion_string
-expresion_num: termino | termino SUMA expresion_num | termino RESTA expresion_num
+expresion_num: termino | expresion_num SUMA termino | expresion_num RESTA  termino
 expresion_string: CSTRING CONCAT CSTRING | ID CONCAT CSTRING | ID CONCAT ID | CSTRING CONCAT ID
 termino: factor | termino MULT factor | termino DIV factor
-factor: ID | CENT | CREAL | PARENTA expresion_num PARENTC
+factor: ID | CENT | CREAL | PARENTA expresion PARENTC
 comparador: MAYOR | MENOR | MENORIGUAL | MAYORIGUAL | IGUAL | DISTINTO
 comparacion: PARENTA expresion PARENTC comparador PARENTA expresion PARENTC
 comp_logico: PARENTA comparacion PARENTC AND PARENTA comparacion PARENTC | PARENTA comparacion PARENTC OR PARENTA comparacion PARENTC
@@ -107,13 +108,17 @@ salida: GET ID
 int yylex(){
 
 }
+
+
 int yyerror(char *s){
     rintf("Error de sintaxis\n");
     fprintf(stderr,"%s\n",s);
 }
+
+
 int main(){
     input = fopen("input.txt", "rb");
-    if((input != NULL){
+    if(input != NULL){
         while (feof(input) == 0) {
             yyparse();
             printf("\nCompilacion Ok\n");
