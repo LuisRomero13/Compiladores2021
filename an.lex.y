@@ -86,10 +86,9 @@ bloque: sentencia | sentencia  bloque
 declaracion: type variables PUNTOYC | type variables PUNTOYC declaracion 
 type: INT|REAL|STRING
 variables: ID| ID COMA variables
-sentencia: asignacion PUNTOYC | asign_multiple PUNTOYC | iteracion | seleccion | entrada  PUNTOYC | salida PUNTOYC
-asignacion: ID ASIGN expresion
-asign_multiple:  ID ASIGN ID ASIGN multiple 
-multiple: ID ASIGN asign_multiple expresion | ID ASIGN expresion | expresion
+sentencia: asignacion PUNTOYC | iteracion | seleccion | entrada  PUNTOYC | salida PUNTOYC
+asignacion: ID ASIGN multiple
+multiple: ID ASIGN asignacion | ID ASIGN expresion | expresion
 expresion: expresion_num | expresion_string
 expresion_num: termino | expresion_num SUMA termino | expresion_num RESTA  termino
 expresion_string: CSTRING CONCAT CSTRING | ID CONCAT CSTRING | ID CONCAT ID | CSTRING CONCAT ID
