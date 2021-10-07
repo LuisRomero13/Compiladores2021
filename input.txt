@@ -1,1 +1,5 @@
-int x = 5;
+declare
+int x;
+enddeclare
+x=5;
+
