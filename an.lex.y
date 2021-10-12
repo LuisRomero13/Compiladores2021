@@ -104,7 +104,7 @@ type: INT|REAL|STRING ;
 variables: ID| ID COMA variables ;
 sentencia: asignacion PUNTOYC | iteracion | seleccion | entrada  PUNTOYC | salida PUNTOYC ;
 asignacion: ID ASIGN multiple ;
-multiple: ID ASIGN asignacion | ID ASIGN expresion_num | ID ASIGN expresion_string ;
+multiple: ID ASIGN asignacion | ID ASIGN expresion_num | ID ASIGN expresion_string | expresion_num | expresion_string ;
 expresion_num: termino | expresion_num SUMA termino | expresion_num RESTA  termino ;
 expresion_string: CSTRING CONCAT CSTRING | ID CONCAT CSTRING | ID CONCAT ID | CSTRING CONCAT ID ;
 termino: factor | termino MULT factor | termino DIV factor ;
