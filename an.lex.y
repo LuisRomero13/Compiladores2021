@@ -3,38 +3,40 @@
     #include <stdlib.h>
     #include <string.h>
     #include <ctype.h>
+    #include <malloc.h>
     #include "y.tab.h"
     
     FILE * input;  
     FILE * lista_tokens; 
     FILE * tabla_simbolos; 
     FILE * tokens_unicos;
-    char constanteEntera [40]; 
-    char constanteReal [40];
-    char constanteString [40]; 
-    char IdPalabraReservada [40];
-    char operador [40]; 
-    char comparador [40]; 
-    char otro[40];
+    char constanteEntera [40] = {0}; 
+    char constanteReal [40]= {0};
+    char constanteString [40]= {0}; 
+    char IdPalabraReservada [40]= {0};
+    char operador [40]= {0}; 
+    char comparador [40]= {0}; 
+    char otro[40]= {0};
     int estado_actual=0; 
     int estado_segundo=0;
     int estado_final=28; 
     int estado_error=29;
-    int hay_error; 
+    int hay_error=0; 
     int position_row=1;
-    char caracter; 
+    int position_col=0;
+    char caracter=' '; 
     struct Token {
-    int number;
-    char name[40];      
-    char lexema[40];    
-    char tipo[40];      
-    char valor[40];     
-    int longitud;       
+        int number;
+        char name[40];      
+        char lexema[40];    
+        char tipo[40];      
+        char valor[40];     
+        int longitud;       
     };
     struct Token token_confirmado;    
 
     // prototipo de funciones
-    int yylex(); int getColumnByEvent(char letra); void cleanTokens();
+    int yylex(void); int yyerror(char *s); int getColumnByEvent(char letra); void cleanTokens();
     void(*tabla_funciones[28][26])(); int tabla_estados [28][26];
 
     struct Token getTokenIdWords();struct Token getTokenInt();
@@ -42,12 +44,11 @@
     struct Token getTokenOp();struct Token getTokenComp(); 
     struct Token getTokenOther(); void buildToken();
 
-    void F1();void F2();void F3();void F4();void F5();void F6();void F7();
+    void F0();void F1();void F2();void F3();void F4();void F5();void F6();void F7();
     void F8();void F9();void F10();void F11();void F12();void F13();void F15();
     void F17();void F18();void F19();void F20();void F21();void F22();void F23();
     void F24();void F25();void F26();void F27();void ERROR();void F(); 
     void showTokens(); void showSymbolTable();
-
 %}
 
 %union {
@@ -97,26 +98,26 @@
 %token COMA
 
 %%
-programa: DECLARE declaracion ENDDECLARE bloque {printf("programa");} | bloque {printf("programa");};
-bloque: sentencia {printf("bloque");} | sentencia  bloque {printf("bloque");};
-declaracion: type variables PUNTOYC {printf("declaracion");} | type variables PUNTOYC declaracion {printf("declaracion");} ;
-type: INT|REAL|STRING ;
-variables: ID| ID COMA variables ;
-sentencia: asignacion PUNTOYC | iteracion | seleccion | entrada  PUNTOYC | salida PUNTOYC ;
-asignacion: ID ASIGN multiple ;
-multiple: ID ASIGN asignacion | ID ASIGN expresion_num | ID ASIGN expresion_string | expresion_num | expresion_string ;
-expresion_num: termino | expresion_num SUMA termino | expresion_num RESTA  termino ;
-expresion_string: CSTRING CONCAT CSTRING | ID CONCAT CSTRING | ID CONCAT ID | CSTRING CONCAT ID ;
-termino: factor | termino MULT factor | termino DIV factor ;
-factor: ID | CENT | CREAL | PARENTA expresion_num PARENTC ;
-comparador: MAYOR | MENOR | MENORIGUAL | MAYORIGUAL | IGUAL | DISTINTO ;
-comparacion: PARENTA expresion_num PARENTC comparador PARENTA expresion_num PARENTC | PARENTA expresion_string PARENTC comparador PARENTA expresion_string PARENTC ;
-comp_logico: PARENTA comparacion PARENTC AND PARENTA comparacion PARENTC | PARENTA comparacion PARENTC OR PARENTA comparacion PARENTC ;
-condicion: NOT PARENTA condicion PARENTC| comparacion | comp_logico ;
-iteracion: WHILE PARENTA condicion PARENTC LLAVEA bloque LLAVEC ;
-seleccion: IF PARENTA condicion PARENTC LLAVEA bloque LLAVEC ELSE LLAVEA bloque LLAVEC ;
-entrada: PUT CSTRING | PUT CENT | PUT CREAL ;
-salida: GET ID ;
+programa: DECLARE declaracion ENDDECLARE bloque {printf("programa\n");} | bloque {printf("programa\n");};
+bloque: sentencia {printf("bloque\n");} | sentencia  bloque {printf("bloque");};
+declaracion: type variables PUNTOYC {printf("declaracion\n");} | type variables PUNTOYC declaracion {printf("declaracion\n");} ;
+type: INT {printf("type\n");} | REAL {printf("type\n");} | STRING {printf("type\n");};
+variables: ID {printf("variables\n");} | ID COMA variables {printf("variables\n");} ;
+sentencia: asignacion PUNTOYC {printf("sentencia\n");} | iteracion {printf("sentencia\n");} | seleccion {printf("sentencia\n");} | entrada {printf("sentencia\n");} PUNTOYC {printf("sentencia\n");} | salida PUNTOYC {printf("sentencia\n");};
+asignacion: ID ASIGN multiple {printf("asignacion\n");};
+multiple: ID ASIGN asignacion {printf("asignacion multiple\n");} | ID ASIGN expresion_num {printf("asignacion multiple\n");} | ID ASIGN expresion_string {printf("asignacion multiple\n");} | expresion_num {printf("asignacion multiple\n");} | expresion_string {printf("asignacion multiple\n");} ;
+expresion_num: termino {printf("expresion numerica\n");} | expresion_num SUMA termino {printf("expresion numerica\n");} | expresion_num RESTA termino {printf("expresion numerica\n");} ;
+expresion_string: CSTRING CONCAT CSTRING {printf("expresion string\n");} | ID CONCAT CSTRING {printf("expresion string\n");} | ID CONCAT ID {printf("expresion string\n");} | CSTRING CONCAT ID {printf("expresion string\n");} ;
+termino: factor {printf("termino\n");} | termino MULT factor {printf("termino\n");} | termino DIV factor {printf("termino\n");} ;
+factor: ID {printf("factor\n");} | CENT {printf("factor\n");} | CREAL {printf("factor\n");} | PARENTA expresion_num PARENTC {printf("factor\n");};
+comparador: MAYOR {printf("comparador\n");} | MENOR  {printf("comparador\n");} | MENORIGUAL {printf("comparador\n");} | MAYORIGUAL {printf("comparador\n");} | IGUAL {printf("comparador\n");} | DISTINTO {printf("comparador\n");} ;
+comparacion: PARENTA expresion_num PARENTC comparador PARENTA expresion_num PARENTC {printf("comparacion\n");} | PARENTA expresion_string PARENTC comparador PARENTA expresion_string PARENTC {printf("comparacion\n");} ;
+comp_logico: PARENTA comparacion PARENTC AND PARENTA comparacion PARENTC {printf("comparador logico\n");} | PARENTA comparacion PARENTC OR PARENTA comparacion PARENTC {printf("comparador logico\n");} ;
+condicion: NOT PARENTA condicion PARENTC {printf("condicion\n");} | comparacion {printf("condicion\n");} | comp_logico {printf("condicion\n");};
+iteracion: WHILE PARENTA condicion PARENTC LLAVEA bloque LLAVEC {printf("iteracion\n");};
+seleccion: IF PARENTA condicion PARENTC LLAVEA bloque LLAVEC ELSE LLAVEA bloque LLAVEC {printf("seleccion\n");};
+entrada: PUT CSTRING {printf("entrada\n");} | PUT CENT {printf("entrada\n");} | PUT CREAL {printf("entrada\n");} ;
+salida: GET ID {printf("salida\n");};
 %%
 
 int main(){ // INICIO MAIN
@@ -127,12 +128,13 @@ int main(){ // INICIO MAIN
     if((input != NULL)||(lista_tokens != NULL)||(tabla_simbolos != NULL)||(tokens_unicos != NULL)){
         fprintf (lista_tokens, "%s\t\t%s\n\n", "ID", "NOMBRE");
         fprintf (tabla_simbolos, "%s\t\t\t\t\t%s\t\t\t\t%s\t\t\t\t%s\n\n", "NOMBRE", "TIPO", "VALOR", "LONGITUD");
-        printf("encabezados escritos\n");
-        while (feof(input) == 0) {
-                yyparse();
-                printf("recibo un token\n");
-        }
-        
+       
+        int recibo;
+        recibo = yyparse();
+        if (recibo == 0){
+           printf("¡Parser Ok!\n"); 
+        }else   
+            printf("¡Parser Error!\n");
     }
     else{
         perror("Ocurrio un error al intentar abrir el archivo\n");
@@ -141,38 +143,48 @@ int main(){ // INICIO MAIN
     fclose(input); fclose(lista_tokens); fclose(tabla_simbolos); fclose(tokens_unicos); remove("tokens_unicos.txt"); // Destruimos el archivo una vez utilizado
     return (0);
 }
-
-
-int yylex(){
-    while(1){
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//      FUNCIONES       //
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+int yylex(void) {
+    while(estado_actual != estado_final){
         if((caracter = fgetc(input)) != EOF){
-            printf("%c\n\n",caracter);
-        int num_col = getColumnByEvent(caracter);
-        int num_row = estado_actual; // al principio, estado actual = 0
-        (*tabla_funciones[num_row][num_col])();  // ejecuta la funcion correspondiente
-        estado_actual = tabla_estados[num_row][num_col]; // actualizamos estado actual
-        }
-        if((estado_actual == estado_error)||(hay_error == 1)){
-            exit(1);
-        }
-        if((estado_segundo == 0)||(estado_actual == 3)||(estado_actual == 9)||(estado_actual == 10)||(estado_actual == 12)){
-            estado_segundo = estado_actual;
-        }
-        if(estado_actual == estado_final){
-            buildToken();
-            printf("%d\n",token_confirmado.number);
-            printf("%s\n", token_confirmado.name);
-            return token_confirmado.number;
-            estado_actual = 0; estado_segundo = 0; // reseteamos el automata
-            
-            if((caracter != ' ')&&(caracter != '\t')&&(caracter != '\n')&&(constanteString[0] == '\0')&&(comparador[1] == '\0')) // si comparador[1] no tiene contenido 
-                ungetc(caracter, input);
-            cleanTokens();
-            
+            position_col++;
+            int num_col = getColumnByEvent(caracter);
+            int num_row = estado_actual; // al principio, estado actual = 0
+            (*tabla_funciones[num_row][num_col])();  // ejecuta la funcion correspondiente
+            estado_actual = tabla_estados[num_row][num_col]; // actualizamos estado actual
+
+            if((estado_actual == estado_error)||(hay_error == 1)){
+                exit(1);
+            }
+            if((estado_segundo == 0)||(estado_actual == 3)||(estado_actual == 9)||(estado_actual == 10)||(estado_actual == 12)){
+                estado_segundo = estado_actual;
+            }
+        } 
+        else if(caracter == EOF){
+            break;
         }
     }
-}
+    if(estado_actual == estado_final){
+        buildToken();
+        int num_token = token_confirmado.number;  // guardo numero de token
+        strcpy(yylval.valor, token_confirmado.valor);  // guardo el valor asociado al token
 
+        //printf("yylval guarda: %s\n", yylval.valor);
+        estado_actual = 0; estado_segundo = 0; // reseteamos el automata
+                
+        if((caracter != ' ')&&(caracter != '\t')&&(caracter != '\n')&&(constanteString[0] == '\0')&&(comparador[1] == '\0')) // si comparador[1] no tiene contenido 
+            ungetc(caracter, input);
+        cleanTokens();
+        //printf("Num token es: %d\n", num_token);
+                
+        // NUMERO DE TOKEN esta entre 256 (primer token) y 292 (ultimo token)
+        return num_token;
+    }else{
+        return -1;  // llego al fin del programa (detecta EOF), no hay mas token para devolver
+    }
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 int getColumnByEvent(char letra){
@@ -226,7 +238,7 @@ void buildToken(){
         showTokens();   showSymbolTable();  // imprimimos los resultados
     }
     if((estado_segundo == 7)&&(comparador[0] == '=')) {  // si comparador tiene un igual significado que se trata de un comparador
-        token_confirmado = getTokenComp();  // Token OPERADORES
+        token_confirmado = getTokenComp();  // Token COMPARADORES
         showTokens();   showSymbolTable();  // imprimimos los resultados
     }
     if(((estado_segundo >= 18)&&(estado_segundo <= 23))||((estado_segundo >= 26)&&(estado_segundo<=27))){
@@ -251,7 +263,7 @@ void cleanTokens() {
 struct Token getTokenInt() {
     struct Token token;
     if( strlen( constanteEntera ) > 0 ) {
-        token.number = 257; // guardo numero de token
+        token.number = 259; // guardo numero de token
         strcpy( token.name, "CENT" ); // guardo nombre del token
         strcpy ( token.lexema, "_");
         strcat( token.lexema, constanteEntera);
@@ -265,7 +277,7 @@ struct Token getTokenInt() {
 struct Token getTokenReal() {
     struct Token token;
     if( strlen( constanteReal ) > 0 ) {
-        token.number = 258; // guardo numero de token
+        token.number = 260; // guardo numero de token
         strcpy( token.name, "CREAL" ); // guardo nombre del token
         strcpy ( token.lexema, "_");
         strcat( token.lexema, constanteReal);
@@ -279,11 +291,11 @@ struct Token getTokenReal() {
 struct Token getTokenString() {
     struct Token token;
     if( strlen( constanteString ) > 0 ) {
-        token.number = 259; // guardo numero de token
+        token.number = 258; // guardo numero de token
         strcpy( token.name, "CSTRING" ); // guardo nombre del token
         strcpy ( token.lexema, "_");
         strcat( token.lexema, constanteString); 
-        strcpy ( token.tipo, "string");
+        strcpy ( token.tipo, "cstring");
         strcpy ( token.valor, "\"");
         strcat( token.valor, constanteString);
         strcat ( token.valor, "\"");
@@ -294,35 +306,31 @@ struct Token getTokenString() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 struct Token getTokenIdWords() {
     struct Token token;
+    strcpy ( token.valor, " ");
     if( strlen( IdPalabraReservada ) > 0 ) {             // Si no esta vacio 
         if( strcmp( IdPalabraReservada , "while" ) == 0) {           // Si palabrasReservada es WHILE
-            token.number = 260; // guardo numero de token
+            token.number = 261; // guardo numero de token
             strcpy( token.name, "WHILE" ); // guardo nombre del token
             return token;
         }
         if( strcmp( IdPalabraReservada , "if" ) == 0) {              // Si palabrasReservada es IF
-            token.number = 261; // guardo numero de token   
+            token.number = 262; // guardo numero de token   
             strcpy( token.name , "IF" ); // guardo nombre del token
             return token;
         }
         if( strcmp( IdPalabraReservada , "else" ) == 0) {            // Si palabrasReservada es ELSE
-            token.number = 262; // guardo numero de token   
+            token.number = 263; // guardo numero de token   
             strcpy( token.name , "ELSE" ); // guardo nombre del token
             return token;
         }
         if( strcmp( IdPalabraReservada , "declare" ) == 0) {         // Si palabrasReservada es DECLARE
-            token.number = 263; // guardo numero de token
+            token.number = 264; // guardo numero de token
             strcpy( token.name , "DECLARE" ); // guardo nombre del token
             return token;
         }
         if( strcmp( IdPalabraReservada , "enddeclare" ) == 0) {      // Si palabrasReservada es ENDDECLARE
-            token.number = 264; // guardo numero de token
-            strcpy( token.name , "ENDDECLARE" ); // guardo nombre del token
-            return token;
-        }
-        if( strcmp( IdPalabraReservada , "for" ) == 0) {         // Si palabrasReservada es FOR
             token.number = 265; // guardo numero de token
-            strcpy( token.name , "FOR" ); // guardo nombre del token
+            strcpy( token.name , "ENDDECLARE" ); // guardo nombre del token
             return token;
         }    
         if( strcmp( IdPalabraReservada , "real" ) == 0) {        // Si palabrasReservada es REAL
@@ -351,7 +359,7 @@ struct Token getTokenIdWords() {
             return token;
         }
         if( strlen( IdPalabraReservada ) > 0 ) {             // Si no esta vacio 
-            token.number = 256; // guardo numero de token
+            token.number = 271; // guardo numero de token
             strcpy( token.name, "ID" ); // guardo nombre del token
             strcpy ( token.lexema, "_");
             strcat( token.lexema, IdPalabraReservada); 
@@ -365,49 +373,50 @@ struct Token getTokenIdWords() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 struct Token getTokenOp() {
     struct Token token;
+    strcpy ( token.valor, " ");
     if( strlen(operador) > 0) {         // Si no esta vacio
         if( strcmp( operador , "+" ) == 0) {        // Si operador es +
-            token.number = 271; // guardo numero de token
+            token.number = 272; // guardo numero de token
             strcpy( token.name , "SUMA" ); // guardo nombre del token
             return token;
         } 
         if( strcmp( operador , "-" ) == 0) {        // Si operador es -
-            token.number = 272; // guardo numero de token
+            token.number = 273; // guardo numero de token
             strcpy( token.name , "RESTA" ); // guardo nombre del token
             return token;
         } 
         if( strcmp( operador , "*" ) == 0) {        // Si operador es *
-            token.number = 273; // guardo numero de token
+            token.number = 274; // guardo numero de token
             strcpy( token.name , "MULT" ); // guardo nombre del token
             return token;
         } 
         if( strcmp( operador , "/" ) == 0) {        // Si operador es /
-            token.number = 274; // guardo numero de token
+            token.number = 275; // guardo numero de token
             strcpy( token.name , "DIV" ); // guardo nombre del token
             return token;
         } 
         if( strcmp( operador , "=" ) == 0) {        // Si operador es =
-            token.number = 275; // guardo numero de token
+            token.number = 276; // guardo numero de token
             strcpy( token.name , "ASIGN" ); // guardo nombre del token
             return token;
         }
         if( strcmp( operador , "++" ) == 0) {       // Si operador es ++
-            token.number = 276; // guardo numero de token
+            token.number = 277; // guardo numero de token
             strcpy( token.name , "CONCAT" ); // guardo nombre del token
             return token;
         }
         if( strcmp( operador , "&&" ) == 0) {       // Si operador es &&
-            token.number = 277; // guardo numero de token
+            token.number = 278; // guardo numero de token
             strcpy( token.name , "AND" ); // guardo nombre del token
             return token;
         }
         if( strcmp( operador , "||" ) == 0) {       // Si operador es ||
-            token.number = 278; // guardo numero de token
+            token.number = 279; // guardo numero de token
             strcpy( token.name , "OR" ); // guardo nombre del token
             return token;
         }
         if( strcmp( operador , "!" ) == 0) {        // Si operador es !
-            token.number = 279; // guardo numero de token
+            token.number = 280; // guardo numero de token
             strcpy( token.name , "NOT" ); // guardo nombre del token
             return token;
         }
@@ -416,34 +425,35 @@ struct Token getTokenOp() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 struct Token getTokenComp(){
     struct Token token;
+    strcpy ( token.valor, " ");
     if( strlen(comparador) > 0) {           // Si no esta vacio
         if( strcmp( comparador , ">" ) == 0) {         // Si comparador es >
-            token.number = 280; // guardo numero de token
+            token.number = 281; // guardo numero de token
             strcpy( token.name , "MAYOR" ); // guardo nombre del token
             return token;
         }
         if( strcmp( comparador , "<" ) == 0) {        // Si comparador es <
-            token.number = 281; // guardo numero de token
+            token.number = 282; // guardo numero de token
             strcpy( token.name , "MENOR" ); // guardo nombre del token
             return token;
         }
         if( strcmp( comparador , "<=" ) == 0) {       // Si comparador es <
-            token.number = 282; // guardo numero de token
+            token.number = 283; // guardo numero de token
             strcpy( token.name , "MENORIGUAL" ); // guardo nombre del token
             return token;
         }
         if( strcmp( comparador , ">=" ) == 0) {       // Si comparador es >
-            token.number = 283; // guardo numero de token
+            token.number = 284; // guardo numero de token
             strcpy( token.name , "MAYORIGUAL" ); // guardo nombre del token
             return token;
         }
         if( strcmp( comparador , "==" ) == 0) {       // Si comparador es ==
-            token.number = 284; // guardo numero de token
+            token.number = 285; // guardo numero de token
             strcpy( token.name , "IGUAL" ); // guardo nombre del token
             return token;
         }
         if( strcmp( comparador , "<>" ) == 0) {           // Si comparador es !=
-            token.number = 285; // guardo numero de token
+            token.number = 286; // guardo numero de token
             strcpy( token.name , "DISTINTO" ); // guardo nombre del token
             return token;
         }
@@ -452,61 +462,51 @@ struct Token getTokenComp(){
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 struct Token getTokenOther(){
     struct Token token;
+    strcpy ( token.valor, " ");
     if( strlen(otro) > 0) {         // Si no esta vacio
         if( strcmp( otro, ";" ) == 0 ) {        // Si otro es ; 
-            token.number = 286;      // guardo numero de token
+            token.number = 287;      // guardo numero de token
             strcpy( token.name , "PUNTOYC" );  // guardo nombre del token
             return token;
         }
         if( strcmp( otro , "{" ) == 0) {        // Si otro es {
-            token.number = 287;      // guardo numero de token
+            token.number = 288;      // guardo numero de token
             strcpy( token.name , "LLAVEA" );  // guardo nombre del token
             return token;
         }
         if( strcmp( otro , "}" ) == 0 ) {       // Si otro es }
-            token.number = 288;      // guardo numero de token
+            token.number = 289;      // guardo numero de token
             strcpy( token.name , "LLAVEC" );  // guardo nombre del token
             return token;
         }
         if( strcmp( otro , "(" ) == 0 ) {       // Si otro es (
-            token.number = 289;      // guardo numero de token
+            token.number = 290;      // guardo numero de token
             strcpy( token.name , "PARENTA" );  // guardo nombre del token
             return token;
         }
         if( strcmp( otro , ")" ) == 0 ) {       // Si otro es )
-            token.number = 290;      // guardo numero de token
+            token.number = 291;      // guardo numero de token
             strcpy( token.name , "PARENTC" );  // guardo nombre del token
             return token;
         }
         if( strcmp( otro , "," ) == 0 ) {       // Si otro es ,
-            token.number = 291;      // guardo numero de token
-            strcpy( token.name , "COMA" );  // guardo nombre del token
-            return token;
-        }
-
-        if( strcmp( otro , "[" ) == 0 ) {      // Si otro es [
             token.number = 292;      // guardo numero de token
-            strcpy( token.name , "CORCHEA" );  // guardo nombre del token
-            return token;
-        }
-        if( strcmp( otro , "]" ) == 0 ) {      // Si otro es ]
-            token.number = 293;      // guardo numero de token
-            strcpy( token.name , "CORCHEC" );  // guardo nombre del token
+            strcpy( token.name , "COMA" );  // guardo nombre del token
             return token;
         }
     }       
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 int tabla_estados [28][26] = {
-//estado  	letra	digit	    _	    .	    "	    >	    <	    =	    /	    #	    +	    &	    |	    !	    (	    )	    [	    ]	    {	    }	    -	    *	    ,	    ;       /t      other
-/*estado0*/ 	1,      2,	    29,	    29,	    4,	    5,	    6,	    7,	    8,	    29,	    11,	    13,	    15,	    17,	    18,	    19,	    20,	    21,	    22,	    23,	    24,	    25,	    26,	    27,     28,     29,
+//estado  	letra	digit	    _	    .	    "	    >	    <	    =	    /	    #	    +	    &	    |	    !	    (	    )	    [	    ]	    {	    }	    -	    *	    ,	    ;       /t /     other
+/*estado0*/ 	1,      2,	    29,	    29,	    4,	    5,	    6,	    7,	    8,	    29,	    11,	    13,	    15,	    17,	    18,	    19,	    20,	    21,	    22,	    23,	    24,	    25,	    26,	    27,     0,     29,
 /*estado1*/ 	1,	    1,	    1,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,     28,     29,
 /*estado2*/	    29,	    2,	    28,	    3,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,     28,     29,
 /*estado3*/	    29,	    3,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,     28,     29,
 /*estado4*/	    4,	    4,	    4,	    4,	    28,	    4,	    4,	    4,	    4,	    4,	    4,	    4,	    4,	    4,	    4,	    4,	    4,	    4,	    4,	    4,	    4,	    4,	    4,	    4,      4,      29,      
 /*estado5*/ 	28,	    28,	    28,	    29,	    29,	    29,	    29,	    28,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,     28,     29,     
 /*estado6*/ 	28,	    28,	    28,	    29,	    29,	    28,	    29,	    28,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,     28,     29,     
-/*estado7*/ 	28,	    28,	    28,	    29,	    29,	    29,	    29,	    28,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,     28,     29,     
+/*estado7*/ 	28,	    28,	    28,	    29,	    28,	    29,	    29,	    28,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,     28,     29,     
 /*estado8*/ 	28,	    28,	    28,   	28,	    28,	    28,	    28,	    28,	    28,	    9,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,     29,     29,     
 /*estado9*/	    9,	    9,	    9,	    9,	    9,	    9,	    9,	    9,	    9,	    10,	    9,	    9,	    9,	    9,	    9,	    9,	    9,	    9,	    9,	    9,	    9,   	9,	    9,	     9,     9,      9,      
 /*estado10*/	9,	    9,	    9,	    9,	    9,	    9,	    9,	    9,	    0,	    9,	    9,	    9,	    9,	    9,	    9,	    9,	    9,	    9,	    9,	    9,	    9,      9,	    9,	     9,     9,      9,      
@@ -531,17 +531,17 @@ int tabla_estados [28][26] = {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void(*tabla_funciones[28][26])() = {        // Se omite F14 y F16
 //	    letra	digito	_	    .	    "	    >	    <	    =	    /	    #	    +	    &	    |	    !	    (	    )	    [	    ]	    {	    }	    -	    *	    ,	    ;       /t      /n
-/*F0*/	F1,	    F2,	    ERROR,	ERROR,	F4,	    F5,	    F6,	    F7,	    F8,	    ERROR,	F11,	F13,	F15,	F17,	F18,	F19,	F20,	F21,	F22,	F23,	F24,	F25,	F26,	F27,    F,      ERROR,
+/*F0*/	F1,	    F2,	    ERROR,	ERROR,	F4,	    F5,	    F6,	    F7,	    F8,	    ERROR,	F11,	F13,	F15,	F17,	F18,	F19,	F20,	F21,	F22,	F23,	F24,	F25,	F26,	F27,    F0,      ERROR,
 /*F1*/	F1,	    F1,	    F1,	    F,	    F,   	F,	    F,	    F,	    F,   	F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,   	F,	    F,      F,      ERROR,
 /*F2*/	ERROR,	F2,	    F,	    F3,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,   	F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,      F,      ERROR,
 /*F3*/	ERROR,	F3,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,   	F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,      F,      ERROR,
 /*F4*/	F4,	    F4,	    F4,	    F4,	    F,	    F4,	    F4,	    F4,	    F4,	    F4,	    F4,	    F4,	    F4,	    F4,	    F4,	    F4,	    F4,	    F4,	    F4,	    F4,	    F4,	    F4,	    F4,	    F4,     F4,     ERROR,
 /*F5*/	F,	    F,	    F,	    ERROR,	ERROR,	ERROR,	ERROR,	F,	    ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,  F,      ERROR,
 /*F6*/	F,	    F,	    F,	    ERROR,	ERROR,	F,	    ERROR,	F,	    ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,  F,      ERROR,
-/*F7*/	F,	    F,	    F,	    ERROR,	ERROR,	ERROR,	ERROR,	F,	    ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,  F,      ERROR,
+/*F7*/	F,	    F,	    F,	    ERROR,	F,	    ERROR,	ERROR,	F,	    ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,  F,      ERROR,
 /*F8*/	F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F9,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,      ERROR,  ERROR,
 /*F9*/	F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F10,	F9,	    F9,	    F9,	    F9,   	F9,	    F9,	    F9,	    F9,	    F9,	    F9,   	F9,	    F9,	    F9,  	F9,     F9,     F9,     
-/*F10*/	F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,     F9,     F9,
+/*F10*/	F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F0,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,     F9,     F9,
 /*F11*/	F,   	F,	    F,	    ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	F12,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,  ERROR,  ERROR,
 /*F12*/	F,	    ERROR,	F,	    ERROR,	F,	    ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,  ERROR,  ERROR,
 /*F13*/	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	F,	    ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,  ERROR,  ERROR,
@@ -561,11 +561,21 @@ void(*tabla_funciones[28][26])() = {        // Se omite F14 y F16
 /*F27*/	F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,      F,      ERROR,
         };
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void F0() {
+    estado_actual = 0; estado_segundo = 0; // reseteamos el automata
+    //printf("Espacio, barra ene o barra te\n");
+    if(caracter == '\n') {
+        position_row++;
+        position_col=0;
+    }
+    cleanTokens();
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void F1(){  // IDENTIFICADOR, PALABRA RESERVADA
     if(strlen(IdPalabraReservada) < 30){
         IdPalabraReservada[strlen(IdPalabraReservada)] = caracter;   // si esta vacio, strlen devuelve 0. es decir, que en la primera pasada guardaria el primer caracter en la posicion 0 para formar una palabra RESERVADA
     } else {
-        printf("¡Error! Limite de identificador alcanzado en: fila %d, posicion %ld\n", position_row, ftell(input));
+        printf("¡Error! Limite de identificador alcanzado en: fila %d, columna %d\n", position_row, position_col);
         hay_error = 1;
     } 
 }
@@ -574,7 +584,7 @@ void F2(){  //  DIGITO
     if(strlen(constanteEntera) < 30){
         constanteEntera[strlen(constanteEntera)] = caracter;    // si esta vacio, strlen devuelve 0. es decir, que en la primera pasada guardaria el primer digito en la posicion 0
     } else {
-        printf("¡Error! Limite de int alcanzado en: fila %d, posicion %ld\n", position_row, ftell(input));
+        printf("¡Error! Limite de int alcanzado en: fila %d, columna %d\n", position_row, position_col);
         hay_error = 1;
     }
 }
@@ -586,7 +596,7 @@ void F3(){  // REALES
     if(strlen(constanteReal) < 30){
         constanteReal[strlen(constanteReal)] = caracter;    // voy formando el digito de tipo real
     } else {
-        printf("¡Error! Limite de real alcanzado en: fila %d, posicion %ld\n", position_row, ftell(input));
+        printf("¡Error! Limite de real alcanzado en: fila %d, columna %d\n", position_row, position_col);
         hay_error = 1;
     } 
 }
@@ -596,7 +606,7 @@ void F4(){    // STRING "  "
         if(caracter != '\"')
             constanteString[strlen(constanteString)] = caracter;  // voy formando el string 
     } else {
-        printf("¡Error! Limite de string alcanzado en: fila %d, posicion %ld\n", position_row, ftell(input));
+        printf("¡Error! Limite de string alcanzado en: fila %d, columna %d\n", position_row, position_col);
         hay_error = 1;
     } 
 }
@@ -692,7 +702,7 @@ void F27(){     // OTRO punto y coma ;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void ERROR(){
-    printf("¡Error! caracter invalido en: fila %d, posicion %ld\n", position_row, ftell(input));
+    printf("¡Error! caracter invalido en: fila %d, columna %d\n", position_row, position_col);
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void F(){
@@ -722,7 +732,7 @@ void showTokens() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void showSymbolTable() {   
-    if((token_confirmado.number >= 256) &&(token_confirmado.number <= 259)) {  // Si es entero, real, string o id    
+    if((token_confirmado.number == 258)||(token_confirmado.number == 259)||(token_confirmado.number == 260)||(token_confirmado.number == 271)) {  // Si es entero, real, string o id    
         char lexema[40] = {0}; char lexema_temp[40] = {0};
         int imprimir = 1;       // uso esta variable para que el programa sepa cuando imprimir en los archivos
 
@@ -743,11 +753,7 @@ void showSymbolTable() {
     }
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
 int yyerror(char *s){
-    printf("Error de sintaxis\n");
+    printf("Error de sintaxis en: fila %d, columna %d\n", position_row, position_col);
     fprintf(stderr,"%s\n",s);
 }
-
-

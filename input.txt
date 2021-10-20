@@ -1,5 +1,8 @@
-declare
-int x;
-enddeclare
-x=5;
-
+/# inicio #/
+declare 
+    string x;  
+ enddeclare 
+    while ((x) > (5)){   /# esto es una iteracion #/ 
+     x="hola"++"mundo"; /# esto es un string #/
+    }
+/# fin programa #/
