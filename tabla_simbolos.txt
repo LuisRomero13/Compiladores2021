@@ -1,0 +1,6 @@
+NOMBRE					TIPO				VALOR				LONGITUD
+
+_x	  			  			 1
+_5	 int			 5			 0
+_hola	 cstring			 "hola"			 4
+_mundo	 cstring			 "mundo"			 5
