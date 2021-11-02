@@ -127,14 +127,14 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 54 "an.lex.y"
+#line 63 "an.lex.y"
 
     int number;
     char name[40];      
     char lexema[40];    
     char tipo[40];      
     char valor[40];     
-    int longitud;       
+    int longitud;
 
 #line 140 "y.tab.h"
 

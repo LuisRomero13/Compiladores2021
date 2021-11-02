@@ -1,8 +1,1 @@
-/# inicio #/
-declare 
-    string x;  
- enddeclare 
-    while ((x) > (5)){   /# esto es una iteracion #/ 
-     x="hola"++"mundo"; /# esto es un string #/
-    }
-/# fin programa #/
+variablea= variableb =variablec = 8/2*5+9-130;

@@ -74,7 +74,7 @@
     #include <ctype.h>
     #include <malloc.h>
     #include "y.tab.h"
-    
+        
     FILE * input;  
     FILE * lista_tokens; 
     FILE * tabla_simbolos; 
@@ -100,7 +100,7 @@
         char lexema[40];    
         char tipo[40];      
         char valor[40];     
-        int longitud;       
+        int longitud;
     };
     struct Token token_confirmado;    
 
@@ -117,9 +117,18 @@
     void F8();void F9();void F10();void F11();void F12();void F13();void F15();
     void F17();void F18();void F19();void F20();void F21();void F22();void F23();
     void F24();void F25();void F26();void F27();void ERROR();void F(); 
-    void showTokens(); void showSymbolTable();
+    void showTokens(); void show_TS();
+    
+    // variables para codigo intermedio
+    char ** tira_polaca;  char ** tira_dinamica; // ** representa a fila y columna
+    int cantidad_elementos_tira = 0; // indica la fila
+    char id_TS [40] = {0}; int indice_tmp = 0;
 
-#line 123 "an.lex.tab.c"
+    // funciones para codigo intermedio
+    void apilar_polaca(char * yval);   void aplicar_polaca();   
+    void get_id_TS(); void get_cte_TS();
+
+#line 132 "an.lex.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -206,16 +215,16 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 54 "an.lex.y"
+#line 63 "an.lex.y"
 
     int number;
     char name[40];      
     char lexema[40];    
     char tipo[40];      
     char valor[40];     
-    int longitud;       
+    int longitud;
 
-#line 219 "an.lex.tab.c"
+#line 228 "an.lex.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -592,14 +601,14 @@ static const yytype_int8 yytranslate[] =
 
 #if YYDEBUG
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
-static const yytype_int8 yyrline[] =
+static const yytype_uint8 yyrline[] =
 {
-       0,   101,   101,   101,   102,   102,   103,   103,   104,   104,
-     104,   105,   105,   106,   106,   106,   106,   106,   106,   107,
-     108,   108,   108,   108,   108,   109,   109,   109,   110,   110,
-     110,   110,   111,   111,   111,   112,   112,   112,   112,   113,
-     113,   113,   113,   113,   113,   114,   114,   115,   115,   116,
-     116,   116,   117,   118,   119,   119,   119,   120
+       0,   110,   110,   110,   112,   112,   114,   114,   116,   116,
+     116,   118,   118,   120,   120,   120,   120,   120,   120,   122,
+     124,   124,   124,   124,   124,   126,   126,   126,   128,   128,
+     128,   128,   130,   130,   130,   132,   132,   132,   132,   134,
+     134,   134,   134,   134,   134,   136,   136,   138,   138,   140,
+     140,   140,   142,   144,   146,   146,   146,   148
 };
 #endif
 
@@ -1473,343 +1482,343 @@ yyreduce:
   switch (yyn)
     {
   case 2:
-#line 101 "an.lex.y"
-                                                {printf("programa\n");}
-#line 1479 "an.lex.tab.c"
+#line 110 "an.lex.y"
+                                                {printf("Regla 1\n");}
+#line 1488 "an.lex.tab.c"
     break;
 
   case 3:
-#line 101 "an.lex.y"
-                                                                                 {printf("programa\n");}
-#line 1485 "an.lex.tab.c"
+#line 110 "an.lex.y"
+                                                                                {printf("Regla 2\n");}
+#line 1494 "an.lex.tab.c"
     break;
 
   case 4:
-#line 102 "an.lex.y"
-                  {printf("bloque\n");}
-#line 1491 "an.lex.tab.c"
+#line 112 "an.lex.y"
+                  {printf("Regla 3\n");}
+#line 1500 "an.lex.tab.c"
     break;
 
   case 5:
-#line 102 "an.lex.y"
-                                                            {printf("bloque");}
-#line 1497 "an.lex.tab.c"
+#line 112 "an.lex.y"
+                                                             {printf("Regla 4\n");}
+#line 1506 "an.lex.tab.c"
     break;
 
   case 6:
-#line 103 "an.lex.y"
-                                    {printf("declaracion\n");}
-#line 1503 "an.lex.tab.c"
+#line 114 "an.lex.y"
+                                    {printf("Regla 5\n");}
+#line 1512 "an.lex.tab.c"
     break;
 
   case 7:
-#line 103 "an.lex.y"
-                                                                                                    {printf("declaracion\n");}
-#line 1509 "an.lex.tab.c"
+#line 114 "an.lex.y"
+                                                                                                {printf("Regla 6\n");}
+#line 1518 "an.lex.tab.c"
     break;
 
   case 8:
-#line 104 "an.lex.y"
-          {printf("type\n");}
-#line 1515 "an.lex.tab.c"
+#line 116 "an.lex.y"
+          {printf("Regla 7\n");}
+#line 1524 "an.lex.tab.c"
     break;
 
   case 9:
-#line 104 "an.lex.y"
-                                     {printf("type\n");}
-#line 1521 "an.lex.tab.c"
+#line 116 "an.lex.y"
+                                        {printf("Regla 8\n");}
+#line 1530 "an.lex.tab.c"
     break;
 
   case 10:
-#line 104 "an.lex.y"
-                                                                  {printf("type\n");}
-#line 1527 "an.lex.tab.c"
+#line 116 "an.lex.y"
+                                                                        {printf("Regla 9\n");}
+#line 1536 "an.lex.tab.c"
     break;
 
   case 11:
-#line 105 "an.lex.y"
-              {printf("variables\n");}
-#line 1533 "an.lex.tab.c"
+#line 118 "an.lex.y"
+              {printf("Regla 10\n");}
+#line 1542 "an.lex.tab.c"
     break;
 
   case 12:
-#line 105 "an.lex.y"
-                                                           {printf("variables\n");}
-#line 1539 "an.lex.tab.c"
+#line 118 "an.lex.y"
+                                                          {printf("Regla 11\n");}
+#line 1548 "an.lex.tab.c"
     break;
 
   case 13:
-#line 106 "an.lex.y"
-                              {printf("sentencia\n");}
-#line 1545 "an.lex.tab.c"
+#line 120 "an.lex.y"
+                              {printf("Regla 12\n"); aplicar_polaca(); }
+#line 1554 "an.lex.tab.c"
     break;
 
   case 14:
-#line 106 "an.lex.y"
-                                                                   {printf("sentencia\n");}
-#line 1551 "an.lex.tab.c"
+#line 120 "an.lex.y"
+                                                                                     {printf("Regla 13\n");}
+#line 1560 "an.lex.tab.c"
     break;
 
   case 15:
-#line 106 "an.lex.y"
-                                                                                                        {printf("sentencia\n");}
-#line 1557 "an.lex.tab.c"
+#line 120 "an.lex.y"
+                                                                                                                         {printf("Regla 14\n");}
+#line 1566 "an.lex.tab.c"
     break;
 
   case 16:
-#line 106 "an.lex.y"
-                                                                                                                                           {printf("sentencia\n");}
-#line 1563 "an.lex.tab.c"
+#line 120 "an.lex.y"
+                                                                                                                                                           {printf("Regla 15\n");}
+#line 1572 "an.lex.tab.c"
     break;
 
   case 17:
-#line 106 "an.lex.y"
-                                                                                                                                                                            {printf("sentencia\n");}
-#line 1569 "an.lex.tab.c"
+#line 120 "an.lex.y"
+                                                                                                                                                                                           {printf("Regla 16\n");}
+#line 1578 "an.lex.tab.c"
     break;
 
   case 18:
-#line 106 "an.lex.y"
-                                                                                                                                                                                                                      {printf("sentencia\n");}
-#line 1575 "an.lex.tab.c"
+#line 120 "an.lex.y"
+                                                                                                                                                                                                                                    {printf("Regla 17\n");}
+#line 1584 "an.lex.tab.c"
     break;
 
   case 19:
-#line 107 "an.lex.y"
-                              {printf("asignacion\n");}
-#line 1581 "an.lex.tab.c"
+#line 122 "an.lex.y"
+                              {printf("Regla 18\n");  get_id_TS(); apilar_polaca(id_TS); apilar_polaca("A=");}
+#line 1590 "an.lex.tab.c"
     break;
 
   case 20:
-#line 108 "an.lex.y"
-                              {printf("asignacion multiple\n");}
-#line 1587 "an.lex.tab.c"
+#line 124 "an.lex.y"
+                              {printf("Regla 19\n"); get_id_TS(); apilar_polaca(id_TS); apilar_polaca("A=");}
+#line 1596 "an.lex.tab.c"
     break;
 
   case 21:
-#line 108 "an.lex.y"
-                                                                                          {printf("asignacion multiple\n");}
-#line 1593 "an.lex.tab.c"
+#line 124 "an.lex.y"
+                                                                                                                                       {printf("Regla 20\n");}
+#line 1602 "an.lex.tab.c"
     break;
 
   case 22:
-#line 108 "an.lex.y"
-                                                                                                                                                         {printf("asignacion multiple\n");}
-#line 1599 "an.lex.tab.c"
+#line 124 "an.lex.y"
+                                                                                                                                                                                           {printf("Regla 21\n");}
+#line 1608 "an.lex.tab.c"
     break;
 
   case 23:
-#line 108 "an.lex.y"
-                                                                                                                                                                                                            {printf("asignacion multiple\n");}
-#line 1605 "an.lex.tab.c"
+#line 124 "an.lex.y"
+                                                                                                                                                                                                                                   {printf("Regla 22\n");}
+#line 1614 "an.lex.tab.c"
     break;
 
   case 24:
-#line 108 "an.lex.y"
-                                                                                                                                                                                                                                                                  {printf("asignacion multiple\n");}
-#line 1611 "an.lex.tab.c"
+#line 124 "an.lex.y"
+                                                                                                                                                                                                                                                                              {printf("Regla 23\n");}
+#line 1620 "an.lex.tab.c"
     break;
 
   case 25:
-#line 109 "an.lex.y"
-                       {printf("expresion numerica\n");}
-#line 1617 "an.lex.tab.c"
+#line 126 "an.lex.y"
+                       {printf("Regla 24\n");}
+#line 1626 "an.lex.tab.c"
     break;
 
   case 26:
-#line 109 "an.lex.y"
-                                                                                      {printf("expresion numerica\n");}
-#line 1623 "an.lex.tab.c"
+#line 126 "an.lex.y"
+                                                                            {printf("Regla 25\n"); apilar_polaca("S+");}
+#line 1632 "an.lex.tab.c"
     break;
 
   case 27:
-#line 109 "an.lex.y"
-                                                                                                                                                      {printf("expresion numerica\n");}
-#line 1629 "an.lex.tab.c"
+#line 126 "an.lex.y"
+                                                                                                                                                       {printf("Regla 26\n"); apilar_polaca("R-");}
+#line 1638 "an.lex.tab.c"
     break;
 
   case 28:
-#line 110 "an.lex.y"
-                                         {printf("expresion string\n");}
-#line 1635 "an.lex.tab.c"
+#line 128 "an.lex.y"
+                                         {printf("Regla 27\n");}
+#line 1644 "an.lex.tab.c"
     break;
 
   case 29:
-#line 110 "an.lex.y"
-                                                                                             {printf("expresion string\n");}
-#line 1641 "an.lex.tab.c"
+#line 128 "an.lex.y"
+                                                                                     {printf("Regla 28\n");}
+#line 1650 "an.lex.tab.c"
     break;
 
   case 30:
-#line 110 "an.lex.y"
-                                                                                                                                            {printf("expresion string\n");}
-#line 1647 "an.lex.tab.c"
+#line 128 "an.lex.y"
+                                                                                                                            {printf("Regla 29\n");}
+#line 1656 "an.lex.tab.c"
     break;
 
   case 31:
-#line 110 "an.lex.y"
-                                                                                                                                                                                                {printf("expresion string\n");}
-#line 1653 "an.lex.tab.c"
+#line 128 "an.lex.y"
+                                                                                                                                                                        {printf("Regla 30\n");}
+#line 1662 "an.lex.tab.c"
     break;
 
   case 32:
-#line 111 "an.lex.y"
-                {printf("termino\n");}
-#line 1659 "an.lex.tab.c"
+#line 130 "an.lex.y"
+                {printf("Regla 31\n");}
+#line 1668 "an.lex.tab.c"
     break;
 
   case 33:
-#line 111 "an.lex.y"
-                                                             {printf("termino\n");}
-#line 1665 "an.lex.tab.c"
+#line 130 "an.lex.y"
+                                                              {printf("Regla 32\n"); apilar_polaca("M*");}
+#line 1674 "an.lex.tab.c"
     break;
 
   case 34:
-#line 111 "an.lex.y"
-                                                                                                         {printf("termino\n");}
-#line 1671 "an.lex.tab.c"
+#line 130 "an.lex.y"
+                                                                                                                                {printf("Regla 33\n"); apilar_polaca("D/");}
+#line 1680 "an.lex.tab.c"
     break;
 
   case 35:
-#line 112 "an.lex.y"
-           {printf("factor\n");}
-#line 1677 "an.lex.tab.c"
+#line 132 "an.lex.y"
+           {printf("Regla 34\n");}
+#line 1686 "an.lex.tab.c"
     break;
 
   case 36:
-#line 112 "an.lex.y"
-                                        {printf("factor\n");}
-#line 1683 "an.lex.tab.c"
+#line 132 "an.lex.y"
+                                          {printf("Regla 35\n"); apilar_polaca(yylval.valor);}
+#line 1692 "an.lex.tab.c"
     break;
 
   case 37:
-#line 112 "an.lex.y"
-                                                                      {printf("factor\n");}
-#line 1689 "an.lex.tab.c"
+#line 132 "an.lex.y"
+                                                                                                       {printf("Regla 36\n");}
+#line 1698 "an.lex.tab.c"
     break;
 
   case 38:
-#line 112 "an.lex.y"
-                                                                                                                            {printf("factor\n");}
-#line 1695 "an.lex.tab.c"
+#line 132 "an.lex.y"
+                                                                                                                                                               {printf("Regla 37\n");}
+#line 1704 "an.lex.tab.c"
     break;
 
   case 39:
-#line 113 "an.lex.y"
-                  {printf("comparador\n");}
-#line 1701 "an.lex.tab.c"
+#line 134 "an.lex.y"
+                  {printf("Regla 38\n");}
+#line 1710 "an.lex.tab.c"
     break;
 
   case 40:
-#line 113 "an.lex.y"
-                                                     {printf("comparador\n");}
-#line 1707 "an.lex.tab.c"
+#line 134 "an.lex.y"
+                                                   {printf("Regla 39\n");}
+#line 1716 "an.lex.tab.c"
     break;
 
   case 41:
-#line 113 "an.lex.y"
-                                                                                            {printf("comparador\n");}
-#line 1713 "an.lex.tab.c"
+#line 134 "an.lex.y"
+                                                                                        {printf("Regla 40\n");}
+#line 1722 "an.lex.tab.c"
     break;
 
   case 42:
-#line 113 "an.lex.y"
-                                                                                                                                   {printf("comparador\n");}
-#line 1719 "an.lex.tab.c"
+#line 134 "an.lex.y"
+                                                                                                                             {printf("Regla 41\n");}
+#line 1728 "an.lex.tab.c"
     break;
 
   case 43:
-#line 113 "an.lex.y"
-                                                                                                                                                                     {printf("comparador\n");}
-#line 1725 "an.lex.tab.c"
+#line 134 "an.lex.y"
+                                                                                                                                                             {printf("Regla 42\n");}
+#line 1734 "an.lex.tab.c"
     break;
 
   case 44:
-#line 113 "an.lex.y"
-                                                                                                                                                                                                          {printf("comparador\n");}
-#line 1731 "an.lex.tab.c"
+#line 134 "an.lex.y"
+                                                                                                                                                                                                {printf("Regla 43\n");}
+#line 1740 "an.lex.tab.c"
     break;
 
   case 45:
-#line 114 "an.lex.y"
-                                                                                    {printf("comparacion\n");}
-#line 1737 "an.lex.tab.c"
+#line 136 "an.lex.y"
+                                                                                    {printf("Regla 44\n");}
+#line 1746 "an.lex.tab.c"
     break;
 
   case 46:
-#line 114 "an.lex.y"
-                                                                                                                                                                                              {printf("comparacion\n");}
-#line 1743 "an.lex.tab.c"
+#line 136 "an.lex.y"
+                                                                                                                                                                                           {printf("Regla 45\n");}
+#line 1752 "an.lex.tab.c"
     break;
 
   case 47:
-#line 115 "an.lex.y"
-                                                                         {printf("comparador logico\n");}
-#line 1749 "an.lex.tab.c"
+#line 138 "an.lex.y"
+                                                                         {printf("Regla 46\n");}
+#line 1758 "an.lex.tab.c"
     break;
 
   case 48:
-#line 115 "an.lex.y"
-                                                                                                                                                                       {printf("comparador logico\n");}
-#line 1755 "an.lex.tab.c"
+#line 138 "an.lex.y"
+                                                                                                                                                              {printf("Regla 47\n");}
+#line 1764 "an.lex.tab.c"
     break;
 
   case 49:
-#line 116 "an.lex.y"
-                                         {printf("condicion\n");}
-#line 1761 "an.lex.tab.c"
+#line 140 "an.lex.y"
+                                         {printf("Regla 48\n");}
+#line 1770 "an.lex.tab.c"
     break;
 
   case 50:
-#line 116 "an.lex.y"
-                                                                                {printf("condicion\n");}
-#line 1767 "an.lex.tab.c"
+#line 140 "an.lex.y"
+                                                                               {printf("Regla 49\n");}
+#line 1776 "an.lex.tab.c"
     break;
 
   case 51:
-#line 116 "an.lex.y"
-                                                                                                                       {printf("condicion\n");}
-#line 1773 "an.lex.tab.c"
+#line 140 "an.lex.y"
+                                                                                                                     {printf("Regla 50\n");}
+#line 1782 "an.lex.tab.c"
     break;
 
   case 52:
-#line 117 "an.lex.y"
-                                                                {printf("iteracion\n");}
-#line 1779 "an.lex.tab.c"
+#line 142 "an.lex.y"
+                                                                {printf("Regla 51\n");}
+#line 1788 "an.lex.tab.c"
     break;
 
   case 53:
-#line 118 "an.lex.y"
-                                                                                       {printf("seleccion\n");}
-#line 1785 "an.lex.tab.c"
+#line 144 "an.lex.y"
+                                                                                       {printf("Regla 52\n");}
+#line 1794 "an.lex.tab.c"
     break;
 
   case 54:
-#line 119 "an.lex.y"
-                     {printf("entrada\n");}
-#line 1791 "an.lex.tab.c"
+#line 146 "an.lex.y"
+                     {printf("Regla 53\n");}
+#line 1800 "an.lex.tab.c"
     break;
 
   case 55:
-#line 119 "an.lex.y"
-                                                       {printf("entrada\n");}
-#line 1797 "an.lex.tab.c"
+#line 146 "an.lex.y"
+                                                        {printf("Regla 54\n");}
+#line 1806 "an.lex.tab.c"
     break;
 
   case 56:
-#line 119 "an.lex.y"
-                                                                                          {printf("entrada\n");}
-#line 1803 "an.lex.tab.c"
+#line 146 "an.lex.y"
+                                                                                            {printf("Regla 55\n");}
+#line 1812 "an.lex.tab.c"
     break;
 
   case 57:
-#line 120 "an.lex.y"
-               {printf("salida\n");}
-#line 1809 "an.lex.tab.c"
+#line 148 "an.lex.y"
+               {printf("Regla 56\n");}
+#line 1818 "an.lex.tab.c"
     break;
 
 
-#line 1813 "an.lex.tab.c"
+#line 1822 "an.lex.tab.c"
 
       default: break;
     }
@@ -2041,18 +2050,19 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 121 "an.lex.y"
+#line 149 "an.lex.y"
 
 
 int main(){ // INICIO MAIN
     input = fopen("input.txt", "rb"); 
     lista_tokens = fopen("lista_tokens.txt", "w");
-    tabla_simbolos = fopen("tabla_simbolos.txt", "w"); 
+    tabla_simbolos = fopen("tabla_simbolos.txt", "w+"); 
     tokens_unicos = fopen("tokens_unicos.txt", "w+");
+
     if((input != NULL)||(lista_tokens != NULL)||(tabla_simbolos != NULL)||(tokens_unicos != NULL)){
         fprintf (lista_tokens, "%s\t\t%s\n\n", "ID", "NOMBRE");
         fprintf (tabla_simbolos, "%s\t\t\t\t\t%s\t\t\t\t%s\t\t\t\t%s\n\n", "NOMBRE", "TIPO", "VALOR", "LONGITUD");
-       
+        
         int recibo;
         recibo = yyparse();
         if (recibo == 0){
@@ -2064,7 +2074,7 @@ int main(){ // INICIO MAIN
         perror("Ocurrio un error al intentar abrir el archivo\n");
         return 1;
     }
-    fclose(input); fclose(lista_tokens); fclose(tabla_simbolos); fclose(tokens_unicos); remove("tokens_unicos.txt"); // Destruimos el archivo una vez utilizado
+    fclose(input); fclose(lista_tokens); fclose(tokens_unicos); remove("tokens_unicos.txt"); // Destruimos el archivo una vez utilizado
     return (0);
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2093,9 +2103,9 @@ int yylex(void) {
     if(estado_actual == estado_final){
         buildToken();
         int num_token = token_confirmado.number;  // guardo numero de token
+        // YYLVAL almacena, por defecto, un valor de tipo ENTERO (un solo tipo)
         strcpy(yylval.valor, token_confirmado.valor);  // guardo el valor asociado al token
 
-        //printf("yylval guarda: %s\n", yylval.valor);
         estado_actual = 0; estado_segundo = 0; // reseteamos el automata
                 
         if((caracter != ' ')&&(caracter != '\t')&&(caracter != '\n')&&(constanteString[0] == '\0')&&(comparador[1] == '\0')) // si comparador[1] no tiene contenido 
@@ -2143,35 +2153,35 @@ int getColumnByEvent(char letra){
 void buildToken(){
     if(estado_segundo == 1){
         token_confirmado = getTokenIdWords();
-        showTokens(); showSymbolTable();    // imprimimos los resultados
+        showTokens(); show_TS();   // imprimimos los resultados
     }
     if(estado_segundo == 2) {
         token_confirmado = getTokenInt();
-        showTokens(); showSymbolTable();    // imprimimos los resultados
+        showTokens(); show_TS();   // imprimimos los resultados
     }
     if(estado_segundo == 3) {
         token_confirmado = getTokenReal();
-        showTokens(); showSymbolTable();    // imprimimos los resultados
+        showTokens(); show_TS();   // imprimimos los resultados
     }
     if(estado_segundo == 4) {
         token_confirmado = getTokenString();
-        showTokens();   showSymbolTable();  // imprimimos los resultados
+        showTokens();   show_TS();  // imprimimos los resultados
     }
     if(((estado_segundo == 7)&&(comparador[0] != '='))||(estado_segundo == 8)||((estado_segundo >= 11)&&(estado_segundo <= 17))||((estado_segundo >= 24)&&(estado_segundo <= 25))){
         token_confirmado = getTokenOp();  // Token OPERADORES
-        showTokens();   showSymbolTable();  // imprimimos los resultados
+        showTokens();   show_TS(); // imprimimos los resultados
     }
     if((estado_segundo == 7)&&(comparador[0] == '=')) {  // si comparador tiene un igual significado que se trata de un comparador
         token_confirmado = getTokenComp();  // Token COMPARADORES
-        showTokens();   showSymbolTable();  // imprimimos los resultados
+        showTokens();   show_TS(); // imprimimos los resultados
     }
     if(((estado_segundo >= 18)&&(estado_segundo <= 23))||((estado_segundo >= 26)&&(estado_segundo<=27))){
         token_confirmado = getTokenOther();  // Token Otros
-        showTokens();   showSymbolTable();  // imprimimos los resultados
+        showTokens();   show_TS(); // imprimimos los resultados
     }
     if((estado_segundo >= 5)&&(estado_segundo <= 6)){
         token_confirmado = getTokenComp();  // Token COMPARADORES
-        showTokens();   showSymbolTable();  // imprimimos los resultados
+        showTokens();   show_TS();  // imprimimos los resultados
     }
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2189,7 +2199,7 @@ struct Token getTokenInt() {
     if( strlen( constanteEntera ) > 0 ) {
         token.number = 259; // guardo numero de token
         strcpy( token.name, "CENT" ); // guardo nombre del token
-        strcpy ( token.lexema, "_");
+        strcpy ( token.lexema, "$");
         strcat( token.lexema, constanteEntera);
         strcpy ( token.tipo, "int");
         strcpy( token.valor, constanteEntera);
@@ -2203,7 +2213,7 @@ struct Token getTokenReal() {
     if( strlen( constanteReal ) > 0 ) {
         token.number = 260; // guardo numero de token
         strcpy( token.name, "CREAL" ); // guardo nombre del token
-        strcpy ( token.lexema, "_");
+        strcpy ( token.lexema, "$");
         strcat( token.lexema, constanteReal);
         strcpy ( token.tipo, "real");
         strcpy( token.valor, constanteReal);
@@ -2217,7 +2227,7 @@ struct Token getTokenString() {
     if( strlen( constanteString ) > 0 ) {
         token.number = 258; // guardo numero de token
         strcpy( token.name, "CSTRING" ); // guardo nombre del token
-        strcpy ( token.lexema, "_");
+        strcpy ( token.lexema, "$");
         strcat( token.lexema, constanteString); 
         strcpy ( token.tipo, "cstring");
         strcpy ( token.valor, "\"");
@@ -2235,57 +2245,67 @@ struct Token getTokenIdWords() {
         if( strcmp( IdPalabraReservada , "while" ) == 0) {           // Si palabrasReservada es WHILE
             token.number = 261; // guardo numero de token
             strcpy( token.name, "WHILE" ); // guardo nombre del token
+            strcpy ( token.lexema, " ");
             return token;
         }
         if( strcmp( IdPalabraReservada , "if" ) == 0) {              // Si palabrasReservada es IF
             token.number = 262; // guardo numero de token   
             strcpy( token.name , "IF" ); // guardo nombre del token
+            strcpy ( token.lexema, " ");
             return token;
         }
         if( strcmp( IdPalabraReservada , "else" ) == 0) {            // Si palabrasReservada es ELSE
             token.number = 263; // guardo numero de token   
             strcpy( token.name , "ELSE" ); // guardo nombre del token
+            strcpy ( token.lexema, " ");
             return token;
         }
         if( strcmp( IdPalabraReservada , "declare" ) == 0) {         // Si palabrasReservada es DECLARE
             token.number = 264; // guardo numero de token
             strcpy( token.name , "DECLARE" ); // guardo nombre del token
+            strcpy ( token.lexema, " ");
             return token;
         }
         if( strcmp( IdPalabraReservada , "enddeclare" ) == 0) {      // Si palabrasReservada es ENDDECLARE
             token.number = 265; // guardo numero de token
             strcpy( token.name , "ENDDECLARE" ); // guardo nombre del token
+            strcpy ( token.lexema, " ");
             return token;
         }    
         if( strcmp( IdPalabraReservada , "real" ) == 0) {        // Si palabrasReservada es REAL
             token.number = 266; // guardo numero de token
             strcpy( token.name , "REAL" ); // guardo nombre del token
+            strcpy ( token.lexema, " ");
             return token;
         }      
         if( strcmp( IdPalabraReservada , "int" ) == 0) {         // Si palabrasReservada es INT
             token.number = 267; // guardo numero de token
             strcpy( token.name , "INT" ); // guardo nombre del token
+            strcpy ( token.lexema, " ");
             return token;
         } 
         if( strcmp( IdPalabraReservada , "string" ) == 0) {      // Si palabrasReservada es STRING
             token.number = 268; // guardo numero de token
             strcpy( token.name , "STRING" ); // guardo nombre del token
+            strcpy ( token.lexema, " ");
             return token;
         } 
         if( strcmp( IdPalabraReservada , "get" ) == 0) {         // Si palabrasReservada es GET
             token.number = 269; // guardo numero de token
             strcpy( token.name , "GET" ); // guardo nombre del token
+            strcpy ( token.lexema, " ");
             return token;
         } 
         if( strcmp( IdPalabraReservada , "put" ) == 0) {      // Si palabrasReservada es PUT
             token.number = 270; // guardo numero de token
             strcpy( token.name , "PUT" ); // guardo nombre del token
+            strcpy ( token.lexema, " ");
             return token;
         }
         if( strlen( IdPalabraReservada ) > 0 ) {             // Si no esta vacio 
             token.number = 271; // guardo numero de token
             strcpy( token.name, "ID" ); // guardo nombre del token
-            strcpy ( token.lexema, "_");
+            strcpy ( token.lexema, "$");
             strcat( token.lexema, IdPalabraReservada); 
             strcpy ( token.tipo, " ");
             strcpy ( token.valor, " ");
@@ -2298,6 +2318,7 @@ struct Token getTokenIdWords() {
 struct Token getTokenOp() {
     struct Token token;
     strcpy ( token.valor, " ");
+    strcpy ( token.lexema, " ");
     if( strlen(operador) > 0) {         // Si no esta vacio
         if( strcmp( operador , "+" ) == 0) {        // Si operador es +
             token.number = 272; // guardo numero de token
@@ -2350,6 +2371,7 @@ struct Token getTokenOp() {
 struct Token getTokenComp(){
     struct Token token;
     strcpy ( token.valor, " ");
+    strcpy ( token.lexema, " ");
     if( strlen(comparador) > 0) {           // Si no esta vacio
         if( strcmp( comparador , ">" ) == 0) {         // Si comparador es >
             token.number = 281; // guardo numero de token
@@ -2387,6 +2409,7 @@ struct Token getTokenComp(){
 struct Token getTokenOther(){
     struct Token token;
     strcpy ( token.valor, " ");
+    strcpy ( token.lexema, " ");
     if( strlen(otro) > 0) {         // Si no esta vacio
         if( strcmp( otro, ";" ) == 0 ) {        // Si otro es ; 
             token.number = 287;      // guardo numero de token
@@ -2655,7 +2678,7 @@ void showTokens() {
     fprintf (lista_tokens, "%d\t\t%s\n", token_confirmado.number, token_confirmado.name);
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void showSymbolTable() {   
+void show_TS() {   
     if((token_confirmado.number == 258)||(token_confirmado.number == 259)||(token_confirmado.number == 260)||(token_confirmado.number == 271)) {  // Si es entero, real, string o id    
         char lexema[40] = {0}; char lexema_temp[40] = {0};
         int imprimir = 1;       // uso esta variable para que el programa sepa cuando imprimir en los archivos
@@ -2680,4 +2703,94 @@ void showSymbolTable() {
 int yyerror(char *s){
     printf("Error de sintaxis en: fila %d, columna %d\n", position_row, position_col);
     fprintf(stderr,"%s\n",s);
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void apilar_polaca(char * yval) {
+    int longitud_cad;
+    char dato [40] = {0};
+
+    strcpy(dato, yval);
+    // Pregunto si yval guarda un operador, sino se considera como digito
+    if( strcmp( yval , "S+" ) == 0)       strcpy(dato, "+");
+    else if( strcmp( yval , "R-" ) == 0)  strcpy(dato, "-");
+    else if( strcmp( yval , "M*" ) == 0)  strcpy(dato, "*");
+    else if( strcmp( yval , "D/" ) == 0)  strcpy(dato, "/");
+    else if( strcmp( yval , "A=" ) == 0)  strcpy(dato, "=");
+   
+    longitud_cad = strlen(dato);
+
+    //printf("****yval es: %s****\n",dato);
+    //printf("****longitud de yval es: %d****\n",longitud_cad);
+    //printf("cantidad_elementos_tira  es: %d\n",cantidad_elementos_tira);
+    
+    if(cantidad_elementos_tira == 0){
+        tira_polaca = malloc(sizeof(char**) * cantidad_elementos_tira + 1); // reserva memoria para la primera fila
+        tira_polaca[0] = (char *)malloc(longitud_cad + 1); // para las columnas
+        strcpy(tira_polaca[0], dato);
+        cantidad_elementos_tira  = cantidad_elementos_tira  + 1;
+    }else{
+        tira_polaca = realloc(tira_polaca, sizeof(char**) * cantidad_elementos_tira + 1); // reserva memoria para las filas >= 2
+        tira_polaca[cantidad_elementos_tira] = (char *)malloc(longitud_cad + 1);
+        strcpy(tira_polaca[cantidad_elementos_tira], dato);
+        cantidad_elementos_tira  = cantidad_elementos_tira  + 1;
+
+        if (tira_polaca == NULL) {
+            printf("No se asigno memoria para la tira polaca\n");
+        }
+    }
+
+    //borramos todos los caracteres que tengamos en dato e id (varible global)
+    for (int i=0; i<40; i++) {
+        dato[i] = '\0';
+        id_TS[i] = '\0';
+    }
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void aplicar_polaca(){
+    printf("Aca es donde se aplica el algoritmo de polaca inversa\n");
+    printf("Datos de la tira\n");
+    for(int i=0; i<cantidad_elementos_tira; i++){
+         printf("| %s |\t", tira_polaca[i]); 
+    }
+    printf("\n");
+    free(tira_polaca);
+    /* while ------
+
+    */
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void get_id_TS() {
+    char c; 
+    
+    while (!feof(tabla_simbolos)) {       // lee el archivo hasta encontrar el caracer EOF
+        int pos = ftell(tabla_simbolos);  // pos me sirve para saber en que posicion del archivo me encuentro
+        printf("posicion: %d\n", pos); 
+
+        c = fgetc(tabla_simbolos);  // leemos un carater
+        printf("LLLLLLLLLLLLectura del TS: %c\n", c);
+        fseek(tabla_simbolos, -2, SEEK_CUR); // decrementamos el puntero
+
+        if(c == '$') {
+            fseek(tabla_simbolos, 2, SEEK_CUR); // incrementamos el puntero
+            c = fgetc(tabla_simbolos);  // leemos un carater
+            if ( (isalpha(c)) || (c == '_') ) {  // si el caracter que sigue al $ es una letra o arranca en _, se considera como ID
+                while (1) {        // el bucle se ejecuta hasta que no encuentre mas letras o _
+                    printf("CARACTER leido: %c \n", c);
+                    id_TS[indice_tmp] = c;  // insertamos un caracter en el vector para formar el identificador
+                    indice_tmp++;  // incrementamos el indice del string
+                    c = fgetc(tabla_simbolos);  // leemos un carater e incrementamos el puntero
+                    printf("CARACTER leido DESPUES: %c \n", c);
+                    if (c == ' ') break;
+                } 
+                fseek(tabla_simbolos, -2*(indice_tmp+1), SEEK_CUR); // decrementamos el puntero y volvemos al estado previo a la lectura de $
+                indice_tmp = 0; // reseteamos el indice
+                printf("La cadena construida es: %s\n", id_TS);
+                break;
+            }
+            if (isdigit(c) ) {  // si el caracter que sigue al $ es un digito, no hago nada. solo decremento el puntero
+                printf("ES DIGITO!\n");
+                fseek(tabla_simbolos, -4, SEEK_CUR); // decrementamos el puntero y volvemos al estado previo a la lectura de $
+            }
+        }
+    }
 }

@@ -5,7 +5,7 @@
     #include <ctype.h>
     #include <malloc.h>
     #include "y.tab.h"
-    
+        
     FILE * input;  
     FILE * lista_tokens; 
     FILE * tabla_simbolos; 
@@ -31,7 +31,7 @@
         char lexema[40];    
         char tipo[40];      
         char valor[40];     
-        int longitud;       
+        int longitud;
     };
     struct Token token_confirmado;    
 
@@ -48,7 +48,16 @@
     void F8();void F9();void F10();void F11();void F12();void F13();void F15();
     void F17();void F18();void F19();void F20();void F21();void F22();void F23();
     void F24();void F25();void F26();void F27();void ERROR();void F(); 
-    void showTokens(); void showSymbolTable();
+    void showTokens(); void show_TS();
+    
+    // variables para codigo intermedio
+    char ** tira_polaca;  char ** tira_dinamica; // ** representa a fila y columna
+    int cantidad_elementos_tira = 0; // indica la fila
+    char id_TS [40] = {0}; int indice_tmp = 0;
+
+    // funciones para codigo intermedio
+    void apilar_polaca(char * yval);   void aplicar_polaca();   
+    void get_id_TS(); void get_cte_TS();
 %}
 
 %union {
@@ -57,7 +66,7 @@
     char lexema[40];    
     char tipo[40];      
     char valor[40];     
-    int longitud;       
+    int longitud;
 }
 
 %start programa
@@ -98,37 +107,57 @@
 %token COMA
 
 %%
-programa: DECLARE declaracion ENDDECLARE bloque {printf("programa\n");} | bloque {printf("programa\n");};
-bloque: sentencia {printf("bloque\n");} | sentencia  bloque {printf("bloque");};
-declaracion: type variables PUNTOYC {printf("declaracion\n");} | type variables PUNTOYC declaracion {printf("declaracion\n");} ;
-type: INT {printf("type\n");} | REAL {printf("type\n");} | STRING {printf("type\n");};
-variables: ID {printf("variables\n");} | ID COMA variables {printf("variables\n");} ;
-sentencia: asignacion PUNTOYC {printf("sentencia\n");} | iteracion {printf("sentencia\n");} | seleccion {printf("sentencia\n");} | entrada {printf("sentencia\n");} PUNTOYC {printf("sentencia\n");} | salida PUNTOYC {printf("sentencia\n");};
-asignacion: ID ASIGN multiple {printf("asignacion\n");};
-multiple: ID ASIGN asignacion {printf("asignacion multiple\n");} | ID ASIGN expresion_num {printf("asignacion multiple\n");} | ID ASIGN expresion_string {printf("asignacion multiple\n");} | expresion_num {printf("asignacion multiple\n");} | expresion_string {printf("asignacion multiple\n");} ;
-expresion_num: termino {printf("expresion numerica\n");} | expresion_num SUMA termino {printf("expresion numerica\n");} | expresion_num RESTA termino {printf("expresion numerica\n");} ;
-expresion_string: CSTRING CONCAT CSTRING {printf("expresion string\n");} | ID CONCAT CSTRING {printf("expresion string\n");} | ID CONCAT ID {printf("expresion string\n");} | CSTRING CONCAT ID {printf("expresion string\n");} ;
-termino: factor {printf("termino\n");} | termino MULT factor {printf("termino\n");} | termino DIV factor {printf("termino\n");} ;
-factor: ID {printf("factor\n");} | CENT {printf("factor\n");} | CREAL {printf("factor\n");} | PARENTA expresion_num PARENTC {printf("factor\n");};
-comparador: MAYOR {printf("comparador\n");} | MENOR  {printf("comparador\n");} | MENORIGUAL {printf("comparador\n");} | MAYORIGUAL {printf("comparador\n");} | IGUAL {printf("comparador\n");} | DISTINTO {printf("comparador\n");} ;
-comparacion: PARENTA expresion_num PARENTC comparador PARENTA expresion_num PARENTC {printf("comparacion\n");} | PARENTA expresion_string PARENTC comparador PARENTA expresion_string PARENTC {printf("comparacion\n");} ;
-comp_logico: PARENTA comparacion PARENTC AND PARENTA comparacion PARENTC {printf("comparador logico\n");} | PARENTA comparacion PARENTC OR PARENTA comparacion PARENTC {printf("comparador logico\n");} ;
-condicion: NOT PARENTA condicion PARENTC {printf("condicion\n");} | comparacion {printf("condicion\n");} | comp_logico {printf("condicion\n");};
-iteracion: WHILE PARENTA condicion PARENTC LLAVEA bloque LLAVEC {printf("iteracion\n");};
-seleccion: IF PARENTA condicion PARENTC LLAVEA bloque LLAVEC ELSE LLAVEA bloque LLAVEC {printf("seleccion\n");};
-entrada: PUT CSTRING {printf("entrada\n");} | PUT CENT {printf("entrada\n");} | PUT CREAL {printf("entrada\n");} ;
-salida: GET ID {printf("salida\n");};
+programa: DECLARE declaracion ENDDECLARE bloque {printf("Regla 1\n");} | bloque {printf("Regla 2\n");};
+
+bloque: sentencia {printf("Regla 3\n");} | sentencia  bloque {printf("Regla 4\n");};
+
+declaracion: type variables PUNTOYC {printf("Regla 5\n");} | type variables PUNTOYC declaracion {printf("Regla 6\n");} ;
+
+type: INT {printf("Regla 7\n");} | REAL {printf("Regla 8\n");} | STRING {printf("Regla 9\n");};
+
+variables: ID {printf("Regla 10\n");} | ID COMA variables {printf("Regla 11\n");} ;
+
+sentencia: asignacion PUNTOYC {printf("Regla 12\n"); aplicar_polaca(); } | iteracion {printf("Regla 13\n");} | seleccion {printf("Regla 14\n");} | entrada {printf("Regla 15\n");} PUNTOYC {printf("Regla 16\n");} | salida PUNTOYC {printf("Regla 17\n");};
+
+asignacion: ID ASIGN multiple {printf("Regla 18\n");  get_id_TS(); apilar_polaca(id_TS); apilar_polaca("A=");};
+
+multiple: ID ASIGN asignacion {printf("Regla 19\n"); get_id_TS(); apilar_polaca(id_TS); apilar_polaca("A=");} | ID ASIGN expresion_num {printf("Regla 20\n");} | ID ASIGN expresion_string {printf("Regla 21\n");} | expresion_num {printf("Regla 22\n");} | expresion_string {printf("Regla 23\n");} ;
+
+expresion_num: termino {printf("Regla 24\n");} | expresion_num SUMA termino {printf("Regla 25\n"); apilar_polaca("S+");} | expresion_num RESTA termino {printf("Regla 26\n"); apilar_polaca("R-");} ;
+
+expresion_string: CSTRING CONCAT CSTRING {printf("Regla 27\n");} | ID CONCAT CSTRING {printf("Regla 28\n");} | ID CONCAT ID {printf("Regla 29\n");} | CSTRING CONCAT ID {printf("Regla 30\n");} ;
+
+termino: factor {printf("Regla 31\n");} | termino MULT factor {printf("Regla 32\n"); apilar_polaca("M*");} | termino DIV factor {printf("Regla 33\n"); apilar_polaca("D/");} ;
+
+factor: ID {printf("Regla 34\n");} | CENT {printf("Regla 35\n"); apilar_polaca(yylval.valor);} | CREAL {printf("Regla 36\n");} | PARENTA expresion_num PARENTC {printf("Regla 37\n");};
+
+comparador: MAYOR {printf("Regla 38\n");} | MENOR  {printf("Regla 39\n");} | MENORIGUAL {printf("Regla 40\n");} | MAYORIGUAL {printf("Regla 41\n");} | IGUAL {printf("Regla 42\n");} | DISTINTO {printf("Regla 43\n");} ;
+
+comparacion: PARENTA expresion_num PARENTC comparador PARENTA expresion_num PARENTC {printf("Regla 44\n");} | PARENTA expresion_string PARENTC comparador PARENTA expresion_string PARENTC {printf("Regla 45\n");} ;
+
+comp_logico: PARENTA comparacion PARENTC AND PARENTA comparacion PARENTC {printf("Regla 46\n");} | PARENTA comparacion PARENTC OR PARENTA comparacion PARENTC {printf("Regla 47\n");} ;
+
+condicion: NOT PARENTA condicion PARENTC {printf("Regla 48\n");} | comparacion {printf("Regla 49\n");} | comp_logico {printf("Regla 50\n");};
+
+iteracion: WHILE PARENTA condicion PARENTC LLAVEA bloque LLAVEC {printf("Regla 51\n");};
+
+seleccion: IF PARENTA condicion PARENTC LLAVEA bloque LLAVEC ELSE LLAVEA bloque LLAVEC {printf("Regla 52\n");};
+
+entrada: PUT CSTRING {printf("Regla 53\n");} | PUT CENT {printf("Regla 54\n");} | PUT CREAL {printf("Regla 55\n");} ;
+
+salida: GET ID {printf("Regla 56\n");};
 %%
 
 int main(){ // INICIO MAIN
     input = fopen("input.txt", "rb"); 
     lista_tokens = fopen("lista_tokens.txt", "w");
-    tabla_simbolos = fopen("tabla_simbolos.txt", "w"); 
+    tabla_simbolos = fopen("tabla_simbolos.txt", "w+"); 
     tokens_unicos = fopen("tokens_unicos.txt", "w+");
+
     if((input != NULL)||(lista_tokens != NULL)||(tabla_simbolos != NULL)||(tokens_unicos != NULL)){
         fprintf (lista_tokens, "%s\t\t%s\n\n", "ID", "NOMBRE");
         fprintf (tabla_simbolos, "%s\t\t\t\t\t%s\t\t\t\t%s\t\t\t\t%s\n\n", "NOMBRE", "TIPO", "VALOR", "LONGITUD");
-       
+        
         int recibo;
         recibo = yyparse();
         if (recibo == 0){
@@ -140,7 +169,7 @@ int main(){ // INICIO MAIN
         perror("Ocurrio un error al intentar abrir el archivo\n");
         return 1;
     }
-    fclose(input); fclose(lista_tokens); fclose(tabla_simbolos); fclose(tokens_unicos); remove("tokens_unicos.txt"); // Destruimos el archivo una vez utilizado
+    fclose(input); fclose(lista_tokens); fclose(tokens_unicos); remove("tokens_unicos.txt"); // Destruimos el archivo una vez utilizado
     return (0);
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -169,9 +198,9 @@ int yylex(void) {
     if(estado_actual == estado_final){
         buildToken();
         int num_token = token_confirmado.number;  // guardo numero de token
+        // YYLVAL almacena, por defecto, un valor de tipo ENTERO (un solo tipo)
         strcpy(yylval.valor, token_confirmado.valor);  // guardo el valor asociado al token
 
-        //printf("yylval guarda: %s\n", yylval.valor);
         estado_actual = 0; estado_segundo = 0; // reseteamos el automata
                 
         if((caracter != ' ')&&(caracter != '\t')&&(caracter != '\n')&&(constanteString[0] == '\0')&&(comparador[1] == '\0')) // si comparador[1] no tiene contenido 
@@ -219,35 +248,35 @@ int getColumnByEvent(char letra){
 void buildToken(){
     if(estado_segundo == 1){
         token_confirmado = getTokenIdWords();
-        showTokens(); showSymbolTable();    // imprimimos los resultados
+        showTokens(); show_TS();   // imprimimos los resultados
     }
     if(estado_segundo == 2) {
         token_confirmado = getTokenInt();
-        showTokens(); showSymbolTable();    // imprimimos los resultados
+        showTokens(); show_TS();   // imprimimos los resultados
     }
     if(estado_segundo == 3) {
         token_confirmado = getTokenReal();
-        showTokens(); showSymbolTable();    // imprimimos los resultados
+        showTokens(); show_TS();   // imprimimos los resultados
     }
     if(estado_segundo == 4) {
         token_confirmado = getTokenString();
-        showTokens();   showSymbolTable();  // imprimimos los resultados
+        showTokens();   show_TS();  // imprimimos los resultados
     }
     if(((estado_segundo == 7)&&(comparador[0] != '='))||(estado_segundo == 8)||((estado_segundo >= 11)&&(estado_segundo <= 17))||((estado_segundo >= 24)&&(estado_segundo <= 25))){
         token_confirmado = getTokenOp();  // Token OPERADORES
-        showTokens();   showSymbolTable();  // imprimimos los resultados
+        showTokens();   show_TS(); // imprimimos los resultados
     }
     if((estado_segundo == 7)&&(comparador[0] == '=')) {  // si comparador tiene un igual significado que se trata de un comparador
         token_confirmado = getTokenComp();  // Token COMPARADORES
-        showTokens();   showSymbolTable();  // imprimimos los resultados
+        showTokens();   show_TS(); // imprimimos los resultados
     }
     if(((estado_segundo >= 18)&&(estado_segundo <= 23))||((estado_segundo >= 26)&&(estado_segundo<=27))){
         token_confirmado = getTokenOther();  // Token Otros
-        showTokens();   showSymbolTable();  // imprimimos los resultados
+        showTokens();   show_TS(); // imprimimos los resultados
     }
     if((estado_segundo >= 5)&&(estado_segundo <= 6)){
         token_confirmado = getTokenComp();  // Token COMPARADORES
-        showTokens();   showSymbolTable();  // imprimimos los resultados
+        showTokens();   show_TS();  // imprimimos los resultados
     }
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -265,7 +294,7 @@ struct Token getTokenInt() {
     if( strlen( constanteEntera ) > 0 ) {
         token.number = 259; // guardo numero de token
         strcpy( token.name, "CENT" ); // guardo nombre del token
-        strcpy ( token.lexema, "_");
+        strcpy ( token.lexema, "$");
         strcat( token.lexema, constanteEntera);
         strcpy ( token.tipo, "int");
         strcpy( token.valor, constanteEntera);
@@ -279,7 +308,7 @@ struct Token getTokenReal() {
     if( strlen( constanteReal ) > 0 ) {
         token.number = 260; // guardo numero de token
         strcpy( token.name, "CREAL" ); // guardo nombre del token
-        strcpy ( token.lexema, "_");
+        strcpy ( token.lexema, "$");
         strcat( token.lexema, constanteReal);
         strcpy ( token.tipo, "real");
         strcpy( token.valor, constanteReal);
@@ -293,7 +322,7 @@ struct Token getTokenString() {
     if( strlen( constanteString ) > 0 ) {
         token.number = 258; // guardo numero de token
         strcpy( token.name, "CSTRING" ); // guardo nombre del token
-        strcpy ( token.lexema, "_");
+        strcpy ( token.lexema, "$");
         strcat( token.lexema, constanteString); 
         strcpy ( token.tipo, "cstring");
         strcpy ( token.valor, "\"");
@@ -311,57 +340,67 @@ struct Token getTokenIdWords() {
         if( strcmp( IdPalabraReservada , "while" ) == 0) {           // Si palabrasReservada es WHILE
             token.number = 261; // guardo numero de token
             strcpy( token.name, "WHILE" ); // guardo nombre del token
+            strcpy ( token.lexema, " ");
             return token;
         }
         if( strcmp( IdPalabraReservada , "if" ) == 0) {              // Si palabrasReservada es IF
             token.number = 262; // guardo numero de token   
             strcpy( token.name , "IF" ); // guardo nombre del token
+            strcpy ( token.lexema, " ");
             return token;
         }
         if( strcmp( IdPalabraReservada , "else" ) == 0) {            // Si palabrasReservada es ELSE
             token.number = 263; // guardo numero de token   
             strcpy( token.name , "ELSE" ); // guardo nombre del token
+            strcpy ( token.lexema, " ");
             return token;
         }
         if( strcmp( IdPalabraReservada , "declare" ) == 0) {         // Si palabrasReservada es DECLARE
             token.number = 264; // guardo numero de token
             strcpy( token.name , "DECLARE" ); // guardo nombre del token
+            strcpy ( token.lexema, " ");
             return token;
         }
         if( strcmp( IdPalabraReservada , "enddeclare" ) == 0) {      // Si palabrasReservada es ENDDECLARE
             token.number = 265; // guardo numero de token
             strcpy( token.name , "ENDDECLARE" ); // guardo nombre del token
+            strcpy ( token.lexema, " ");
             return token;
         }    
         if( strcmp( IdPalabraReservada , "real" ) == 0) {        // Si palabrasReservada es REAL
             token.number = 266; // guardo numero de token
             strcpy( token.name , "REAL" ); // guardo nombre del token
+            strcpy ( token.lexema, " ");
             return token;
         }      
         if( strcmp( IdPalabraReservada , "int" ) == 0) {         // Si palabrasReservada es INT
             token.number = 267; // guardo numero de token
             strcpy( token.name , "INT" ); // guardo nombre del token
+            strcpy ( token.lexema, " ");
             return token;
         } 
         if( strcmp( IdPalabraReservada , "string" ) == 0) {      // Si palabrasReservada es STRING
             token.number = 268; // guardo numero de token
             strcpy( token.name , "STRING" ); // guardo nombre del token
+            strcpy ( token.lexema, " ");
             return token;
         } 
         if( strcmp( IdPalabraReservada , "get" ) == 0) {         // Si palabrasReservada es GET
             token.number = 269; // guardo numero de token
             strcpy( token.name , "GET" ); // guardo nombre del token
+            strcpy ( token.lexema, " ");
             return token;
         } 
         if( strcmp( IdPalabraReservada , "put" ) == 0) {      // Si palabrasReservada es PUT
             token.number = 270; // guardo numero de token
             strcpy( token.name , "PUT" ); // guardo nombre del token
+            strcpy ( token.lexema, " ");
             return token;
         }
         if( strlen( IdPalabraReservada ) > 0 ) {             // Si no esta vacio 
             token.number = 271; // guardo numero de token
             strcpy( token.name, "ID" ); // guardo nombre del token
-            strcpy ( token.lexema, "_");
+            strcpy ( token.lexema, "$");
             strcat( token.lexema, IdPalabraReservada); 
             strcpy ( token.tipo, " ");
             strcpy ( token.valor, " ");
@@ -374,6 +413,7 @@ struct Token getTokenIdWords() {
 struct Token getTokenOp() {
     struct Token token;
     strcpy ( token.valor, " ");
+    strcpy ( token.lexema, " ");
     if( strlen(operador) > 0) {         // Si no esta vacio
         if( strcmp( operador , "+" ) == 0) {        // Si operador es +
             token.number = 272; // guardo numero de token
@@ -426,6 +466,7 @@ struct Token getTokenOp() {
 struct Token getTokenComp(){
     struct Token token;
     strcpy ( token.valor, " ");
+    strcpy ( token.lexema, " ");
     if( strlen(comparador) > 0) {           // Si no esta vacio
         if( strcmp( comparador , ">" ) == 0) {         // Si comparador es >
             token.number = 281; // guardo numero de token
@@ -463,6 +504,7 @@ struct Token getTokenComp(){
 struct Token getTokenOther(){
     struct Token token;
     strcpy ( token.valor, " ");
+    strcpy ( token.lexema, " ");
     if( strlen(otro) > 0) {         // Si no esta vacio
         if( strcmp( otro, ";" ) == 0 ) {        // Si otro es ; 
             token.number = 287;      // guardo numero de token
@@ -731,7 +773,7 @@ void showTokens() {
     fprintf (lista_tokens, "%d\t\t%s\n", token_confirmado.number, token_confirmado.name);
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void showSymbolTable() {   
+void show_TS() {   
     if((token_confirmado.number == 258)||(token_confirmado.number == 259)||(token_confirmado.number == 260)||(token_confirmado.number == 271)) {  // Si es entero, real, string o id    
         char lexema[40] = {0}; char lexema_temp[40] = {0};
         int imprimir = 1;       // uso esta variable para que el programa sepa cuando imprimir en los archivos
@@ -756,4 +798,94 @@ void showSymbolTable() {
 int yyerror(char *s){
     printf("Error de sintaxis en: fila %d, columna %d\n", position_row, position_col);
     fprintf(stderr,"%s\n",s);
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void apilar_polaca(char * yval) {
+    int longitud_cad;
+    char dato [40] = {0};
+
+    strcpy(dato, yval);
+    // Pregunto si yval guarda un operador, sino se considera como digito
+    if( strcmp( yval , "S+" ) == 0)       strcpy(dato, "+");
+    else if( strcmp( yval , "R-" ) == 0)  strcpy(dato, "-");
+    else if( strcmp( yval , "M*" ) == 0)  strcpy(dato, "*");
+    else if( strcmp( yval , "D/" ) == 0)  strcpy(dato, "/");
+    else if( strcmp( yval , "A=" ) == 0)  strcpy(dato, "=");
+   
+    longitud_cad = strlen(dato);
+
+    //printf("****yval es: %s****\n",dato);
+    //printf("****longitud de yval es: %d****\n",longitud_cad);
+    //printf("cantidad_elementos_tira  es: %d\n",cantidad_elementos_tira);
+    
+    if(cantidad_elementos_tira == 0){
+        tira_polaca = malloc(sizeof(char**) * cantidad_elementos_tira + 1); // reserva memoria para la primera fila
+        tira_polaca[0] = (char *)malloc(longitud_cad + 1); // para las columnas
+        strcpy(tira_polaca[0], dato);
+        cantidad_elementos_tira  = cantidad_elementos_tira  + 1;
+    }else{
+        tira_polaca = realloc(tira_polaca, sizeof(char**) * cantidad_elementos_tira + 1); // reserva memoria para las filas >= 2
+        tira_polaca[cantidad_elementos_tira] = (char *)malloc(longitud_cad + 1);
+        strcpy(tira_polaca[cantidad_elementos_tira], dato);
+        cantidad_elementos_tira  = cantidad_elementos_tira  + 1;
+
+        if (tira_polaca == NULL) {
+            printf("No se asigno memoria para la tira polaca\n");
+        }
+    }
+
+    //borramos todos los caracteres que tengamos en dato e id (ver variable global)
+    for (int i=0; i<40; i++) {
+        dato[i] = '\0';
+        id_TS[i] = '\0';
+    }
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void aplicar_polaca(){
+    printf("Aca es donde se aplica el algoritmo de polaca inversa\n");
+    printf("Datos de la tira\n");
+    for(int i=0; i<cantidad_elementos_tira; i++){
+         printf("| %s |\t", tira_polaca[i]); 
+    }
+    printf("\n");
+    free(tira_polaca);
+    /* while ------
+
+    */
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void get_id_TS() {
+    char c; 
+    
+    while (!feof(tabla_simbolos)) {       // lee el archivo hasta encontrar el caracer EOF
+        int pos = ftell(tabla_simbolos);  // pos me sirve para saber en que posicion del archivo me encuentro
+        printf("posicion: %d\n", pos); 
+
+        c = fgetc(tabla_simbolos);  // leemos un carater
+        printf("LLLLLLLLLLLLectura del TS: %c\n", c);
+        fseek(tabla_simbolos, -2, SEEK_CUR); // decrementamos el puntero
+
+        if(c == '$') {
+            fseek(tabla_simbolos, 2, SEEK_CUR); // incrementamos el puntero
+            c = fgetc(tabla_simbolos);  // leemos un carater
+            if ( (isalpha(c)) || (c == '_') ) {  // si el caracter que sigue al $ es una letra o arranca en _, se considera como ID
+                while (1) {        // el bucle se ejecuta hasta que no encuentre mas letras o _
+                    printf("CARACTER leido: %c \n", c);
+                    id_TS[indice_tmp] = c;  // insertamos un caracter en el vector para formar el identificador
+                    indice_tmp++;  // incrementamos el indice del string
+                    c = fgetc(tabla_simbolos);  // leemos un carater e incrementamos el puntero
+                    printf("CARACTER leido DESPUES: %c \n", c);
+                    if (c == ' ') break;
+                } 
+                fseek(tabla_simbolos, -2*(indice_tmp+1), SEEK_CUR); // decrementamos el puntero y volvemos al estado previo a la lectura de $
+                indice_tmp = 0; // reseteamos el indice
+                printf("La cadena construida es: %s\n", id_TS);
+                break;
+            }
+            if (isdigit(c) ) {  // si el caracter que sigue al $ es un digito, no hago nada. solo decremento el puntero
+                printf("ES DIGITO!\n");
+                fseek(tabla_simbolos, -4, SEEK_CUR); // decrementamos el puntero y volvemos al estado previo a la lectura de $
+            }
+        }
+    }
 }
