@@ -5,7 +5,8 @@
     #include <ctype.h>
     #include <malloc.h>
     #include "y.tab.h"
-        
+    
+    // variables para analizador lexico
     FILE * input;  
     FILE * lista_tokens; 
     FILE * tabla_simbolos; 
@@ -35,29 +36,33 @@
     };
     struct Token token_confirmado;    
 
-    // prototipo de funciones
-    int yylex(void); int yyerror(char *s); int getColumnByEvent(char letra); void cleanTokens();
+    // funciones para analizador lexico
+    int yylex(void); int getColumnByEvent(char letra); void cleanTokens();
     void(*tabla_funciones[28][26])(); int tabla_estados [28][26];
-
     struct Token getTokenIdWords();struct Token getTokenInt();
     struct Token getTokenReal();struct Token getTokenString();
     struct Token getTokenOp();struct Token getTokenComp(); 
     struct Token getTokenOther(); void buildToken();
-
     void F0();void F1();void F2();void F3();void F4();void F5();void F6();void F7();
     void F8();void F9();void F10();void F11();void F12();void F13();void F15();
     void F17();void F18();void F19();void F20();void F21();void F22();void F23();
     void F24();void F25();void F26();void F27();void ERROR();void F(); 
     void showTokens(); void show_TS();
     
+    // funciones para analizador sintactico
+    int yyerror(char *s);
+
     // variables para codigo intermedio
     char ** tira_polaca;  char ** tira_dinamica; // ** representa a fila y columna
     int cantidad_elementos_tira = 0; // indica la fila
     char id_TS [40] = {0}; int indice_tmp = 0;
+    int semaforo_TS [3] ={0,0,0};    // [string, id, digito]
+    int posiciones_TS [3] = {0,0,0};  // [string, id, digito]
+    FILE * repre_intermedia;
 
     // funciones para codigo intermedio
     void apilar_polaca(char * yval);   void aplicar_polaca();   
-    void get_id_TS(); void get_cte_TS();
+    void get_id_TS(); void get_str_TS();
 %}
 
 %union {
@@ -125,13 +130,13 @@ multiple: ID ASIGN asignacion {printf("Regla 19\n"); get_id_TS(); apilar_polaca(
 
 expresion_num: termino {printf("Regla 24\n");} | expresion_num SUMA termino {printf("Regla 25\n"); apilar_polaca("S+");} | expresion_num RESTA termino {printf("Regla 26\n"); apilar_polaca("R-");} ;
 
-expresion_string: CSTRING CONCAT CSTRING {printf("Regla 27\n");} | ID CONCAT CSTRING {printf("Regla 28\n");} | ID CONCAT ID {printf("Regla 29\n");} | CSTRING CONCAT ID {printf("Regla 30\n");} ;
+expresion_string: CSTRING CONCAT CSTRING {printf("Regla 27\n");  apilar_polaca("++"); } | ID CONCAT CSTRING {printf("Regla 28\n");} | ID CONCAT ID {printf("Regla 29\n");} | CSTRING CONCAT ID {printf("Regla 30\n");} ;
 
 termino: factor {printf("Regla 31\n");} | termino MULT factor {printf("Regla 32\n"); apilar_polaca("M*");} | termino DIV factor {printf("Regla 33\n"); apilar_polaca("D/");} ;
 
-factor: ID {printf("Regla 34\n");} | CENT {printf("Regla 35\n"); apilar_polaca(yylval.valor);} | CREAL {printf("Regla 36\n");} | PARENTA expresion_num PARENTC {printf("Regla 37\n");};
+factor: ID {printf("Regla 34\n");  apilar_polaca(yylval.valor);} | CENT {printf("Regla 35\n"); apilar_polaca(yylval.valor);} | CREAL {printf("Regla 36\n"); apilar_polaca(yylval.valor);} | PARENTA expresion_num PARENTC {printf("Regla 37\n");};
 
-comparador: MAYOR {printf("Regla 38\n");} | MENOR  {printf("Regla 39\n");} | MENORIGUAL {printf("Regla 40\n");} | MAYORIGUAL {printf("Regla 41\n");} | IGUAL {printf("Regla 42\n");} | DISTINTO {printf("Regla 43\n");} ;
+comparador: MAYOR {printf("Regla 38\n"); apilar_polaca(">");} | MENOR  {printf("Regla 39\n"); apilar_polaca("<");} | MENORIGUAL {printf("Regla 40\n"); apilar_polaca("<=");} | MAYORIGUAL {printf("Regla 41\n"); apilar_polaca(">=");} | IGUAL {printf("Regla 42\n"); apilar_polaca("==");} | DISTINTO {printf("Regla 43\n"); apilar_polaca("<>");} ;
 
 comparacion: PARENTA expresion_num PARENTC comparador PARENTA expresion_num PARENTC {printf("Regla 44\n");} | PARENTA expresion_string PARENTC comparador PARENTA expresion_string PARENTC {printf("Regla 45\n");} ;
 
@@ -170,6 +175,7 @@ int main(){ // INICIO MAIN
         return 1;
     }
     fclose(input); fclose(lista_tokens); fclose(tokens_unicos); remove("tokens_unicos.txt"); // Destruimos el archivo una vez utilizado
+    free(tira_polaca); // liberamos la memoria dinamica
     return (0);
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -323,7 +329,9 @@ struct Token getTokenString() {
         token.number = 258; // guardo numero de token
         strcpy( token.name, "CSTRING" ); // guardo nombre del token
         strcpy ( token.lexema, "$");
+        //strcat ( token.lexema, "\"");
         strcat( token.lexema, constanteString); 
+        //strcat ( token.lexema, "\"");
         strcpy ( token.tipo, "cstring");
         strcpy ( token.valor, "\"");
         strcat( token.valor, constanteString);
@@ -776,7 +784,7 @@ void showTokens() {
 void show_TS() {   
     if((token_confirmado.number == 258)||(token_confirmado.number == 259)||(token_confirmado.number == 260)||(token_confirmado.number == 271)) {  // Si es entero, real, string o id    
         char lexema[40] = {0}; char lexema_temp[40] = {0};
-        int imprimir = 1;       // uso esta variable para que el programa sepa cuando imprimir en los archivos
+        int imprimir = 1;       // uso esta variable para imprimir en los archivos
 
         strcpy(lexema_temp, token_confirmado.lexema);
         strcat(lexema_temp, "\n"); // agrego el caracter de fin de linea para poder hacer las comparaciones
@@ -848,7 +856,7 @@ void aplicar_polaca(){
          printf("| %s |\t", tira_polaca[i]); 
     }
     printf("\n");
-    free(tira_polaca);
+
     /* while ------
 
     */
