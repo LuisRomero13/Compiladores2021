@@ -74,7 +74,8 @@
     #include <ctype.h>
     #include <malloc.h>
     #include "y.tab.h"
-        
+    
+    // variables para analizador lexico
     FILE * input;  
     FILE * lista_tokens; 
     FILE * tabla_simbolos; 
@@ -104,31 +105,35 @@
     };
     struct Token token_confirmado;    
 
-    // prototipo de funciones
-    int yylex(void); int yyerror(char *s); int getColumnByEvent(char letra); void cleanTokens();
+    // funciones para analizador lexico
+    int yylex(void); int getColumnByEvent(char letra); void cleanTokens();
     void(*tabla_funciones[28][26])(); int tabla_estados [28][26];
-
     struct Token getTokenIdWords();struct Token getTokenInt();
     struct Token getTokenReal();struct Token getTokenString();
     struct Token getTokenOp();struct Token getTokenComp(); 
     struct Token getTokenOther(); void buildToken();
-
     void F0();void F1();void F2();void F3();void F4();void F5();void F6();void F7();
     void F8();void F9();void F10();void F11();void F12();void F13();void F15();
     void F17();void F18();void F19();void F20();void F21();void F22();void F23();
     void F24();void F25();void F26();void F27();void ERROR();void F(); 
     void showTokens(); void show_TS();
     
+    // funciones para analizador sintactico
+    int yyerror(char *s);
+
     // variables para codigo intermedio
     char ** tira_polaca;  char ** tira_dinamica; // ** representa a fila y columna
     int cantidad_elementos_tira = 0; // indica la fila
     char id_TS [40] = {0}; int indice_tmp = 0;
+    int semaforo_TS [3] ={0,0,0};    // [string, id, digito]
+    int posiciones_TS [3] = {0,0,0};  // [string, id, digito]
+    FILE * repre_intermedia;
 
     // funciones para codigo intermedio
     void apilar_polaca(char * yval);   void aplicar_polaca();   
-    void get_id_TS(); void get_cte_TS();
+    void get_id_TS(); void get_str_TS();
 
-#line 132 "y.tab.c"
+#line 137 "y.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -254,7 +259,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 63 "an.lex.y"
+#line 68 "an.lex.y"
 
     int number;
     char name[40];      
@@ -263,7 +268,7 @@ union YYSTYPE
     char valor[40];     
     int longitud;
 
-#line 267 "y.tab.c"
+#line 272 "y.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -642,12 +647,12 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,   110,   110,   110,   112,   112,   114,   114,   116,   116,
-     116,   118,   118,   120,   120,   120,   120,   120,   120,   122,
-     124,   124,   124,   124,   124,   126,   126,   126,   128,   128,
-     128,   128,   130,   130,   130,   132,   132,   132,   132,   134,
-     134,   134,   134,   134,   134,   136,   136,   138,   138,   140,
-     140,   140,   142,   144,   146,   146,   146,   148
+       0,   115,   115,   115,   117,   117,   119,   119,   121,   121,
+     121,   123,   123,   125,   125,   125,   125,   125,   125,   127,
+     129,   129,   129,   129,   129,   131,   131,   131,   133,   133,
+     133,   133,   135,   135,   135,   137,   137,   137,   137,   139,
+     139,   139,   139,   139,   139,   141,   141,   143,   143,   145,
+     145,   145,   147,   149,   151,   151,   151,   153
 };
 #endif
 
@@ -1521,343 +1526,343 @@ yyreduce:
   switch (yyn)
     {
   case 2:
-#line 110 "an.lex.y"
+#line 115 "an.lex.y"
                                                 {printf("Regla 1\n");}
-#line 1527 "y.tab.c"
+#line 1532 "y.tab.c"
     break;
 
   case 3:
-#line 110 "an.lex.y"
+#line 115 "an.lex.y"
                                                                                 {printf("Regla 2\n");}
-#line 1533 "y.tab.c"
+#line 1538 "y.tab.c"
     break;
 
   case 4:
-#line 112 "an.lex.y"
+#line 117 "an.lex.y"
                   {printf("Regla 3\n");}
-#line 1539 "y.tab.c"
+#line 1544 "y.tab.c"
     break;
 
   case 5:
-#line 112 "an.lex.y"
+#line 117 "an.lex.y"
                                                              {printf("Regla 4\n");}
-#line 1545 "y.tab.c"
+#line 1550 "y.tab.c"
     break;
 
   case 6:
-#line 114 "an.lex.y"
+#line 119 "an.lex.y"
                                     {printf("Regla 5\n");}
-#line 1551 "y.tab.c"
+#line 1556 "y.tab.c"
     break;
 
   case 7:
-#line 114 "an.lex.y"
+#line 119 "an.lex.y"
                                                                                                 {printf("Regla 6\n");}
-#line 1557 "y.tab.c"
+#line 1562 "y.tab.c"
     break;
 
   case 8:
-#line 116 "an.lex.y"
+#line 121 "an.lex.y"
           {printf("Regla 7\n");}
-#line 1563 "y.tab.c"
+#line 1568 "y.tab.c"
     break;
 
   case 9:
-#line 116 "an.lex.y"
+#line 121 "an.lex.y"
                                         {printf("Regla 8\n");}
-#line 1569 "y.tab.c"
+#line 1574 "y.tab.c"
     break;
 
   case 10:
-#line 116 "an.lex.y"
+#line 121 "an.lex.y"
                                                                         {printf("Regla 9\n");}
-#line 1575 "y.tab.c"
+#line 1580 "y.tab.c"
     break;
 
   case 11:
-#line 118 "an.lex.y"
+#line 123 "an.lex.y"
               {printf("Regla 10\n");}
-#line 1581 "y.tab.c"
+#line 1586 "y.tab.c"
     break;
 
   case 12:
-#line 118 "an.lex.y"
+#line 123 "an.lex.y"
                                                           {printf("Regla 11\n");}
-#line 1587 "y.tab.c"
+#line 1592 "y.tab.c"
     break;
 
   case 13:
-#line 120 "an.lex.y"
+#line 125 "an.lex.y"
                               {printf("Regla 12\n"); aplicar_polaca(); }
-#line 1593 "y.tab.c"
+#line 1598 "y.tab.c"
     break;
 
   case 14:
-#line 120 "an.lex.y"
+#line 125 "an.lex.y"
                                                                                      {printf("Regla 13\n");}
-#line 1599 "y.tab.c"
+#line 1604 "y.tab.c"
     break;
 
   case 15:
-#line 120 "an.lex.y"
+#line 125 "an.lex.y"
                                                                                                                          {printf("Regla 14\n");}
-#line 1605 "y.tab.c"
+#line 1610 "y.tab.c"
     break;
 
   case 16:
-#line 120 "an.lex.y"
+#line 125 "an.lex.y"
                                                                                                                                                            {printf("Regla 15\n");}
-#line 1611 "y.tab.c"
+#line 1616 "y.tab.c"
     break;
 
   case 17:
-#line 120 "an.lex.y"
+#line 125 "an.lex.y"
                                                                                                                                                                                            {printf("Regla 16\n");}
-#line 1617 "y.tab.c"
+#line 1622 "y.tab.c"
     break;
 
   case 18:
-#line 120 "an.lex.y"
+#line 125 "an.lex.y"
                                                                                                                                                                                                                                     {printf("Regla 17\n");}
-#line 1623 "y.tab.c"
+#line 1628 "y.tab.c"
     break;
 
   case 19:
-#line 122 "an.lex.y"
+#line 127 "an.lex.y"
                               {printf("Regla 18\n");  get_id_TS(); apilar_polaca(id_TS); apilar_polaca("A=");}
-#line 1629 "y.tab.c"
+#line 1634 "y.tab.c"
     break;
 
   case 20:
-#line 124 "an.lex.y"
+#line 129 "an.lex.y"
                               {printf("Regla 19\n"); get_id_TS(); apilar_polaca(id_TS); apilar_polaca("A=");}
-#line 1635 "y.tab.c"
+#line 1640 "y.tab.c"
     break;
 
   case 21:
-#line 124 "an.lex.y"
+#line 129 "an.lex.y"
                                                                                                                                        {printf("Regla 20\n");}
-#line 1641 "y.tab.c"
+#line 1646 "y.tab.c"
     break;
 
   case 22:
-#line 124 "an.lex.y"
+#line 129 "an.lex.y"
                                                                                                                                                                                            {printf("Regla 21\n");}
-#line 1647 "y.tab.c"
+#line 1652 "y.tab.c"
     break;
 
   case 23:
-#line 124 "an.lex.y"
+#line 129 "an.lex.y"
                                                                                                                                                                                                                                    {printf("Regla 22\n");}
-#line 1653 "y.tab.c"
+#line 1658 "y.tab.c"
     break;
 
   case 24:
-#line 124 "an.lex.y"
+#line 129 "an.lex.y"
                                                                                                                                                                                                                                                                               {printf("Regla 23\n");}
-#line 1659 "y.tab.c"
+#line 1664 "y.tab.c"
     break;
 
   case 25:
-#line 126 "an.lex.y"
+#line 131 "an.lex.y"
                        {printf("Regla 24\n");}
-#line 1665 "y.tab.c"
+#line 1670 "y.tab.c"
     break;
 
   case 26:
-#line 126 "an.lex.y"
+#line 131 "an.lex.y"
                                                                             {printf("Regla 25\n"); apilar_polaca("S+");}
-#line 1671 "y.tab.c"
+#line 1676 "y.tab.c"
     break;
 
   case 27:
-#line 126 "an.lex.y"
+#line 131 "an.lex.y"
                                                                                                                                                        {printf("Regla 26\n"); apilar_polaca("R-");}
-#line 1677 "y.tab.c"
+#line 1682 "y.tab.c"
     break;
 
   case 28:
-#line 128 "an.lex.y"
-                                         {printf("Regla 27\n");}
-#line 1683 "y.tab.c"
+#line 133 "an.lex.y"
+                                         {printf("Regla 27\n"); apilar_polaca(yylval.valor); apilar_polaca(yylval.valor); apilar_polaca("++"); }
+#line 1688 "y.tab.c"
     break;
 
   case 29:
-#line 128 "an.lex.y"
-                                                                                     {printf("Regla 28\n");}
-#line 1689 "y.tab.c"
+#line 133 "an.lex.y"
+                                                                                                                                                                     {printf("Regla 28\n");}
+#line 1694 "y.tab.c"
     break;
 
   case 30:
-#line 128 "an.lex.y"
-                                                                                                                            {printf("Regla 29\n");}
-#line 1695 "y.tab.c"
+#line 133 "an.lex.y"
+                                                                                                                                                                                                            {printf("Regla 29\n");}
+#line 1700 "y.tab.c"
     break;
 
   case 31:
-#line 128 "an.lex.y"
-                                                                                                                                                                        {printf("Regla 30\n");}
-#line 1701 "y.tab.c"
+#line 133 "an.lex.y"
+                                                                                                                                                                                                                                                        {printf("Regla 30\n");}
+#line 1706 "y.tab.c"
     break;
 
   case 32:
-#line 130 "an.lex.y"
+#line 135 "an.lex.y"
                 {printf("Regla 31\n");}
-#line 1707 "y.tab.c"
+#line 1712 "y.tab.c"
     break;
 
   case 33:
-#line 130 "an.lex.y"
+#line 135 "an.lex.y"
                                                               {printf("Regla 32\n"); apilar_polaca("M*");}
-#line 1713 "y.tab.c"
+#line 1718 "y.tab.c"
     break;
 
   case 34:
-#line 130 "an.lex.y"
+#line 135 "an.lex.y"
                                                                                                                                 {printf("Regla 33\n"); apilar_polaca("D/");}
-#line 1719 "y.tab.c"
+#line 1724 "y.tab.c"
     break;
 
   case 35:
-#line 132 "an.lex.y"
-           {printf("Regla 34\n");}
-#line 1725 "y.tab.c"
+#line 137 "an.lex.y"
+           {printf("Regla 34\n");  apilar_polaca(yylval.valor);}
+#line 1730 "y.tab.c"
     break;
 
   case 36:
-#line 132 "an.lex.y"
-                                          {printf("Regla 35\n"); apilar_polaca(yylval.valor);}
-#line 1731 "y.tab.c"
+#line 137 "an.lex.y"
+                                                                        {printf("Regla 35\n"); apilar_polaca(yylval.valor);}
+#line 1736 "y.tab.c"
     break;
 
   case 37:
-#line 132 "an.lex.y"
-                                                                                                       {printf("Regla 36\n");}
-#line 1737 "y.tab.c"
+#line 137 "an.lex.y"
+                                                                                                                                     {printf("Regla 36\n"); apilar_polaca(yylval.valor);}
+#line 1742 "y.tab.c"
     break;
 
   case 38:
-#line 132 "an.lex.y"
-                                                                                                                                                               {printf("Regla 37\n");}
-#line 1743 "y.tab.c"
+#line 137 "an.lex.y"
+                                                                                                                                                                                                                          {printf("Regla 37\n");}
+#line 1748 "y.tab.c"
     break;
 
   case 39:
-#line 134 "an.lex.y"
-                  {printf("Regla 38\n");}
-#line 1749 "y.tab.c"
+#line 139 "an.lex.y"
+                  {printf("Regla 38\n"); apilar_polaca(">");}
+#line 1754 "y.tab.c"
     break;
 
   case 40:
-#line 134 "an.lex.y"
-                                                   {printf("Regla 39\n");}
-#line 1755 "y.tab.c"
+#line 139 "an.lex.y"
+                                                                       {printf("Regla 39\n"); apilar_polaca("<");}
+#line 1760 "y.tab.c"
     break;
 
   case 41:
-#line 134 "an.lex.y"
-                                                                                        {printf("Regla 40\n");}
-#line 1761 "y.tab.c"
+#line 139 "an.lex.y"
+                                                                                                                                {printf("Regla 40\n"); apilar_polaca("<=");}
+#line 1766 "y.tab.c"
     break;
 
   case 42:
-#line 134 "an.lex.y"
-                                                                                                                             {printf("Regla 41\n");}
-#line 1767 "y.tab.c"
+#line 139 "an.lex.y"
+                                                                                                                                                                                          {printf("Regla 41\n"); apilar_polaca(">=");}
+#line 1772 "y.tab.c"
     break;
 
   case 43:
-#line 134 "an.lex.y"
-                                                                                                                                                             {printf("Regla 42\n");}
-#line 1773 "y.tab.c"
+#line 139 "an.lex.y"
+                                                                                                                                                                                                                                               {printf("Regla 42\n"); apilar_polaca("==");}
+#line 1778 "y.tab.c"
     break;
 
   case 44:
-#line 134 "an.lex.y"
-                                                                                                                                                                                                {printf("Regla 43\n");}
-#line 1779 "y.tab.c"
+#line 139 "an.lex.y"
+                                                                                                                                                                                                                                                                                                       {printf("Regla 43\n"); apilar_polaca("<>");}
+#line 1784 "y.tab.c"
     break;
 
   case 45:
-#line 136 "an.lex.y"
+#line 141 "an.lex.y"
                                                                                     {printf("Regla 44\n");}
-#line 1785 "y.tab.c"
+#line 1790 "y.tab.c"
     break;
 
   case 46:
-#line 136 "an.lex.y"
+#line 141 "an.lex.y"
                                                                                                                                                                                            {printf("Regla 45\n");}
-#line 1791 "y.tab.c"
+#line 1796 "y.tab.c"
     break;
 
   case 47:
-#line 138 "an.lex.y"
+#line 143 "an.lex.y"
                                                                          {printf("Regla 46\n");}
-#line 1797 "y.tab.c"
+#line 1802 "y.tab.c"
     break;
 
   case 48:
-#line 138 "an.lex.y"
+#line 143 "an.lex.y"
                                                                                                                                                               {printf("Regla 47\n");}
-#line 1803 "y.tab.c"
+#line 1808 "y.tab.c"
     break;
 
   case 49:
-#line 140 "an.lex.y"
+#line 145 "an.lex.y"
                                          {printf("Regla 48\n");}
-#line 1809 "y.tab.c"
+#line 1814 "y.tab.c"
     break;
 
   case 50:
-#line 140 "an.lex.y"
+#line 145 "an.lex.y"
                                                                                {printf("Regla 49\n");}
-#line 1815 "y.tab.c"
+#line 1820 "y.tab.c"
     break;
 
   case 51:
-#line 140 "an.lex.y"
+#line 145 "an.lex.y"
                                                                                                                      {printf("Regla 50\n");}
-#line 1821 "y.tab.c"
+#line 1826 "y.tab.c"
     break;
 
   case 52:
-#line 142 "an.lex.y"
+#line 147 "an.lex.y"
                                                                 {printf("Regla 51\n");}
-#line 1827 "y.tab.c"
+#line 1832 "y.tab.c"
     break;
 
   case 53:
-#line 144 "an.lex.y"
+#line 149 "an.lex.y"
                                                                                        {printf("Regla 52\n");}
-#line 1833 "y.tab.c"
+#line 1838 "y.tab.c"
     break;
 
   case 54:
-#line 146 "an.lex.y"
+#line 151 "an.lex.y"
                      {printf("Regla 53\n");}
-#line 1839 "y.tab.c"
+#line 1844 "y.tab.c"
     break;
 
   case 55:
-#line 146 "an.lex.y"
+#line 151 "an.lex.y"
                                                         {printf("Regla 54\n");}
-#line 1845 "y.tab.c"
+#line 1850 "y.tab.c"
     break;
 
   case 56:
-#line 146 "an.lex.y"
+#line 151 "an.lex.y"
                                                                                             {printf("Regla 55\n");}
-#line 1851 "y.tab.c"
+#line 1856 "y.tab.c"
     break;
 
   case 57:
-#line 148 "an.lex.y"
+#line 153 "an.lex.y"
                {printf("Regla 56\n");}
-#line 1857 "y.tab.c"
+#line 1862 "y.tab.c"
     break;
 
 
-#line 1861 "y.tab.c"
+#line 1866 "y.tab.c"
 
       default: break;
     }
@@ -2089,7 +2094,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 149 "an.lex.y"
+#line 154 "an.lex.y"
 
 
 int main(){ // INICIO MAIN
@@ -2114,6 +2119,7 @@ int main(){ // INICIO MAIN
         return 1;
     }
     fclose(input); fclose(lista_tokens); fclose(tokens_unicos); remove("tokens_unicos.txt"); // Destruimos el archivo una vez utilizado
+    free(tira_polaca); // liberamos la memoria dinamica
     return (0);
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2267,7 +2273,9 @@ struct Token getTokenString() {
         token.number = 258; // guardo numero de token
         strcpy( token.name, "CSTRING" ); // guardo nombre del token
         strcpy ( token.lexema, "$");
+        //strcat ( token.lexema, "\"");
         strcat( token.lexema, constanteString); 
+        //strcat ( token.lexema, "\"");
         strcpy ( token.tipo, "cstring");
         strcpy ( token.valor, "\"");
         strcat( token.valor, constanteString);
@@ -2720,7 +2728,7 @@ void showTokens() {
 void show_TS() {   
     if((token_confirmado.number == 258)||(token_confirmado.number == 259)||(token_confirmado.number == 260)||(token_confirmado.number == 271)) {  // Si es entero, real, string o id    
         char lexema[40] = {0}; char lexema_temp[40] = {0};
-        int imprimir = 1;       // uso esta variable para que el programa sepa cuando imprimir en los archivos
+        int imprimir = 1;       // uso esta variable para imprimir en los archivos
 
         strcpy(lexema_temp, token_confirmado.lexema);
         strcat(lexema_temp, "\n"); // agrego el caracter de fin de linea para poder hacer las comparaciones
@@ -2778,7 +2786,7 @@ void apilar_polaca(char * yval) {
         }
     }
 
-    //borramos todos los caracteres que tengamos en dato e id (varible global)
+    //borramos todos los caracteres que tengamos en dato e id (ver variable global)
     for (int i=0; i<40; i++) {
         dato[i] = '\0';
         id_TS[i] = '\0';
@@ -2792,7 +2800,7 @@ void aplicar_polaca(){
          printf("| %s |\t", tira_polaca[i]); 
     }
     printf("\n");
-    free(tira_polaca);
+
     /* while ------
 
     */

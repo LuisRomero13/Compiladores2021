@@ -127,7 +127,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 63 "an.lex.y"
+#line 68 "an.lex.y"
 
     int number;
     char name[40];      

@@ -1,10 +1,6 @@
 NOMBRE					TIPO				VALOR				LONGITUD
 
-$variablea	  			  			 9
-$variableb	  			  			 9
-$variablec	  			  			 9
-$8	 int			 8			 0
-$2	 int			 2			 0
-$5	 int			 5			 0
-$9	 int			 9			 0
-$130	 int			 130			 0
+$var	  			  			 3
+$"hola"	 cstring			 "hola"			 4
+$yu
+$"mundo"	 cstring			 "mundo"			 5

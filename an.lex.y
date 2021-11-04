@@ -9,7 +9,8 @@
     // variables para analizador lexico
     FILE * input;  
     FILE * lista_tokens; 
-    FILE * tabla_simbolos; 
+    FILE * tabla_simbolos;
+    FILE * tabla_simbolos_orig;  
     FILE * tokens_unicos;
     char constanteEntera [40] = {0}; 
     char constanteReal [40]= {0};
@@ -55,7 +56,8 @@
     // variables para codigo intermedio
     char ** tira_polaca;  char ** tira_dinamica; // ** representa a fila y columna
     int cantidad_elementos_tira = 0; // indica la fila
-    char id_TS [40] = {0}; int indice_tmp = 0;
+    char id_TS [40] = {0}; int indice_id_TS = 0;
+    char str_TS [40] = {0}; int indice_str_TS = 0;
     int semaforo_TS [3] ={0,0,0};    // [string, id, digito]
     int posiciones_TS [3] = {0,0,0};  // [string, id, digito]
     FILE * repre_intermedia;
@@ -130,7 +132,7 @@ multiple: ID ASIGN asignacion {printf("Regla 19\n"); get_id_TS(); apilar_polaca(
 
 expresion_num: termino {printf("Regla 24\n");} | expresion_num SUMA termino {printf("Regla 25\n"); apilar_polaca("S+");} | expresion_num RESTA termino {printf("Regla 26\n"); apilar_polaca("R-");} ;
 
-expresion_string: CSTRING CONCAT CSTRING {printf("Regla 27\n");  apilar_polaca("++"); } | ID CONCAT CSTRING {printf("Regla 28\n");} | ID CONCAT ID {printf("Regla 29\n");} | CSTRING CONCAT ID {printf("Regla 30\n");} ;
+expresion_string: CSTRING CONCAT CSTRING {printf("Regla 27\n"); get_str_TS(); apilar_polaca(str_TS); get_str_TS(); apilar_polaca(str_TS); apilar_polaca("++"); } | ID CONCAT CSTRING {printf("Regla 28\n");} | ID CONCAT ID {printf("Regla 29\n");} | CSTRING CONCAT ID {printf("Regla 30\n");} ;
 
 termino: factor {printf("Regla 31\n");} | termino MULT factor {printf("Regla 32\n"); apilar_polaca("M*");} | termino DIV factor {printf("Regla 33\n"); apilar_polaca("D/");} ;
 
@@ -157,12 +159,14 @@ int main(){ // INICIO MAIN
     input = fopen("input.txt", "rb"); 
     lista_tokens = fopen("lista_tokens.txt", "w");
     tabla_simbolos = fopen("tabla_simbolos.txt", "w+"); 
+    tabla_simbolos_orig = fopen("tabla_simbolos-orig.txt", "w");
     tokens_unicos = fopen("tokens_unicos.txt", "w+");
 
     if((input != NULL)||(lista_tokens != NULL)||(tabla_simbolos != NULL)||(tokens_unicos != NULL)){
         fprintf (lista_tokens, "%s\t\t%s\n\n", "ID", "NOMBRE");
         fprintf (tabla_simbolos, "%s\t\t\t\t\t%s\t\t\t\t%s\t\t\t\t%s\n\n", "NOMBRE", "TIPO", "VALOR", "LONGITUD");
-        
+        fprintf (tabla_simbolos_orig, "%s\t\t\t\t\t%s\t\t\t\t%s\t\t\t\t%s\n\n", "NOMBRE", "TIPO", "VALOR", "LONGITUD");
+
         int recibo;
         recibo = yyparse();
         if (recibo == 0){
@@ -175,6 +179,7 @@ int main(){ // INICIO MAIN
         return 1;
     }
     fclose(input); fclose(lista_tokens); fclose(tokens_unicos); remove("tokens_unicos.txt"); // Destruimos el archivo una vez utilizado
+    fclose(tabla_simbolos_orig); fclose(tabla_simbolos);
     free(tira_polaca); // liberamos la memoria dinamica
     return (0);
 }
@@ -329,11 +334,9 @@ struct Token getTokenString() {
         token.number = 258; // guardo numero de token
         strcpy( token.name, "CSTRING" ); // guardo nombre del token
         strcpy ( token.lexema, "$");
-        //strcat ( token.lexema, "\"");
         strcat( token.lexema, constanteString); 
-        //strcat ( token.lexema, "\"");
+        strcat ( token.lexema, "\"");
         strcpy ( token.tipo, "cstring");
-        strcpy ( token.valor, "\"");
         strcat( token.valor, constanteString);
         strcat ( token.valor, "\"");
         token.longitud = strlen(constanteString);
@@ -653,8 +656,7 @@ void F3(){  // REALES
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void F4(){    // STRING "  "
     if(strlen(constanteString) < 30){
-        if(caracter != '\"')
-            constanteString[strlen(constanteString)] = caracter;  // voy formando el string 
+        constanteString[strlen(constanteString)] = caracter;  // voy formando el string 
     } else {
         printf("¡Error! Limite de string alcanzado en: fila %d, columna %d\n", position_row, position_col);
         hay_error = 1;
@@ -799,6 +801,7 @@ void show_TS() {
         if(imprimir == 1) {  // si vale 1 ya podemos imprimir los resultados en sus respectivos archivos
             fprintf(tokens_unicos, "%s\n",token_confirmado.lexema);
             fprintf (tabla_simbolos, "%s\t %s\t\t\t %s\t\t\t %d\n", token_confirmado.lexema, token_confirmado.tipo, token_confirmado.valor, token_confirmado.longitud);
+            fprintf (tabla_simbolos_orig, "%s\t %s\t\t\t %s\t\t\t %d\n", token_confirmado.lexema, token_confirmado.tipo, token_confirmado.valor, token_confirmado.longitud);
         }
     }
 }
@@ -811,6 +814,16 @@ int yyerror(char *s){
 void apilar_polaca(char * yval) {
     int longitud_cad;
     char dato [40] = {0};
+
+    /*
+    for (int i=0; i<sizeof(yval); i++) {
+        if (yval[i] != '"'){
+            aux [i] = yval[i];
+        }
+    }
+    strcpy(yval, aux);
+    */
+
 
     strcpy(dato, yval);
     // Pregunto si yval guarda un operador, sino se considera como digito
@@ -846,25 +859,41 @@ void apilar_polaca(char * yval) {
     for (int i=0; i<40; i++) {
         dato[i] = '\0';
         id_TS[i] = '\0';
+        str_TS[i] = '\0';
     }
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void aplicar_polaca(){
-    printf("Aca es donde se aplica el algoritmo de polaca inversa\n");
-    printf("Datos de la tira\n");
-    for(int i=0; i<cantidad_elementos_tira; i++){
-         printf("| %s |\t", tira_polaca[i]); 
+    repre_intermedia = fopen("intermedia.txt", "w");
+
+    if(repre_intermedia != NULL) {
+        fprintf(repre_intermedia, "%s", "\t");
+        for(int i=0; i<cantidad_elementos_tira; i++){
+            fprintf (repre_intermedia, "%d", i);
+            fprintf(repre_intermedia, "%s", "  |");
+            for(int j=0; j<strlen(tira_polaca[i]);j++) {
+                if(tira_polaca[i][j] != '\t')
+                    fprintf (repre_intermedia, "%c", tira_polaca[i][j]);
+            }
+            fprintf(repre_intermedia, "%s", "| \n \t");
+        }
+        printf("\n");
+    }else{
+        perror("Ocurrio un error al escribir el archivo\n");
+        exit(1);
     }
-    printf("\n");
-
-    /* while ------
-
-    */
+    fclose(repre_intermedia);
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void get_id_TS() {
     char c; 
-    
+    if (posiciones_TS[1] == 0) 
+        fseek(tabla_simbolos, 0 , SEEK_END);  // rebobino el cursor al final
+    else {
+        fseek(tabla_simbolos, 0 , SEEK_SET);  // rebobino el cursor al principio
+        fseek(tabla_simbolos, posiciones_TS[1] , SEEK_CUR);  // rebobino el cursor unas posiciones contando desde el inicio del archivo
+    }
+
     while (!feof(tabla_simbolos)) {       // lee el archivo hasta encontrar el caracer EOF
         int pos = ftell(tabla_simbolos);  // pos me sirve para saber en que posicion del archivo me encuentro
         printf("posicion: %d\n", pos); 
@@ -876,24 +905,76 @@ void get_id_TS() {
         if(c == '$') {
             fseek(tabla_simbolos, 2, SEEK_CUR); // incrementamos el puntero
             c = fgetc(tabla_simbolos);  // leemos un carater
-            if ( (isalpha(c)) || (c == '_') ) {  // si el caracter que sigue al $ es una letra o arranca en _, se considera como ID
-                while (1) {        // el bucle se ejecuta hasta que no encuentre mas letras o _
+            if ( (isalpha(c)) && (c != '"') ) {  // si el caracter que sigue al $ es una letra o arranca en _, se considera como ID 
+                while (1) {        // el bucle se ejecuta hasta que no encuentre mas letras o _    
                     printf("CARACTER leido: %c \n", c);
-                    id_TS[indice_tmp] = c;  // insertamos un caracter en el vector para formar el identificador
-                    indice_tmp++;  // incrementamos el indice del string
+                    id_TS[indice_id_TS] = c;  // insertamos un caracter en el vector para formar el identificador
+                    indice_id_TS++;  // incrementamos el indice del string
                     c = fgetc(tabla_simbolos);  // leemos un carater e incrementamos el puntero
                     printf("CARACTER leido DESPUES: %c \n", c);
                     if (c == ' ') break;
                 } 
-                fseek(tabla_simbolos, -2*(indice_tmp+1), SEEK_CUR); // decrementamos el puntero y volvemos al estado previo a la lectura de $
-                indice_tmp = 0; // reseteamos el indice
+                fseek(tabla_simbolos, -2*(indice_id_TS+1), SEEK_CUR); // decrementamos el puntero y volvemos al estado previo a la lectura de $
+                indice_id_TS = 0; // reseteamos el indice
+                posiciones_TS[1] = ftell(tabla_simbolos);
                 printf("La cadena construida es: %s\n", id_TS);
                 break;
             }
             if (isdigit(c) ) {  // si el caracter que sigue al $ es un digito, no hago nada. solo decremento el puntero
-                printf("ES DIGITO!\n");
+                fseek(tabla_simbolos, -4, SEEK_CUR); // decrementamos el puntero y volvemos al estado previo a la lectura de $
+            }
+            if(c == '"') {   // ignora los strings, es decir, todo lo que tenga comillas
                 fseek(tabla_simbolos, -4, SEEK_CUR); // decrementamos el puntero y volvemos al estado previo a la lectura de $
             }
         }
     }
 }
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void get_str_TS() {
+    char c; 
+    fseek(tabla_simbolos, 0 , SEEK_SET);  // rebobino el cursor al principio
+    fseek(tabla_simbolos, posiciones_TS[0], SEEK_CUR);  // me desplazo
+
+    int pos = ftell(tabla_simbolos);  // pos me sirve para saber en que posicion del archivo me encuentro
+    printf("posicion: %d\n", pos); // imprimo pos
+
+    while (!feof(tabla_simbolos)) {       // lee el archivo hasta encontrar el caracer EOF
+        c = fgetc(tabla_simbolos);  // leemos un carater
+        printf("LLLLLLLLLLLLectura del TS: %c\n", c);
+
+        int pos = ftell(tabla_simbolos);  // pos me sirve para saber en que posicion del archivo me encuentro
+        printf("posicion: %d\n", pos); // imprimo pos
+
+        if(c == '$') {
+            c = fgetc(tabla_simbolos);  // leemos un carater
+            
+            if ( c == '"' ) {  // si el caracter que sigue al $ es una comilla
+               //printf("-------------ES COMILLA------------!\n");
+               str_TS [indice_str_TS] = c;  // insertamos un caracter en el vector para formar el identificador
+               indice_str_TS++;  // incrementamos el indice del string
+               while (1) {        // el bucle se ejecuta hasta que encuentre la comilla que cierra y forma el string
+                    c = fgetc(tabla_simbolos);  // leemos un carater
+                    printf("CARACTER leido: %c \n", c);
+                    str_TS [indice_str_TS] = c;  // insertamos un caracter en el vector para formar el identificador
+                    indice_str_TS++;  // incrementamos el indice del string
+                    if (c == '"') break;
+                } 
+                fseek(tabla_simbolos, 1*(indice_str_TS+1), SEEK_CUR); // decrementamos el puntero y volvemos al estado previo a la lectura de $
+                indice_str_TS = 0; // reseteamos el indice
+                posiciones_TS[0] = ftell(tabla_simbolos);
+                printf("La cadena construida es: %s\n", str_TS);
+                printf("Me quede en la posicion: %d\n", posiciones_TS[0]);
+                break;
+            }
+            else if (isdigit(c) ) {  // si el caracter que sigue al $ es un digito, no hago nada. solo decremento el puntero
+                printf("ES DIGITO!\n");
+                fseek(tabla_simbolos, 1, SEEK_CUR); // incrementamos el puntero y volvemos al estado previo a la lectura de $
+            }
+            else if ( (isalpha(c)) && (c != '"') ) {
+                printf("ES LETRA!\n");
+                fseek(tabla_simbolos, 1, SEEK_CUR); // decrementamos el puntero y volvemos al estado previo a la lectura de $
+            }
+        }
+    }
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
