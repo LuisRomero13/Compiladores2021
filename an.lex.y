@@ -60,6 +60,7 @@
     char str_TS [40] = {0}; int indice_str_TS = 0;
     int semaforo_TS [3] ={0,0,0};    // [string, id, digito]
     int posiciones_TS [3] = {0,0,0};  // [string, id, digito]
+    char comparador_RR [3] = {0}; // para imprimir los comparadores
     FILE * repre_intermedia;
 
     // funciones para codigo intermedio
@@ -114,7 +115,7 @@
 %token COMA
 
 %%
-programa: DECLARE declaracion ENDDECLARE bloque {printf("Regla 1\n");} | bloque {printf("Regla 2\n");};
+programa: DECLARE declaracion ENDDECLARE bloque {printf("Regla 1\n"); aplicar_polaca(); } | bloque {printf("Regla 2\n"); aplicar_polaca();};
 
 bloque: sentencia {printf("Regla 3\n");} | sentencia  bloque {printf("Regla 4\n");};
 
@@ -124,7 +125,7 @@ type: INT {printf("Regla 7\n");} | REAL {printf("Regla 8\n");} | STRING {printf(
 
 variables: ID {printf("Regla 10\n");} | ID COMA variables {printf("Regla 11\n");} ;
 
-sentencia: asignacion PUNTOYC {printf("Regla 12\n"); aplicar_polaca(); } | iteracion {printf("Regla 13\n");} | seleccion {printf("Regla 14\n");} | entrada {printf("Regla 15\n");} PUNTOYC {printf("Regla 16\n");} | salida PUNTOYC {printf("Regla 17\n");};
+sentencia: asignacion PUNTOYC {printf("Regla 12\n"); } | iteracion {printf("Regla 13\n");} | seleccion {printf("Regla 14\n");} | entrada {printf("Regla 15\n");} PUNTOYC {printf("Regla 16\n");} | salida PUNTOYC {printf("Regla 17\n");};
 
 asignacion: ID ASIGN multiple {printf("Regla 18\n");  get_id_TS(); apilar_polaca(id_TS); apilar_polaca("A=");};
 
@@ -136,17 +137,17 @@ expresion_string: CSTRING CONCAT CSTRING {printf("Regla 27\n"); get_str_TS(); ap
 
 termino: factor {printf("Regla 31\n");} | termino MULT factor {printf("Regla 32\n"); apilar_polaca("M*");} | termino DIV factor {printf("Regla 33\n"); apilar_polaca("D/");} ;
 
-factor: ID {printf("Regla 34\n");  apilar_polaca(yylval.valor);} | CENT {printf("Regla 35\n"); apilar_polaca(yylval.valor);} | CREAL {printf("Regla 36\n"); apilar_polaca(yylval.valor);} | PARENTA expresion_num PARENTC {printf("Regla 37\n");};
+factor: ID {printf("Regla 34\n"); get_id_TS(); apilar_polaca(id_TS); } | CENT {printf("Regla 35\n"); apilar_polaca(yylval.valor);} | CREAL {printf("Regla 36\n"); apilar_polaca(yylval.valor);} | PARENTA expresion_num PARENTC {printf("Regla 37\n");};
 
-comparador: MAYOR {printf("Regla 38\n"); apilar_polaca(">");} | MENOR  {printf("Regla 39\n"); apilar_polaca("<");} | MENORIGUAL {printf("Regla 40\n"); apilar_polaca("<=");} | MAYORIGUAL {printf("Regla 41\n"); apilar_polaca(">=");} | IGUAL {printf("Regla 42\n"); apilar_polaca("==");} | DISTINTO {printf("Regla 43\n"); apilar_polaca("<>");} ;
+comparador: MAYOR {printf("Regla 38\n"); strcpy(comparador_RR, "> "); } | MENOR  {printf("Regla 39\n"); strcpy(comparador_RR, "< "); } | MENORIGUAL {printf("Regla 40\n"); strcpy(comparador_RR, "<="); } | MAYORIGUAL {printf("Regla 41\n"); strcpy(comparador_RR, ">="); } | IGUAL {printf("Regla 42\n"); strcpy(comparador_RR, "=="); } | DISTINTO {printf("Regla 43\n"); strcpy(comparador_RR, "<>");} ;
 
-comparacion: PARENTA expresion_num PARENTC comparador PARENTA expresion_num PARENTC {printf("Regla 44\n");} | PARENTA expresion_string PARENTC comparador PARENTA expresion_string PARENTC {printf("Regla 45\n");} ;
+comparacion: PARENTA expresion_num PARENTC comparador PARENTA expresion_num PARENTC {printf("Regla 44\n"); apilar_polaca(comparador_RR); strcpy(comparador_RR, " "); } | PARENTA expresion_string PARENTC comparador PARENTA expresion_string PARENTC {printf("Regla 45\n");} ;
 
 comp_logico: PARENTA comparacion PARENTC AND PARENTA comparacion PARENTC {printf("Regla 46\n");} | PARENTA comparacion PARENTC OR PARENTA comparacion PARENTC {printf("Regla 47\n");} ;
 
-condicion: NOT PARENTA condicion PARENTC {printf("Regla 48\n");} | comparacion {printf("Regla 49\n");} | comp_logico {printf("Regla 50\n");};
+condicion: NOT PARENTA condicion PARENTC {printf("Regla 48\n");} | comparacion {printf("Regla 49\n"); apilar_polaca(" "); apilar_polaca("BF");} | comp_logico {printf("Regla 50\n");};
 
-iteracion: WHILE PARENTA condicion PARENTC LLAVEA bloque LLAVEC {printf("Regla 51\n");};
+iteracion: WHILE PARENTA condicion PARENTC LLAVEA bloque LLAVEC {printf("Regla 51\n"); apilar_polaca(" "); apilar_polaca("BI");};
 
 seleccion: IF PARENTA condicion PARENTC LLAVEA bloque LLAVEC ELSE LLAVEA bloque LLAVEC {printf("Regla 52\n");};
 
@@ -977,4 +978,5 @@ void get_str_TS() {
         }
     }
 }
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
