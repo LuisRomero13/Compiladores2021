@@ -7,11 +7,11 @@
     #include "y.tab.h"
     
     // variables para analizador lexico
-    FILE * input;  
-    FILE * lista_tokens; 
-    FILE * tabla_simbolos;
-    FILE * tabla_simbolos_orig;  
-    FILE * tokens_unicos;
+    FILE * input=NULL;  
+    FILE * lista_tokens=NULL; 
+    FILE * tabla_simbolos=NULL;
+    FILE * tabla_simbolos_orig=NULL;  
+    FILE * tokens_unicos=NULL;
     char constanteEntera [40] = {0}; 
     char constanteReal [40]= {0};
     char constanteString [40]= {0}; 
@@ -56,16 +56,15 @@
     // variables para codigo intermedio
     char ** tira_polaca;  char ** tira_dinamica; // ** representa a fila y columna
     int cantidad_elementos_tira = 0; // indica la fila
-    char id_TS [40] = {0}; int indice_id_TS = 0;
-    char str_TS [40] = {0}; int indice_str_TS = 0;
-    int semaforo_TS [3] ={0,0,0};    // [string, id, digito]
-    int posiciones_TS [3] = {0,0,0};  // [string, id, digito]
-    char comparador_RR [3] = {0}; // para imprimir los comparadores
-    FILE * repre_intermedia;
+    char comparador_RR [4] = {0}; // para imprimir los comparadores
+    FILE * repre_intermedia=NULL;
+    char ID_aux_TP[40] = {0}; // variable aux que almacena el id una vez que se van reduciendo las reglas
+    char STR_aux_N1[40] = {0}; // variable aux que almacena el string una vez que se van reduciendo las reglas
+    char STR_aux_N2[40] = {0}; // variable aux que almacena el string una vez que se van reduciendo las reglas
+    int imprimir_cadena_NUM = 0;
 
     // funciones para codigo intermedio
     void apilar_polaca(char * yval);   void aplicar_polaca();   
-    void get_id_TS(); void get_str_TS();
 %}
 
 %union {
@@ -115,7 +114,7 @@
 %token COMA
 
 %%
-programa: DECLARE declaracion ENDDECLARE bloque {printf("Regla 1\n"); aplicar_polaca(); } | bloque {printf("Regla 2\n"); aplicar_polaca();};
+programa: DECLARE declaracion ENDDECLARE bloque {printf("Regla 1\n");  } | bloque {printf("Regla 2\n"); };
 
 bloque: sentencia {printf("Regla 3\n");} | sentencia  bloque {printf("Regla 4\n");};
 
@@ -127,29 +126,29 @@ variables: ID {printf("Regla 10\n");} | ID COMA variables {printf("Regla 11\n");
 
 sentencia: asignacion PUNTOYC {printf("Regla 12\n"); } | iteracion {printf("Regla 13\n");} | seleccion {printf("Regla 14\n");} | entrada {printf("Regla 15\n");} PUNTOYC {printf("Regla 16\n");} | salida PUNTOYC {printf("Regla 17\n");};
 
-asignacion: ID ASIGN multiple {printf("Regla 18\n");  get_id_TS(); apilar_polaca(id_TS); apilar_polaca("A=");};
+asignacion: ID ASIGN multiple {printf("Regla 18\n"); apilar_polaca(ID_aux_TP); apilar_polaca("A=");};
 
-multiple: ID ASIGN asignacion {printf("Regla 19\n"); get_id_TS(); apilar_polaca(id_TS); apilar_polaca("A=");} | ID ASIGN expresion_num {printf("Regla 20\n");} | ID ASIGN expresion_string {printf("Regla 21\n");} | expresion_num {printf("Regla 22\n");} | expresion_string {printf("Regla 23\n");} ;
+multiple: ID ASIGN asignacion {printf("Regla 19\n"); apilar_polaca(ID_aux_TP); apilar_polaca("A=");} | ID ASIGN expresion_num {printf("Regla 20\n");} | ID ASIGN expresion_string {printf("Regla 21\n");} | expresion_num {printf("Regla 22\n");} | expresion_string {printf("Regla 23\n");} ;
 
 expresion_num: termino {printf("Regla 24\n");} | expresion_num SUMA termino {printf("Regla 25\n"); apilar_polaca("S+");} | expresion_num RESTA termino {printf("Regla 26\n"); apilar_polaca("R-");} ;
 
-expresion_string: CSTRING CONCAT CSTRING {printf("Regla 27\n"); get_str_TS(); apilar_polaca(str_TS); get_str_TS(); apilar_polaca(str_TS); apilar_polaca("++"); } | ID CONCAT CSTRING {printf("Regla 28\n");} | ID CONCAT ID {printf("Regla 29\n");} | CSTRING CONCAT ID {printf("Regla 30\n");} ;
+expresion_string: CSTRING CONCAT CSTRING {printf("Regla 27\n"); apilar_polaca(STR_aux_N1); apilar_polaca(STR_aux_N2); apilar_polaca("++"); } | ID CONCAT CSTRING {printf("Regla 28\n");} | ID CONCAT ID {printf("Regla 29\n");} | CSTRING CONCAT ID {printf("Regla 30\n");} ;
 
 termino: factor {printf("Regla 31\n");} | termino MULT factor {printf("Regla 32\n"); apilar_polaca("M*");} | termino DIV factor {printf("Regla 33\n"); apilar_polaca("D/");} ;
 
-factor: ID {printf("Regla 34\n"); get_id_TS(); apilar_polaca(id_TS); } | CENT {printf("Regla 35\n"); apilar_polaca(yylval.valor);} | CREAL {printf("Regla 36\n"); apilar_polaca(yylval.valor);} | PARENTA expresion_num PARENTC {printf("Regla 37\n");};
+factor: ID {printf("Regla 34\n"); apilar_polaca(yylval.lexema); } | CENT {printf("Regla 35\n"); apilar_polaca(yylval.valor);} | CREAL {printf("Regla 36\n"); apilar_polaca(yylval.valor);} | PARENTA expresion_num PARENTC {printf("Regla 37\n");};
 
-comparador: MAYOR {printf("Regla 38\n"); strcpy(comparador_RR, "> "); } | MENOR  {printf("Regla 39\n"); strcpy(comparador_RR, "< "); } | MENORIGUAL {printf("Regla 40\n"); strcpy(comparador_RR, "<="); } | MAYORIGUAL {printf("Regla 41\n"); strcpy(comparador_RR, ">="); } | IGUAL {printf("Regla 42\n"); strcpy(comparador_RR, "=="); } | DISTINTO {printf("Regla 43\n"); strcpy(comparador_RR, "<>");} ;
+comparador: MAYOR {printf("Regla 38\n"); strcpy(comparador_RR, "BLE"); } | MENOR  {printf("Regla 39\n"); strcpy(comparador_RR, "BGE"); } | MENORIGUAL {printf("Regla 40\n"); strcpy(comparador_RR, "BGT"); } | MAYORIGUAL {printf("Regla 41\n"); strcpy(comparador_RR, "BLT"); } | IGUAL {printf("Regla 42\n"); strcpy(comparador_RR, "BEQ"); } | DISTINTO {printf("Regla 43\n"); strcpy(comparador_RR, "BNE");} ;
 
-comparacion: PARENTA expresion_num PARENTC comparador PARENTA expresion_num PARENTC {printf("Regla 44\n"); apilar_polaca(comparador_RR); strcpy(comparador_RR, " "); } | PARENTA expresion_string PARENTC comparador PARENTA expresion_string PARENTC {printf("Regla 45\n");} ;
+comparacion: PARENTA expresion_num PARENTC comparador PARENTA expresion_num PARENTC {printf("Regla 44\n"); } | PARENTA expresion_string PARENTC comparador PARENTA expresion_string PARENTC {printf("Regla 45\n");} ;
 
 comp_logico: PARENTA comparacion PARENTC AND PARENTA comparacion PARENTC {printf("Regla 46\n");} | PARENTA comparacion PARENTC OR PARENTA comparacion PARENTC {printf("Regla 47\n");} ;
 
-condicion: NOT PARENTA condicion PARENTC {printf("Regla 48\n");} | comparacion {printf("Regla 49\n"); apilar_polaca(" "); apilar_polaca("BF");} | comp_logico {printf("Regla 50\n");};
+condicion: NOT PARENTA condicion PARENTC {printf("Regla 48\n");} | comparacion {printf("Regla 49\n"); apilar_polaca("CMP"); apilar_polaca(comparador_RR); apilar_polaca(" "); } | comp_logico {printf("Regla 50\n");};
 
 iteracion: WHILE PARENTA condicion PARENTC LLAVEA bloque LLAVEC {printf("Regla 51\n"); apilar_polaca(" "); apilar_polaca("BI");};
 
-seleccion: IF PARENTA condicion PARENTC LLAVEA bloque LLAVEC ELSE LLAVEA bloque LLAVEC {printf("Regla 52\n");};
+seleccion: IF PARENTA condicion PARENTC LLAVEA bloque LLAVEC ELSE LLAVEA bloque LLAVEC {printf("Regla 52\n");  apilar_polaca(" "); apilar_polaca("BI");};
 
 entrada: PUT CSTRING {printf("Regla 53\n");} | PUT CENT {printf("Regla 54\n");} | PUT CREAL {printf("Regla 55\n");} ;
 
@@ -162,11 +161,21 @@ int main(){ // INICIO MAIN
     tabla_simbolos = fopen("tabla_simbolos.txt", "w+"); 
     tabla_simbolos_orig = fopen("tabla_simbolos-orig.txt", "w");
     tokens_unicos = fopen("tokens_unicos.txt", "w+");
+    repre_intermedia = fopen("intermedia.txt", "w+");
 
-    if((input != NULL)||(lista_tokens != NULL)||(tabla_simbolos != NULL)||(tokens_unicos != NULL)){
+    rewind(lista_tokens);
+    rewind(tabla_simbolos);
+    rewind(tabla_simbolos_orig);
+    rewind(tokens_unicos);
+    rewind(repre_intermedia);
+    system("pause");
+    if((input != NULL)||(lista_tokens != NULL)||(tabla_simbolos != NULL)||(tokens_unicos != NULL)||(tabla_simbolos_orig != NULL)){
         fprintf (lista_tokens, "%s\t\t%s\n\n", "ID", "NOMBRE");
+        fflush(lista_tokens);
         fprintf (tabla_simbolos, "%s\t\t\t\t\t%s\t\t\t\t%s\t\t\t\t%s\n\n", "NOMBRE", "TIPO", "VALOR", "LONGITUD");
+        fflush(tabla_simbolos);
         fprintf (tabla_simbolos_orig, "%s\t\t\t\t\t%s\t\t\t\t%s\t\t\t\t%s\n\n", "NOMBRE", "TIPO", "VALOR", "LONGITUD");
+        fflush(tabla_simbolos_orig);
 
         int recibo;
         recibo = yyparse();
@@ -174,13 +183,20 @@ int main(){ // INICIO MAIN
            printf("¡Parser Ok!\n"); 
         }else   
             printf("¡Parser Error!\n");
+        fclose(input); fclose(lista_tokens); fclose(tokens_unicos); remove("tokens_unicos.txt"); // Destruimos el archivo una vez utilizado
+        fclose(tabla_simbolos_orig); fclose(tabla_simbolos);fclose(repre_intermedia);
+
     }
     else{
         perror("Ocurrio un error al intentar abrir el archivo\n");
         return 1;
     }
-    fclose(input); fclose(lista_tokens); fclose(tokens_unicos); remove("tokens_unicos.txt"); // Destruimos el archivo una vez utilizado
-    fclose(tabla_simbolos_orig); fclose(tabla_simbolos);
+
+    fflush(lista_tokens);
+    fflush(tabla_simbolos);
+    fflush(tabla_simbolos_orig);
+    fflush(tokens_unicos);
+    fflush(repre_intermedia);
     free(tira_polaca); // liberamos la memoria dinamica
     return (0);
 }
@@ -207,11 +223,37 @@ int yylex(void) {
             break;
         }
     }
+
     if(estado_actual == estado_final){
         buildToken();
         int num_token = token_confirmado.number;  // guardo numero de token
+        yylval.number = token_confirmado.number;  // guardo numero de token
+        
+        printf("YYLVAL NUMBER: %d\n", yylval.number);
         // YYLVAL almacena, por defecto, un valor de tipo ENTERO (un solo tipo)
-        strcpy(yylval.valor, token_confirmado.valor);  // guardo el valor asociado al token
+        if((token_confirmado.number == 260) || (token_confirmado.number == 259)) {
+            strcpy(yylval.valor, token_confirmado.valor);  // guardo el valor asociado al token
+            printf("YYLVAL VALOR ES : %s\n",yylval.valor);
+        }
+        else if (yylval.number == 271) {
+            //strcpy(yylval.lexema, token_confirmado.lexema);  // guardo el valor asociado al token
+            strcpy(ID_aux_TP, token_confirmado.lexema);
+            printf("-----------------------------------------------------------YYLVAL LEXEMA ES : %s\n",ID_aux_TP);
+        }
+        else if(yylval.number == 258) {
+            //strcpy(yylval.valor, token_confirmado.valor);  // guardo el valor asociado al token
+            imprimir_cadena_NUM++;
+            if(imprimir_cadena_NUM == 1) {
+                strcpy(STR_aux_N1, token_confirmado.valor);
+                printf("-----------------------------------------------------------YYLVAL VALOR STRING ES : %s\n",STR_aux_N1);
+            }
+            else if(imprimir_cadena_NUM == 2){
+                strcpy(STR_aux_N2, token_confirmado.valor);
+                printf("-----------------------------------------------------------YYLVAL VALOR STRING ES : %s\n",STR_aux_N2);
+                imprimir_cadena_NUM = 0;
+            }
+        }else 
+            strcpy(yylval.valor, " ");  // guardo el valor asociado al token
 
         estado_actual = 0; estado_segundo = 0; // reseteamos el automata
                 
@@ -338,7 +380,7 @@ struct Token getTokenString() {
         strcat( token.lexema, constanteString); 
         strcat ( token.lexema, "\"");
         strcpy ( token.tipo, "cstring");
-        strcat( token.valor, constanteString);
+        strcpy( token.valor, constanteString);
         strcat ( token.valor, "\"");
         token.longitud = strlen(constanteString);
         return token;
@@ -782,6 +824,7 @@ void F(){
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void showTokens() {
     fprintf (lista_tokens, "%d\t\t%s\n", token_confirmado.number, token_confirmado.name);
+    fflush(lista_tokens);
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void show_TS() {   
@@ -801,8 +844,11 @@ void show_TS() {
         }
         if(imprimir == 1) {  // si vale 1 ya podemos imprimir los resultados en sus respectivos archivos
             fprintf(tokens_unicos, "%s\n",token_confirmado.lexema);
+            fflush(tokens_unicos);
             fprintf (tabla_simbolos, "%s\t %s\t\t\t %s\t\t\t %d\n", token_confirmado.lexema, token_confirmado.tipo, token_confirmado.valor, token_confirmado.longitud);
+            fflush(tabla_simbolos);
             fprintf (tabla_simbolos_orig, "%s\t %s\t\t\t %s\t\t\t %d\n", token_confirmado.lexema, token_confirmado.tipo, token_confirmado.valor, token_confirmado.longitud);
+            fflush(tabla_simbolos_orig);
         }
     }
 }
@@ -815,17 +861,7 @@ int yyerror(char *s){
 void apilar_polaca(char * yval) {
     int longitud_cad;
     char dato [40] = {0};
-
-    /*
-    for (int i=0; i<sizeof(yval); i++) {
-        if (yval[i] != '"'){
-            aux [i] = yval[i];
-        }
-    }
-    strcpy(yval, aux);
-    */
-
-
+    
     strcpy(dato, yval);
     // Pregunto si yval guarda un operador, sino se considera como digito
     if( strcmp( yval , "S+" ) == 0)       strcpy(dato, "+");
@@ -834,149 +870,74 @@ void apilar_polaca(char * yval) {
     else if( strcmp( yval , "D/" ) == 0)  strcpy(dato, "/");
     else if( strcmp( yval , "A=" ) == 0)  strcpy(dato, "=");
    
-    longitud_cad = strlen(dato);
-
-    //printf("****yval es: %s****\n",dato);
-    //printf("****longitud de yval es: %d****\n",longitud_cad);
+    //longitud_cad = strlen(dato);
+    
+    printf("****estoy en funcion APILAR POLACA Y yval es: %s****\n",dato);
+    printf("****longitud de yval es: %d****\n",longitud_cad);
     //printf("cantidad_elementos_tira  es: %d\n",cantidad_elementos_tira);
     
-    if(cantidad_elementos_tira == 0){
-        tira_polaca = malloc(sizeof(char**) * cantidad_elementos_tira + 1); // reserva memoria para la primera fila
-        tira_polaca[0] = (char *)malloc(longitud_cad + 1); // para las columnas
+    /*if(cantidad_elementos_tira == 0){
+        tira_polaca = calloc(sizeof(char**) * cantidad_elementos_tira + 1); // reserva memoria para la primera fila
+        tira_polaca[0] = (char *)calloc(longitud_cad + 1); // para las columnas
         strcpy(tira_polaca[0], dato);
         cantidad_elementos_tira  = cantidad_elementos_tira  + 1;
     }else{
         tira_polaca = realloc(tira_polaca, sizeof(char**) * cantidad_elementos_tira + 1); // reserva memoria para las filas >= 2
-        tira_polaca[cantidad_elementos_tira] = (char *)malloc(longitud_cad + 1);
+        tira_polaca[cantidad_elementos_tira] = (char *)calloc(longitud_cad + 1);
         strcpy(tira_polaca[cantidad_elementos_tira], dato);
         cantidad_elementos_tira  = cantidad_elementos_tira  + 1;
 
         if (tira_polaca == NULL) {
             printf("No se asigno memoria para la tira polaca\n");
         }
-    }
+    }*/
+
 
     //borramos todos los caracteres que tengamos en dato e id (ver variable global)
+   
+
+
+    if(repre_intermedia != NULL) {
+        fprintf(repre_intermedia, "%s\n", dato);
+        fflush(repre_intermedia);
+
     for (int i=0; i<40; i++) {
         dato[i] = '\0';
-        id_TS[i] = '\0';
-        str_TS[i] = '\0';
+    }
+       
+    //free(tira_polaca);
+    fflush(repre_intermedia);
+    
     }
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void aplicar_polaca(){
+/*void aplicar_polaca(){
+
+
     repre_intermedia = fopen("intermedia.txt", "w");
 
     if(repre_intermedia != NULL) {
         fprintf(repre_intermedia, "%s", "\t");
+        fflush(repre_intermedia);
         for(int i=0; i<cantidad_elementos_tira; i++){
             fprintf (repre_intermedia, "%d", i);
+            fflush(repre_intermedia);
             fprintf(repre_intermedia, "%s", "  |");
+            fflush(repre_intermedia);
             for(int j=0; j<strlen(tira_polaca[i]);j++) {
                 if(tira_polaca[i][j] != '\t')
                     fprintf (repre_intermedia, "%c", tira_polaca[i][j]);
+                    fflush(repre_intermedia);
             }
             fprintf(repre_intermedia, "%s", "| \n \t");
+            fflush(repre_intermedia);
         }
         printf("\n");
     }else{
         perror("Ocurrio un error al escribir el archivo\n");
         exit(1);
     }
+    fflush(repre_intermedia);
     fclose(repre_intermedia);
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void get_id_TS() {
-    char c; 
-    if (posiciones_TS[1] == 0) 
-        fseek(tabla_simbolos, 0 , SEEK_END);  // rebobino el cursor al final
-    else {
-        fseek(tabla_simbolos, 0 , SEEK_SET);  // rebobino el cursor al principio
-        fseek(tabla_simbolos, posiciones_TS[1] , SEEK_CUR);  // rebobino el cursor unas posiciones contando desde el inicio del archivo
-    }
-
-    while (!feof(tabla_simbolos)) {       // lee el archivo hasta encontrar el caracer EOF
-        int pos = ftell(tabla_simbolos);  // pos me sirve para saber en que posicion del archivo me encuentro
-        printf("posicion: %d\n", pos); 
-
-        c = fgetc(tabla_simbolos);  // leemos un carater
-        printf("LLLLLLLLLLLLectura del TS: %c\n", c);
-        fseek(tabla_simbolos, -2, SEEK_CUR); // decrementamos el puntero
-
-        if(c == '$') {
-            fseek(tabla_simbolos, 2, SEEK_CUR); // incrementamos el puntero
-            c = fgetc(tabla_simbolos);  // leemos un carater
-            if ( (isalpha(c)) && (c != '"') ) {  // si el caracter que sigue al $ es una letra o arranca en _, se considera como ID 
-                while (1) {        // el bucle se ejecuta hasta que no encuentre mas letras o _    
-                    printf("CARACTER leido: %c \n", c);
-                    id_TS[indice_id_TS] = c;  // insertamos un caracter en el vector para formar el identificador
-                    indice_id_TS++;  // incrementamos el indice del string
-                    c = fgetc(tabla_simbolos);  // leemos un carater e incrementamos el puntero
-                    printf("CARACTER leido DESPUES: %c \n", c);
-                    if (c == ' ') break;
-                } 
-                fseek(tabla_simbolos, -2*(indice_id_TS+1), SEEK_CUR); // decrementamos el puntero y volvemos al estado previo a la lectura de $
-                indice_id_TS = 0; // reseteamos el indice
-                posiciones_TS[1] = ftell(tabla_simbolos);
-                printf("La cadena construida es: %s\n", id_TS);
-                break;
-            }
-            if (isdigit(c) ) {  // si el caracter que sigue al $ es un digito, no hago nada. solo decremento el puntero
-                fseek(tabla_simbolos, -4, SEEK_CUR); // decrementamos el puntero y volvemos al estado previo a la lectura de $
-            }
-            if(c == '"') {   // ignora los strings, es decir, todo lo que tenga comillas
-                fseek(tabla_simbolos, -4, SEEK_CUR); // decrementamos el puntero y volvemos al estado previo a la lectura de $
-            }
-        }
-    }
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void get_str_TS() {
-    char c; 
-    fseek(tabla_simbolos, 0 , SEEK_SET);  // rebobino el cursor al principio
-    fseek(tabla_simbolos, posiciones_TS[0], SEEK_CUR);  // me desplazo
-
-    int pos = ftell(tabla_simbolos);  // pos me sirve para saber en que posicion del archivo me encuentro
-    printf("posicion: %d\n", pos); // imprimo pos
-
-    while (!feof(tabla_simbolos)) {       // lee el archivo hasta encontrar el caracer EOF
-        c = fgetc(tabla_simbolos);  // leemos un carater
-        printf("LLLLLLLLLLLLectura del TS: %c\n", c);
-
-        int pos = ftell(tabla_simbolos);  // pos me sirve para saber en que posicion del archivo me encuentro
-        printf("posicion: %d\n", pos); // imprimo pos
-
-        if(c == '$') {
-            c = fgetc(tabla_simbolos);  // leemos un carater
-            
-            if ( c == '"' ) {  // si el caracter que sigue al $ es una comilla
-               //printf("-------------ES COMILLA------------!\n");
-               str_TS [indice_str_TS] = c;  // insertamos un caracter en el vector para formar el identificador
-               indice_str_TS++;  // incrementamos el indice del string
-               while (1) {        // el bucle se ejecuta hasta que encuentre la comilla que cierra y forma el string
-                    c = fgetc(tabla_simbolos);  // leemos un carater
-                    printf("CARACTER leido: %c \n", c);
-                    str_TS [indice_str_TS] = c;  // insertamos un caracter en el vector para formar el identificador
-                    indice_str_TS++;  // incrementamos el indice del string
-                    if (c == '"') break;
-                } 
-                fseek(tabla_simbolos, 1*(indice_str_TS+1), SEEK_CUR); // decrementamos el puntero y volvemos al estado previo a la lectura de $
-                indice_str_TS = 0; // reseteamos el indice
-                posiciones_TS[0] = ftell(tabla_simbolos);
-                printf("La cadena construida es: %s\n", str_TS);
-                printf("Me quede en la posicion: %d\n", posiciones_TS[0]);
-                break;
-            }
-            else if (isdigit(c) ) {  // si el caracter que sigue al $ es un digito, no hago nada. solo decremento el puntero
-                printf("ES DIGITO!\n");
-                fseek(tabla_simbolos, 1, SEEK_CUR); // incrementamos el puntero y volvemos al estado previo a la lectura de $
-            }
-            else if ( (isalpha(c)) && (c != '"') ) {
-                printf("ES LETRA!\n");
-                fseek(tabla_simbolos, 1, SEEK_CUR); // decrementamos el puntero y volvemos al estado previo a la lectura de $
-            }
-        }
-    }
-}
-
+}*/
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

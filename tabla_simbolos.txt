@@ -1,6 +1,19 @@
 NOMBRE					TIPO				VALOR				LONGITUD
 
+$algas	  			  			 5
+$b	  			  			 1
+$d	  			  			 1
+$c	  			  			 1
 $var	  			  			 3
-$"hola"	 cstring			 "hola"			 4
-$yu
-$"mundo"	 cstring			 "mundo"			 5
+$2	 int			 2			 0
+$10	 int			 10			 0
+$3	 int			 3			 0
+$30	 int			 30			 0
+$13	 int			 13			 0
+$40	 int			 40			 0
+$20	 int			 20			 0
+$0	 int			 0			 0
+$11	 int			 11			 0
+$4	 int			 4			 0
+$"hola"	 cstring			 "hola"			 5
+$"mundo"	 cstring			 "mundo"			 6
