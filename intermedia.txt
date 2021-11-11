@@ -1,25 +1,29 @@
-0	|5|	int
-1	|8|	int
-2	|CMP|	comparator_if
-3	|BGE|	asm-comparator
-4	| |	space
-5	|6|	int
-6	|7|	int
-7	|CMP|	comparator_while
-8	|BGE|	asm-comparator
-9	| |	space
-10	|4|	int
-11	|4|	int
-12	|+|	operator
-13	|$b|	int
-14	|=|	operator
-15	| |	space
-16	|BI|	asm-jump
-17	| |	space
-18	|BI|	asm-jump
-19	|"hola"|	cstring
-20	|"mundo"|	cstring
-21	|++|	operator
-22	|$var|	cstring
-23	|=|	operator
-24	|ELSEA|	asm-jump
+0	;IF_I;	#inicio_if
+1	;5;	#int
+2	;8;	#int
+3	;CMP;	#comparator_if
+4	;BGE;	#asm-comparator
+5	; ;	#space
+6	;WH_I;	#inicio_wh
+7	;6;	#int
+8	;7;	#int
+9	;CMP;	#comparator_while
+10	;BGE;	#asm-comparator
+11	; ;	#space
+12	;4;	#int
+13	;4;	#int
+14	;+;	#operator
+15	;$b;	#int
+16	;=;	#operator
+17	; ;	#space
+18	;BI;	#asm-jump
+19	;WH_F;	#fin_wh
+20	; ;	#space
+21	;BI;	#asm-jump
+22	;IF_F;	#fin_if
+23	;"hola";	#cstring
+24	;"mundo";	#cstring
+25	;++;	#operator
+26	;$var;	#cstring
+27	;=;	#operator
+28	;ELSE_F;	#asm-jump

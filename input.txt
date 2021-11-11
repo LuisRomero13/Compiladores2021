@@ -1,3 +1,4 @@
+
 declare  int algas,b; string var; enddeclare
 
 if( (5) < (8)){
@@ -8,6 +9,4 @@ if( (5) < (8)){
 else{
 	var="hola"++"mundo";
 }
-
-
 

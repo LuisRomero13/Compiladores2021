@@ -144,29 +144,29 @@ sentencia: asignacion PUNTOYC {printf("Regla 12\n"); } |
            salida PUNTOYC {printf("Regla 17\n");};
 
 asignacion: ID ASIGN multiple {printf("Regla 18\n"); apilar_polaca(ID_aux_TP, TYPE_aux); 
-                               apilar_polaca("A=", "operator"); };
+                               apilar_polaca("A=", "#operator"); };
 
 multiple: ID ASIGN asignacion {printf("Regla 19\n"); apilar_polaca(ID_aux_TP,TYPE_aux);
-                               apilar_polaca("A=","operator");} | 
+                               apilar_polaca("A=","#operator");} | 
           ID ASIGN expresion_num {printf("Regla 20\n");} | 
           ID ASIGN expresion_string {printf("Regla 21\n");} | 
           expresion_num {printf("Regla 22\n");} | 
           expresion_string {printf("Regla 23\n");} ;
 
 expresion_num: termino {printf("Regla 24\n");} | 
-               expresion_num SUMA termino {printf("Regla 25\n"); apilar_polaca("S+","operator");} | 
-               expresion_num RESTA termino {printf("Regla 26\n"); apilar_polaca("R-","operator");} ;
+               expresion_num SUMA termino {printf("Regla 25\n"); apilar_polaca("S+","#operator");} | 
+               expresion_num RESTA termino {printf("Regla 26\n"); apilar_polaca("R-","#operator");} ;
 
 expresion_string: CSTRING CONCAT CSTRING {printf("Regla 27\n"); apilar_polaca(STR_aux_N1,TYPE_aux); 
                                           apilar_polaca(STR_aux_N2, TYPE_aux); 
-                                          apilar_polaca("++","operator"); } | 
+                                          apilar_polaca("++","#operator"); } | 
                   ID CONCAT CSTRING {printf("Regla 28\n");} | 
                   ID CONCAT ID {printf("Regla 29\n");} | 
                   CSTRING CONCAT ID {printf("Regla 30\n");} ;
 
 termino: factor {printf("Regla 31\n");} | 
-         termino MULT factor {printf("Regla 32\n"); apilar_polaca("M*","operator");} | 
-         termino DIV factor {printf("Regla 33\n"); apilar_polaca("D/","operator");} ;
+         termino MULT factor {printf("Regla 32\n"); apilar_polaca("M*","#operator");} | 
+         termino DIV factor {printf("Regla 33\n"); apilar_polaca("D/","#operator");} ;
 
 factor: ID {printf("Regla 34\n"); apilar_polaca(yylval.lexema, TYPE_aux); } | 
         CENT {printf("Regla 35\n"); apilar_polaca(yylval.valor, TYPE_aux);} | 
@@ -187,15 +187,16 @@ comp_logico: PARENTA comparacion PARENTC AND PARENTA comparacion PARENTC {printf
              PARENTA comparacion PARENTC OR PARENTA comparacion PARENTC {printf("Regla 47\n");} ;
 
 condicion: NOT PARENTA condicion PARENTC {printf("Regla 48\n");} | 
-           comparacion {printf("Regla 49\n"); if(habilitar_tira=='s'){apilar_polaca("CMP","comparator_if");}else if(habilitar_tira=='w'){apilar_polaca("CMP","comparator_while");}; 
-                        apilar_polaca(comparador_RR,"asm-comparator"); apilar_polaca(" ","space");} | 
+           comparacion {printf("Regla 49\n"); if(habilitar_tira=='s'){apilar_polaca("CMP","#comparator_if");}else if(habilitar_tira=='w'){apilar_polaca("CMP","#comparator_while");}; 
+                        apilar_polaca(comparador_RR,"#asm-comparator"); apilar_polaca(" ","#space");} | 
            comp_logico {printf("Regla 50\n");};
 
-iteracion: WHILE PARENTA {habilitar_tira='w';}condicion PARENTC LLAVEA bloque LLAVEC {printf("Regla 51\n"); apilar_polaca(" ","space"); apilar_polaca("BI","asm-jump");};
+iteracion: {apilar_polaca("WH_I","#inicio_wh");} WHILE PARENTA {habilitar_tira='w';} condicion PARENTC LLAVEA bloque LLAVEC {printf("Regla 51\n"); apilar_polaca(" ","#space"); 
+                                                                                                                            apilar_polaca("BI","#asm-jump"); apilar_polaca("WH_F","#fin_wh");};
 
-seleccion: IF PARENTA {habilitar_tira='s';}condicion PARENTC LLAVEA bloque LLAVEC { printf("Regla 52\n"); cant_selecciones++; printf("CANT SELECCIONES ES: %d\n",cant_selecciones);
-                                                                                     apilar_polaca(" ","space"); apilar_polaca("BI","asm-jump");  } 
-           ELSE LLAVEA bloque LLAVEC { printf("Regla 53\n"); apilar_polaca("ELSEA","asm-jump");};
+seleccion: {apilar_polaca("IF_I","#inicio_if");}IF PARENTA {habilitar_tira='s';}condicion PARENTC LLAVEA bloque LLAVEC { printf("Regla 52\n"); cant_selecciones++; printf("CANT SELECCIONES ES: %d\n",cant_selecciones);
+                                                                                                                        apilar_polaca(" ","#space"); apilar_polaca("BI","#asm-jump"); apilar_polaca("IF_F","#fin_if");  } 
+           ELSE LLAVEA bloque LLAVEC { printf("Regla 53\n"); apilar_polaca("ELSE_F","#asm-jump");};
 
 entrada: PUT CSTRING {printf("Regla 54\n");} | 
          PUT CENT {printf("Regla 55\n");} | 
@@ -287,14 +288,16 @@ int yylex(void) {
         // YYLVAL almacena, por defecto, un valor de tipo ENTERO (un solo tipo)
         if((token_confirmado.number == 260) || (token_confirmado.number == 259)) {
             strcpy(yylval.valor, token_confirmado.valor);  // guardo el valor asociado al token
-            strcpy(TYPE_aux, token_confirmado.tipo);
+            strcpy(TYPE_aux, "#");
+            strcat(TYPE_aux, token_confirmado.tipo);
             printf("-----------------------------------------------------------YYLVAL TYPE ES : %s\n",TYPE_aux);
             printf("YYLVAL VALOR ES : %s\n",yylval.valor);
         }
         else if (yylval.number == 271) {
             //strcpy(yylval.lexema, token_confirmado.lexema);  // guardo el valor asociado al token
             strcpy(ID_aux_TP, token_confirmado.lexema);
-            strcpy(TYPE_aux, token_confirmado.tipo);
+            strcpy(TYPE_aux, "#");
+            strcat(TYPE_aux, token_confirmado.tipo);
             printf("-----------------------------------------------------------YYLVAL TYPE ES : %s\n",TYPE_aux);
             printf("-----------------------------------------------------------YYLVAL LEXEMA ES : %s\n",ID_aux_TP);
         }
@@ -303,19 +306,22 @@ int yylex(void) {
             imprimir_cadena_NUM++;
             if(imprimir_cadena_NUM == 1) {
                 strcpy(STR_aux_N1, token_confirmado.valor);
-                strcpy(TYPE_aux, token_confirmado.tipo);
+                strcpy(TYPE_aux, "#");
+                strcat(TYPE_aux, token_confirmado.tipo);
                 printf("-----------------------------------------------------------YYLVAL TYPE ES : %s\n",TYPE_aux);    
                 printf("-----------------------------------------------------------YYLVAL VALOR STRING ES : %s\n",STR_aux_N1);
             }
             else if(imprimir_cadena_NUM == 2){
                 strcpy(STR_aux_N2, token_confirmado.valor);
                 printf("-----------------------------------------------------------YYLVAL VALOR STRING ES : %s\n",STR_aux_N2);
-                strcpy(TYPE_aux, token_confirmado.tipo);
+                strcpy(TYPE_aux, "#");
+                strcat(TYPE_aux, token_confirmado.tipo);
                 printf("-----------------------------------------------------------YYLVAL TYPE ES : %s\n",TYPE_aux);    
                 imprimir_cadena_NUM = 0;
             }
         }else if((yylval.number == 266)||(yylval.number == 267)||(yylval.number == 268)){
-            strcpy(TYPE_aux, token_confirmado.tipo);
+            strcpy(TYPE_aux, "#");
+            strcat(TYPE_aux, token_confirmado.tipo);
             printf("-----------------------------------------------------------YYLVAL TYPE ES : %s\n",TYPE_aux);
         }
         else 
@@ -951,7 +957,7 @@ void apilar_polaca(char * yval, char * type_yval) {
         indice_tira++;
         fprintf(repre_intermedia, "%d", indice_tira);
         fflush(repre_intermedia);
-        fprintf(repre_intermedia, "\t|%s|", dato);
+        fprintf(repre_intermedia, "\t;%s;", dato);
         fflush(repre_intermedia);
         fprintf(repre_intermedia, "\t%s\n", type_yval);
         fflush(repre_intermedia);
@@ -967,59 +973,55 @@ void aplicar_polaca() {
     int asignar=0;
     indice_tira++;
     asignar = indice_tira;
-    char aux [40];
+    char crtt;
+
+    char auxIndice[40]={0};
+    char auxCelda[40]={0};
+    char auxEtiqueta[40]={0};
 
     printf("INDICE DE TIRA es %d \n", indice_tira);
-    //struct TiraPolaca tira [asignar]; // crea el array de estructura
-    tira_polaca = (tira*)malloc(asignar+1*sizeof(tira));
-    
     rewind(repre_intermedia);
-    
-    if (repre_intermedia == NULL) {
-	  printf("El fichero no se ha podido abrir para lectura.\n");
-	  exit(1);
-    }else {
-        for(int i=0; !feof(repre_intermedia); i++) {
-            if(i == indice_tira)
-                break;
-            fflush(repre_intermedia);
-            fscanf(repre_intermedia, "%d", &tira_polaca[i].index);
-            fflush(repre_intermedia);
-            strcpy(tira_polaca[i].cell, "|");
-            fscanf(repre_intermedia, "\t|%s|", aux);
-            strcat(tira_polaca[i].cell, aux);
-            fflush(repre_intermedia);
-            fscanf(repre_intermedia, "\t%s\n", tira_polaca[i].tag);
-            fflush(repre_intermedia);
-        }
+
+    tira_polaca = (tira*)malloc(asignar+1*sizeof(tira));
+    if(tira_polaca==NULL){
+        printf("No se asignó memoria correctamente para tira_polaca\n");
+    }
+    else{
+        if (repre_intermedia == NULL) {
+            printf("El fichero no se ha podido abrir para lectura.\n");
+            exit(1);
+        }else {
+            while(1){
+                /*if((crtt = fgetc(repre_intermedia)) != EOF){
+                    printf("%c", crtt);
+                    if(isdigit(crtt)){
+                        strcat(auxIndice,crtt);
+                    }else if(crtt==";"){
+
+                    }
+                 */
+                fgets(repre_intermedia)   
+                }else{
+                    //fclose(repre_intermedia);
+                    break;
+                    }
+                }
+            }
+
     }
     
-    printf("SE GENERO EL ARRAY DE ESTRUCTURAS\n");
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////
 void mostrar_polaca(){
     int cant_cmp = -1;                //     0         1       2        3
     int select[cant_selecciones][4];  // [BFINDEX, BFVALUE, BIINDEX, BIVALUE ]      columnas de select
-
+    /*
     for(int j=0; j<indice_tira; j++) {
         printf ("%d %s %s\n", tira_polaca[j].index, tira_polaca[j].cell, tira_polaca[j].tag);
         if( strcmp( tira_polaca[j].cell , "|CMP|" ) == 0){
             cant_cmp++;                                     //referencia a la fila de tira polaca
             select[cant_cmp][0] = j+2;
             printf("CMP es: %d\n",select[cant_cmp][0]);
-        }
-    }
-
-    /*
-    while(1){
-        for(int fila=0; fila<cant_cmp; fila++) {
-            for(int col=0; col<indice_tira; col++){
-                if(indice_tira > select[cant_cmp][0]){
-                    if( strcmp( tira_polaca[fila].cell , "|CMP|" ) != 0){
-                        select[cant_cmp][2] = col+2;
-                    }
-                }
-            }
         }
     }
     */
