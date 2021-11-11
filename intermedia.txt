@@ -1,39 +1,25 @@
-2
-10
-CMP
-BGE
- 
-3
-30
-+
-$algas
-=
-3
-10
-CMP
-BGE
- 
-13
-40
-*
-$d
-=
-20
-0
--
-$b
-=
- 
-BI
-11
-4
--
-$c
-=
-"hola"
-"mundo"
-++
-$var
-=
- 
-BI
+0	|5|	int
+1	|8|	int
+2	|CMP|	comparator_if
+3	|BGE|	asm-comparator
+4	| |	space
+5	|6|	int
+6	|7|	int
+7	|CMP|	comparator_while
+8	|BGE|	asm-comparator
+9	| |	space
+10	|4|	int
+11	|4|	int
+12	|+|	operator
+13	|$b|	int
+14	|=|	operator
+15	| |	space
+16	|BI|	asm-jump
+17	| |	space
+18	|BI|	asm-jump
+19	|"hola"|	cstring
+20	|"mundo"|	cstring
+21	|++|	operator
+22	|$var|	cstring
+23	|=|	operator
+24	|ELSEA|	asm-jump

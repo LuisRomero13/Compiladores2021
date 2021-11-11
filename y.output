@@ -70,35 +70,41 @@ Gramática
    49          | comparacion
    50          | comp_logico
 
-   51 iteracion: WHILE PARENTA condicion PARENTC LLAVEA bloque LLAVEC
+   51 $@2: /* vacío */
 
-   52 seleccion: IF PARENTA condicion PARENTC LLAVEA bloque LLAVEC ELSE LLAVEA bloque LLAVEC
+   52 iteracion: WHILE PARENTA $@2 condicion PARENTC LLAVEA bloque LLAVEC
 
-   53 entrada: PUT CSTRING
-   54        | PUT CENT
-   55        | PUT CREAL
+   53 $@3: /* vacío */
 
-   56 salida: GET ID
+   54 $@4: /* vacío */
+
+   55 seleccion: IF PARENTA $@3 condicion PARENTC LLAVEA bloque LLAVEC $@4 ELSE LLAVEA bloque LLAVEC
+
+   56 entrada: PUT CSTRING
+   57        | PUT CENT
+   58        | PUT CREAL
+
+   59 salida: GET ID
 
 
 Terminales con las reglas donde aparecen
 
 $end (0) 0
 error (256)
-CSTRING (258) 27 28 30 53
-CENT (259) 35 54
-CREAL (260) 36 55
-WHILE (261) 51
-IF (262) 52
-ELSE (263) 52
+CSTRING (258) 27 28 30 56
+CENT (259) 35 57
+CREAL (260) 36 58
+WHILE (261) 52
+IF (262) 55
+ELSE (263) 55
 DECLARE (264) 1
 ENDDECLARE (265) 1
 REAL (266) 8
 INT (267) 7
 STRING (268) 9
-GET (269) 56
-PUT (270) 53 54 55
-ID (271) 10 11 18 19 20 21 28 29 30 34 56
+GET (269) 59
+PUT (270) 56 57 58
+ID (271) 10 11 18 19 20 21 28 29 30 34 59
 SUMA (272) 25
 RESTA (273) 26
 MULT (274) 32
@@ -115,10 +121,10 @@ MAYORIGUAL (284) 41
 IGUAL (285) 42
 DISTINTO (286) 43
 PUNTOYC (287) 5 6 12 16 17
-LLAVEA (288) 51 52
-LLAVEC (289) 51 52
-PARENTA (290) 37 44 45 46 47 48 51 52
-PARENTC (291) 37 44 45 46 47 48 51 52
+LLAVEA (288) 52 55
+LLAVEC (289) 52 55
+PARENTA (290) 37 44 45 46 47 48 52 55
+PARENTC (291) 37 44 45 46 47 48 52 55
 COMA (292) 11
 
 
@@ -129,7 +135,7 @@ $accept (38)
 programa (39)
     en la izquierda: 1 2, en la derecha: 0
 bloque (40)
-    en la izquierda: 3 4, en la derecha: 1 2 4 51 52
+    en la izquierda: 3 4, en la derecha: 1 2 4 52 55
 declaracion (41)
     en la izquierda: 5 6, en la derecha: 1 6
 type (42)
@@ -159,15 +165,21 @@ comparacion (53)
 comp_logico (54)
     en la izquierda: 46 47, en la derecha: 50
 condicion (55)
-    en la izquierda: 48 49 50, en la derecha: 48 51 52
+    en la izquierda: 48 49 50, en la derecha: 48 52 55
 iteracion (56)
-    en la izquierda: 51, en la derecha: 13
-seleccion (57)
-    en la izquierda: 52, en la derecha: 14
-entrada (58)
-    en la izquierda: 53 54 55, en la derecha: 16
-salida (59)
-    en la izquierda: 56, en la derecha: 17
+    en la izquierda: 52, en la derecha: 13
+$@2 (57)
+    en la izquierda: 51, en la derecha: 52
+seleccion (58)
+    en la izquierda: 55, en la derecha: 14
+$@3 (59)
+    en la izquierda: 53, en la derecha: 55
+$@4 (60)
+    en la izquierda: 54, en la derecha: 55
+entrada (61)
+    en la izquierda: 56 57 58, en la derecha: 16
+salida (62)
+    en la izquierda: 59, en la derecha: 17
 
 
 estado 0
@@ -193,14 +205,14 @@ estado 0
 
 estado 1
 
-   51 iteracion: WHILE . PARENTA condicion PARENTC LLAVEA bloque LLAVEC
+   52 iteracion: WHILE . PARENTA $@2 condicion PARENTC LLAVEA bloque LLAVEC
 
     PARENTA  desplazar e ir al estado 15
 
 
 estado 2
 
-   52 seleccion: IF . PARENTA condicion PARENTC LLAVEA bloque LLAVEC ELSE LLAVEA bloque LLAVEC
+   55 seleccion: IF . PARENTA $@3 condicion PARENTC LLAVEA bloque LLAVEC $@4 ELSE LLAVEA bloque LLAVEC
 
     PARENTA  desplazar e ir al estado 16
 
@@ -219,16 +231,16 @@ estado 3
 
 estado 4
 
-   56 salida: GET . ID
+   59 salida: GET . ID
 
     ID  desplazar e ir al estado 22
 
 
 estado 5
 
-   53 entrada: PUT . CSTRING
-   54        | PUT . CENT
-   55        | PUT . CREAL
+   56 entrada: PUT . CSTRING
+   57        | PUT . CENT
+   58        | PUT . CREAL
 
     CSTRING  desplazar e ir al estado 23
     CENT     desplazar e ir al estado 24
@@ -317,26 +329,20 @@ estado 14
 
 estado 15
 
-   51 iteracion: WHILE PARENTA . condicion PARENTC LLAVEA bloque LLAVEC
+   52 iteracion: WHILE PARENTA . $@2 condicion PARENTC LLAVEA bloque LLAVEC
 
-    NOT      desplazar e ir al estado 32
-    PARENTA  desplazar e ir al estado 33
+    $default  reduce usando la regla 51 ($@2)
 
-    comparacion  ir al estado 34
-    comp_logico  ir al estado 35
-    condicion    ir al estado 36
+    $@2  ir al estado 32
 
 
 estado 16
 
-   52 seleccion: IF PARENTA . condicion PARENTC LLAVEA bloque LLAVEC ELSE LLAVEA bloque LLAVEC
+   55 seleccion: IF PARENTA . $@3 condicion PARENTC LLAVEA bloque LLAVEC $@4 ELSE LLAVEA bloque LLAVEC
 
-    NOT      desplazar e ir al estado 32
-    PARENTA  desplazar e ir al estado 33
+    $default  reduce usando la regla 53 ($@3)
 
-    comparacion  ir al estado 34
-    comp_logico  ir al estado 35
-    condicion    ir al estado 37
+    $@3  ir al estado 33
 
 
 estado 17
@@ -364,7 +370,7 @@ estado 20
 
     1 programa: DECLARE declaracion . ENDDECLARE bloque
 
-    ENDDECLARE  desplazar e ir al estado 38
+    ENDDECLARE  desplazar e ir al estado 34
 
 
 estado 21
@@ -372,54 +378,54 @@ estado 21
     5 declaracion: type . variables PUNTOYC
     6            | type . variables PUNTOYC declaracion
 
-    ID  desplazar e ir al estado 39
+    ID  desplazar e ir al estado 35
 
-    variables  ir al estado 40
+    variables  ir al estado 36
 
 
 estado 22
 
-   56 salida: GET ID .
+   59 salida: GET ID .
 
-    $default  reduce usando la regla 56 (salida)
+    $default  reduce usando la regla 59 (salida)
 
 
 estado 23
 
-   53 entrada: PUT CSTRING .
+   56 entrada: PUT CSTRING .
 
-    $default  reduce usando la regla 53 (entrada)
+    $default  reduce usando la regla 56 (entrada)
 
 
 estado 24
 
-   54 entrada: PUT CENT .
+   57 entrada: PUT CENT .
 
-    $default  reduce usando la regla 54 (entrada)
+    $default  reduce usando la regla 57 (entrada)
 
 
 estado 25
 
-   55 entrada: PUT CREAL .
+   58 entrada: PUT CREAL .
 
-    $default  reduce usando la regla 55 (entrada)
+    $default  reduce usando la regla 58 (entrada)
 
 
 estado 26
 
    18 asignacion: ID ASIGN . multiple
 
-    CSTRING  desplazar e ir al estado 41
-    CENT     desplazar e ir al estado 42
-    CREAL    desplazar e ir al estado 43
-    ID       desplazar e ir al estado 44
-    PARENTA  desplazar e ir al estado 45
+    CSTRING  desplazar e ir al estado 37
+    CENT     desplazar e ir al estado 38
+    CREAL    desplazar e ir al estado 39
+    ID       desplazar e ir al estado 40
+    PARENTA  desplazar e ir al estado 41
 
-    multiple          ir al estado 46
-    expresion_num     ir al estado 47
-    expresion_string  ir al estado 48
-    termino           ir al estado 49
-    factor            ir al estado 50
+    multiple          ir al estado 42
+    expresion_num     ir al estado 43
+    expresion_string  ir al estado 44
+    termino           ir al estado 45
+    factor            ir al estado 46
 
 
 estado 27
@@ -447,7 +453,7 @@ estado 30
 
    16 sentencia: entrada $@1 . PUNTOYC
 
-    PUNTOYC  desplazar e ir al estado 51
+    PUNTOYC  desplazar e ir al estado 47
 
 
 estado 31
@@ -459,60 +465,29 @@ estado 31
 
 estado 32
 
-   48 condicion: NOT . PARENTA condicion PARENTC
+   52 iteracion: WHILE PARENTA $@2 . condicion PARENTC LLAVEA bloque LLAVEC
 
-    PARENTA  desplazar e ir al estado 52
+    NOT      desplazar e ir al estado 48
+    PARENTA  desplazar e ir al estado 49
+
+    comparacion  ir al estado 50
+    comp_logico  ir al estado 51
+    condicion    ir al estado 52
 
 
 estado 33
 
-   44 comparacion: PARENTA . expresion_num PARENTC comparador PARENTA expresion_num PARENTC
-   45            | PARENTA . expresion_string PARENTC comparador PARENTA expresion_string PARENTC
-   46 comp_logico: PARENTA . comparacion PARENTC AND PARENTA comparacion PARENTC
-   47            | PARENTA . comparacion PARENTC OR PARENTA comparacion PARENTC
+   55 seleccion: IF PARENTA $@3 . condicion PARENTC LLAVEA bloque LLAVEC $@4 ELSE LLAVEA bloque LLAVEC
 
-    CSTRING  desplazar e ir al estado 41
-    CENT     desplazar e ir al estado 42
-    CREAL    desplazar e ir al estado 43
-    ID       desplazar e ir al estado 53
-    PARENTA  desplazar e ir al estado 54
+    NOT      desplazar e ir al estado 48
+    PARENTA  desplazar e ir al estado 49
 
-    expresion_num     ir al estado 55
-    expresion_string  ir al estado 56
-    termino           ir al estado 49
-    factor            ir al estado 50
-    comparacion       ir al estado 57
+    comparacion  ir al estado 50
+    comp_logico  ir al estado 51
+    condicion    ir al estado 53
 
 
 estado 34
-
-   49 condicion: comparacion .
-
-    $default  reduce usando la regla 49 (condicion)
-
-
-estado 35
-
-   50 condicion: comp_logico .
-
-    $default  reduce usando la regla 50 (condicion)
-
-
-estado 36
-
-   51 iteracion: WHILE PARENTA condicion . PARENTC LLAVEA bloque LLAVEC
-
-    PARENTC  desplazar e ir al estado 58
-
-
-estado 37
-
-   52 seleccion: IF PARENTA condicion . PARENTC LLAVEA bloque LLAVEC ELSE LLAVEA bloque LLAVEC
-
-    PARENTC  desplazar e ir al estado 59
-
-
-estado 38
 
     1 programa: DECLARE declaracion ENDDECLARE . bloque
 
@@ -522,7 +497,7 @@ estado 38
     PUT    desplazar e ir al estado 5
     ID     desplazar e ir al estado 6
 
-    bloque      ir al estado 60
+    bloque      ir al estado 54
     sentencia   ir al estado 9
     asignacion  ir al estado 10
     iteracion   ir al estado 11
@@ -531,47 +506,47 @@ estado 38
     salida      ir al estado 14
 
 
-estado 39
+estado 35
 
    10 variables: ID .
    11          | ID . COMA variables
 
-    COMA  desplazar e ir al estado 61
+    COMA  desplazar e ir al estado 55
 
     $default  reduce usando la regla 10 (variables)
 
 
-estado 40
+estado 36
 
     5 declaracion: type variables . PUNTOYC
     6            | type variables . PUNTOYC declaracion
 
-    PUNTOYC  desplazar e ir al estado 62
+    PUNTOYC  desplazar e ir al estado 56
 
 
-estado 41
+estado 37
 
    27 expresion_string: CSTRING . CONCAT CSTRING
    30                 | CSTRING . CONCAT ID
 
-    CONCAT  desplazar e ir al estado 63
+    CONCAT  desplazar e ir al estado 57
 
 
-estado 42
+estado 38
 
    35 factor: CENT .
 
     $default  reduce usando la regla 35 (factor)
 
 
-estado 43
+estado 39
 
    36 factor: CREAL .
 
     $default  reduce usando la regla 36 (factor)
 
 
-estado 44
+estado 40
 
    19 multiple: ID . ASIGN asignacion
    20         | ID . ASIGN expresion_num
@@ -580,176 +555,150 @@ estado 44
    29                 | ID . CONCAT ID
    34 factor: ID .
 
-    ASIGN   desplazar e ir al estado 64
-    CONCAT  desplazar e ir al estado 65
+    ASIGN   desplazar e ir al estado 58
+    CONCAT  desplazar e ir al estado 59
 
     $default  reduce usando la regla 34 (factor)
 
 
-estado 45
+estado 41
 
    37 factor: PARENTA . expresion_num PARENTC
 
-    CENT     desplazar e ir al estado 42
-    CREAL    desplazar e ir al estado 43
-    ID       desplazar e ir al estado 66
-    PARENTA  desplazar e ir al estado 45
+    CENT     desplazar e ir al estado 38
+    CREAL    desplazar e ir al estado 39
+    ID       desplazar e ir al estado 60
+    PARENTA  desplazar e ir al estado 41
 
-    expresion_num  ir al estado 67
-    termino        ir al estado 49
-    factor         ir al estado 50
+    expresion_num  ir al estado 61
+    termino        ir al estado 45
+    factor         ir al estado 46
 
 
-estado 46
+estado 42
 
    18 asignacion: ID ASIGN multiple .
 
     $default  reduce usando la regla 18 (asignacion)
 
 
-estado 47
+estado 43
 
    22 multiple: expresion_num .
    25 expresion_num: expresion_num . SUMA termino
    26              | expresion_num . RESTA termino
 
-    SUMA   desplazar e ir al estado 68
-    RESTA  desplazar e ir al estado 69
+    SUMA   desplazar e ir al estado 62
+    RESTA  desplazar e ir al estado 63
 
     $default  reduce usando la regla 22 (multiple)
 
 
-estado 48
+estado 44
 
    23 multiple: expresion_string .
 
     $default  reduce usando la regla 23 (multiple)
 
 
-estado 49
+estado 45
 
    24 expresion_num: termino .
    32 termino: termino . MULT factor
    33        | termino . DIV factor
 
-    MULT  desplazar e ir al estado 70
-    DIV   desplazar e ir al estado 71
+    MULT  desplazar e ir al estado 64
+    DIV   desplazar e ir al estado 65
 
     $default  reduce usando la regla 24 (expresion_num)
 
 
-estado 50
+estado 46
 
    31 termino: factor .
 
     $default  reduce usando la regla 31 (termino)
 
 
-estado 51
+estado 47
 
    16 sentencia: entrada $@1 PUNTOYC .
 
     $default  reduce usando la regla 16 (sentencia)
 
 
+estado 48
+
+   48 condicion: NOT . PARENTA condicion PARENTC
+
+    PARENTA  desplazar e ir al estado 66
+
+
+estado 49
+
+   44 comparacion: PARENTA . expresion_num PARENTC comparador PARENTA expresion_num PARENTC
+   45            | PARENTA . expresion_string PARENTC comparador PARENTA expresion_string PARENTC
+   46 comp_logico: PARENTA . comparacion PARENTC AND PARENTA comparacion PARENTC
+   47            | PARENTA . comparacion PARENTC OR PARENTA comparacion PARENTC
+
+    CSTRING  desplazar e ir al estado 37
+    CENT     desplazar e ir al estado 38
+    CREAL    desplazar e ir al estado 39
+    ID       desplazar e ir al estado 67
+    PARENTA  desplazar e ir al estado 68
+
+    expresion_num     ir al estado 69
+    expresion_string  ir al estado 70
+    termino           ir al estado 45
+    factor            ir al estado 46
+    comparacion       ir al estado 71
+
+
+estado 50
+
+   49 condicion: comparacion .
+
+    $default  reduce usando la regla 49 (condicion)
+
+
+estado 51
+
+   50 condicion: comp_logico .
+
+    $default  reduce usando la regla 50 (condicion)
+
+
 estado 52
 
-   48 condicion: NOT PARENTA . condicion PARENTC
+   52 iteracion: WHILE PARENTA $@2 condicion . PARENTC LLAVEA bloque LLAVEC
 
-    NOT      desplazar e ir al estado 32
-    PARENTA  desplazar e ir al estado 33
-
-    comparacion  ir al estado 34
-    comp_logico  ir al estado 35
-    condicion    ir al estado 72
+    PARENTC  desplazar e ir al estado 72
 
 
 estado 53
 
-   28 expresion_string: ID . CONCAT CSTRING
-   29                 | ID . CONCAT ID
-   34 factor: ID .
+   55 seleccion: IF PARENTA $@3 condicion . PARENTC LLAVEA bloque LLAVEC $@4 ELSE LLAVEA bloque LLAVEC
 
-    CONCAT  desplazar e ir al estado 65
-
-    $default  reduce usando la regla 34 (factor)
+    PARENTC  desplazar e ir al estado 73
 
 
 estado 54
-
-   37 factor: PARENTA . expresion_num PARENTC
-   44 comparacion: PARENTA . expresion_num PARENTC comparador PARENTA expresion_num PARENTC
-   45            | PARENTA . expresion_string PARENTC comparador PARENTA expresion_string PARENTC
-
-    CSTRING  desplazar e ir al estado 41
-    CENT     desplazar e ir al estado 42
-    CREAL    desplazar e ir al estado 43
-    ID       desplazar e ir al estado 53
-    PARENTA  desplazar e ir al estado 45
-
-    expresion_num     ir al estado 73
-    expresion_string  ir al estado 56
-    termino           ir al estado 49
-    factor            ir al estado 50
-
-
-estado 55
-
-   25 expresion_num: expresion_num . SUMA termino
-   26              | expresion_num . RESTA termino
-   44 comparacion: PARENTA expresion_num . PARENTC comparador PARENTA expresion_num PARENTC
-
-    SUMA     desplazar e ir al estado 68
-    RESTA    desplazar e ir al estado 69
-    PARENTC  desplazar e ir al estado 74
-
-
-estado 56
-
-   45 comparacion: PARENTA expresion_string . PARENTC comparador PARENTA expresion_string PARENTC
-
-    PARENTC  desplazar e ir al estado 75
-
-
-estado 57
-
-   46 comp_logico: PARENTA comparacion . PARENTC AND PARENTA comparacion PARENTC
-   47            | PARENTA comparacion . PARENTC OR PARENTA comparacion PARENTC
-
-    PARENTC  desplazar e ir al estado 76
-
-
-estado 58
-
-   51 iteracion: WHILE PARENTA condicion PARENTC . LLAVEA bloque LLAVEC
-
-    LLAVEA  desplazar e ir al estado 77
-
-
-estado 59
-
-   52 seleccion: IF PARENTA condicion PARENTC . LLAVEA bloque LLAVEC ELSE LLAVEA bloque LLAVEC
-
-    LLAVEA  desplazar e ir al estado 78
-
-
-estado 60
 
     1 programa: DECLARE declaracion ENDDECLARE bloque .
 
     $default  reduce usando la regla 1 (programa)
 
 
-estado 61
+estado 55
 
    11 variables: ID COMA . variables
 
-    ID  desplazar e ir al estado 39
+    ID  desplazar e ir al estado 35
 
-    variables  ir al estado 79
+    variables  ir al estado 74
 
 
-estado 62
+estado 56
 
     5 declaracion: type variables PUNTOYC .
     6            | type variables PUNTOYC . declaracion
@@ -760,238 +709,225 @@ estado 62
 
     $default  reduce usando la regla 5 (declaracion)
 
-    declaracion  ir al estado 80
+    declaracion  ir al estado 75
     type         ir al estado 21
 
 
-estado 63
+estado 57
 
    27 expresion_string: CSTRING CONCAT . CSTRING
    30                 | CSTRING CONCAT . ID
 
-    CSTRING  desplazar e ir al estado 81
-    ID       desplazar e ir al estado 82
+    CSTRING  desplazar e ir al estado 76
+    ID       desplazar e ir al estado 77
 
 
-estado 64
+estado 58
 
    19 multiple: ID ASIGN . asignacion
    20         | ID ASIGN . expresion_num
    21         | ID ASIGN . expresion_string
 
-    CSTRING  desplazar e ir al estado 41
-    CENT     desplazar e ir al estado 42
-    CREAL    desplazar e ir al estado 43
-    ID       desplazar e ir al estado 83
-    PARENTA  desplazar e ir al estado 45
+    CSTRING  desplazar e ir al estado 37
+    CENT     desplazar e ir al estado 38
+    CREAL    desplazar e ir al estado 39
+    ID       desplazar e ir al estado 78
+    PARENTA  desplazar e ir al estado 41
 
-    asignacion        ir al estado 84
-    expresion_num     ir al estado 85
-    expresion_string  ir al estado 86
-    termino           ir al estado 49
-    factor            ir al estado 50
+    asignacion        ir al estado 79
+    expresion_num     ir al estado 80
+    expresion_string  ir al estado 81
+    termino           ir al estado 45
+    factor            ir al estado 46
 
 
-estado 65
+estado 59
 
    28 expresion_string: ID CONCAT . CSTRING
    29                 | ID CONCAT . ID
 
-    CSTRING  desplazar e ir al estado 87
-    ID       desplazar e ir al estado 88
+    CSTRING  desplazar e ir al estado 82
+    ID       desplazar e ir al estado 83
 
 
-estado 66
+estado 60
 
    34 factor: ID .
 
     $default  reduce usando la regla 34 (factor)
 
 
-estado 67
+estado 61
 
    25 expresion_num: expresion_num . SUMA termino
    26              | expresion_num . RESTA termino
    37 factor: PARENTA expresion_num . PARENTC
 
-    SUMA     desplazar e ir al estado 68
-    RESTA    desplazar e ir al estado 69
-    PARENTC  desplazar e ir al estado 89
+    SUMA     desplazar e ir al estado 62
+    RESTA    desplazar e ir al estado 63
+    PARENTC  desplazar e ir al estado 84
+
+
+estado 62
+
+   25 expresion_num: expresion_num SUMA . termino
+
+    CENT     desplazar e ir al estado 38
+    CREAL    desplazar e ir al estado 39
+    ID       desplazar e ir al estado 60
+    PARENTA  desplazar e ir al estado 41
+
+    termino  ir al estado 85
+    factor   ir al estado 46
+
+
+estado 63
+
+   26 expresion_num: expresion_num RESTA . termino
+
+    CENT     desplazar e ir al estado 38
+    CREAL    desplazar e ir al estado 39
+    ID       desplazar e ir al estado 60
+    PARENTA  desplazar e ir al estado 41
+
+    termino  ir al estado 86
+    factor   ir al estado 46
+
+
+estado 64
+
+   32 termino: termino MULT . factor
+
+    CENT     desplazar e ir al estado 38
+    CREAL    desplazar e ir al estado 39
+    ID       desplazar e ir al estado 60
+    PARENTA  desplazar e ir al estado 41
+
+    factor  ir al estado 87
+
+
+estado 65
+
+   33 termino: termino DIV . factor
+
+    CENT     desplazar e ir al estado 38
+    CREAL    desplazar e ir al estado 39
+    ID       desplazar e ir al estado 60
+    PARENTA  desplazar e ir al estado 41
+
+    factor  ir al estado 88
+
+
+estado 66
+
+   48 condicion: NOT PARENTA . condicion PARENTC
+
+    NOT      desplazar e ir al estado 48
+    PARENTA  desplazar e ir al estado 49
+
+    comparacion  ir al estado 50
+    comp_logico  ir al estado 51
+    condicion    ir al estado 89
+
+
+estado 67
+
+   28 expresion_string: ID . CONCAT CSTRING
+   29                 | ID . CONCAT ID
+   34 factor: ID .
+
+    CONCAT  desplazar e ir al estado 59
+
+    $default  reduce usando la regla 34 (factor)
 
 
 estado 68
 
-   25 expresion_num: expresion_num SUMA . termino
+   37 factor: PARENTA . expresion_num PARENTC
+   44 comparacion: PARENTA . expresion_num PARENTC comparador PARENTA expresion_num PARENTC
+   45            | PARENTA . expresion_string PARENTC comparador PARENTA expresion_string PARENTC
 
-    CENT     desplazar e ir al estado 42
-    CREAL    desplazar e ir al estado 43
-    ID       desplazar e ir al estado 66
-    PARENTA  desplazar e ir al estado 45
+    CSTRING  desplazar e ir al estado 37
+    CENT     desplazar e ir al estado 38
+    CREAL    desplazar e ir al estado 39
+    ID       desplazar e ir al estado 67
+    PARENTA  desplazar e ir al estado 41
 
-    termino  ir al estado 90
-    factor   ir al estado 50
+    expresion_num     ir al estado 90
+    expresion_string  ir al estado 70
+    termino           ir al estado 45
+    factor            ir al estado 46
 
 
 estado 69
 
-   26 expresion_num: expresion_num RESTA . termino
+   25 expresion_num: expresion_num . SUMA termino
+   26              | expresion_num . RESTA termino
+   44 comparacion: PARENTA expresion_num . PARENTC comparador PARENTA expresion_num PARENTC
 
-    CENT     desplazar e ir al estado 42
-    CREAL    desplazar e ir al estado 43
-    ID       desplazar e ir al estado 66
-    PARENTA  desplazar e ir al estado 45
-
-    termino  ir al estado 91
-    factor   ir al estado 50
+    SUMA     desplazar e ir al estado 62
+    RESTA    desplazar e ir al estado 63
+    PARENTC  desplazar e ir al estado 91
 
 
 estado 70
 
-   32 termino: termino MULT . factor
+   45 comparacion: PARENTA expresion_string . PARENTC comparador PARENTA expresion_string PARENTC
 
-    CENT     desplazar e ir al estado 42
-    CREAL    desplazar e ir al estado 43
-    ID       desplazar e ir al estado 66
-    PARENTA  desplazar e ir al estado 45
-
-    factor  ir al estado 92
+    PARENTC  desplazar e ir al estado 92
 
 
 estado 71
 
-   33 termino: termino DIV . factor
+   46 comp_logico: PARENTA comparacion . PARENTC AND PARENTA comparacion PARENTC
+   47            | PARENTA comparacion . PARENTC OR PARENTA comparacion PARENTC
 
-    CENT     desplazar e ir al estado 42
-    CREAL    desplazar e ir al estado 43
-    ID       desplazar e ir al estado 66
-    PARENTA  desplazar e ir al estado 45
-
-    factor  ir al estado 93
+    PARENTC  desplazar e ir al estado 93
 
 
 estado 72
 
-   48 condicion: NOT PARENTA condicion . PARENTC
+   52 iteracion: WHILE PARENTA $@2 condicion PARENTC . LLAVEA bloque LLAVEC
 
-    PARENTC  desplazar e ir al estado 94
+    LLAVEA  desplazar e ir al estado 94
 
 
 estado 73
 
-   25 expresion_num: expresion_num . SUMA termino
-   26              | expresion_num . RESTA termino
-   37 factor: PARENTA expresion_num . PARENTC
-   44 comparacion: PARENTA expresion_num . PARENTC comparador PARENTA expresion_num PARENTC
+   55 seleccion: IF PARENTA $@3 condicion PARENTC . LLAVEA bloque LLAVEC $@4 ELSE LLAVEA bloque LLAVEC
 
-    SUMA     desplazar e ir al estado 68
-    RESTA    desplazar e ir al estado 69
-    PARENTC  desplazar e ir al estado 95
+    LLAVEA  desplazar e ir al estado 95
 
 
 estado 74
-
-   44 comparacion: PARENTA expresion_num PARENTC . comparador PARENTA expresion_num PARENTC
-
-    MAYOR       desplazar e ir al estado 96
-    MENOR       desplazar e ir al estado 97
-    MENORIGUAL  desplazar e ir al estado 98
-    MAYORIGUAL  desplazar e ir al estado 99
-    IGUAL       desplazar e ir al estado 100
-    DISTINTO    desplazar e ir al estado 101
-
-    comparador  ir al estado 102
-
-
-estado 75
-
-   45 comparacion: PARENTA expresion_string PARENTC . comparador PARENTA expresion_string PARENTC
-
-    MAYOR       desplazar e ir al estado 96
-    MENOR       desplazar e ir al estado 97
-    MENORIGUAL  desplazar e ir al estado 98
-    MAYORIGUAL  desplazar e ir al estado 99
-    IGUAL       desplazar e ir al estado 100
-    DISTINTO    desplazar e ir al estado 101
-
-    comparador  ir al estado 103
-
-
-estado 76
-
-   46 comp_logico: PARENTA comparacion PARENTC . AND PARENTA comparacion PARENTC
-   47            | PARENTA comparacion PARENTC . OR PARENTA comparacion PARENTC
-
-    AND  desplazar e ir al estado 104
-    OR   desplazar e ir al estado 105
-
-
-estado 77
-
-   51 iteracion: WHILE PARENTA condicion PARENTC LLAVEA . bloque LLAVEC
-
-    WHILE  desplazar e ir al estado 1
-    IF     desplazar e ir al estado 2
-    GET    desplazar e ir al estado 4
-    PUT    desplazar e ir al estado 5
-    ID     desplazar e ir al estado 6
-
-    bloque      ir al estado 106
-    sentencia   ir al estado 9
-    asignacion  ir al estado 10
-    iteracion   ir al estado 11
-    seleccion   ir al estado 12
-    entrada     ir al estado 13
-    salida      ir al estado 14
-
-
-estado 78
-
-   52 seleccion: IF PARENTA condicion PARENTC LLAVEA . bloque LLAVEC ELSE LLAVEA bloque LLAVEC
-
-    WHILE  desplazar e ir al estado 1
-    IF     desplazar e ir al estado 2
-    GET    desplazar e ir al estado 4
-    PUT    desplazar e ir al estado 5
-    ID     desplazar e ir al estado 6
-
-    bloque      ir al estado 107
-    sentencia   ir al estado 9
-    asignacion  ir al estado 10
-    iteracion   ir al estado 11
-    seleccion   ir al estado 12
-    entrada     ir al estado 13
-    salida      ir al estado 14
-
-
-estado 79
 
    11 variables: ID COMA variables .
 
     $default  reduce usando la regla 11 (variables)
 
 
-estado 80
+estado 75
 
     6 declaracion: type variables PUNTOYC declaracion .
 
     $default  reduce usando la regla 6 (declaracion)
 
 
-estado 81
+estado 76
 
    27 expresion_string: CSTRING CONCAT CSTRING .
 
     $default  reduce usando la regla 27 (expresion_string)
 
 
-estado 82
+estado 77
 
    30 expresion_string: CSTRING CONCAT ID .
 
     $default  reduce usando la regla 30 (expresion_string)
 
 
-estado 83
+estado 78
 
    18 asignacion: ID . ASIGN multiple
    28 expresion_string: ID . CONCAT CSTRING
@@ -999,355 +935,155 @@ estado 83
    34 factor: ID .
 
     ASIGN   desplazar e ir al estado 26
-    CONCAT  desplazar e ir al estado 65
+    CONCAT  desplazar e ir al estado 59
 
     $default  reduce usando la regla 34 (factor)
 
 
-estado 84
+estado 79
 
    19 multiple: ID ASIGN asignacion .
 
     $default  reduce usando la regla 19 (multiple)
 
 
-estado 85
+estado 80
 
    20 multiple: ID ASIGN expresion_num .
    25 expresion_num: expresion_num . SUMA termino
    26              | expresion_num . RESTA termino
 
-    SUMA   desplazar e ir al estado 68
-    RESTA  desplazar e ir al estado 69
+    SUMA   desplazar e ir al estado 62
+    RESTA  desplazar e ir al estado 63
 
     $default  reduce usando la regla 20 (multiple)
 
 
-estado 86
+estado 81
 
    21 multiple: ID ASIGN expresion_string .
 
     $default  reduce usando la regla 21 (multiple)
 
 
-estado 87
+estado 82
 
    28 expresion_string: ID CONCAT CSTRING .
 
     $default  reduce usando la regla 28 (expresion_string)
 
 
-estado 88
+estado 83
 
    29 expresion_string: ID CONCAT ID .
 
     $default  reduce usando la regla 29 (expresion_string)
 
 
-estado 89
+estado 84
 
    37 factor: PARENTA expresion_num PARENTC .
 
     $default  reduce usando la regla 37 (factor)
 
 
-estado 90
+estado 85
 
    25 expresion_num: expresion_num SUMA termino .
    32 termino: termino . MULT factor
    33        | termino . DIV factor
 
-    MULT  desplazar e ir al estado 70
-    DIV   desplazar e ir al estado 71
+    MULT  desplazar e ir al estado 64
+    DIV   desplazar e ir al estado 65
 
     $default  reduce usando la regla 25 (expresion_num)
 
 
-estado 91
+estado 86
 
    26 expresion_num: expresion_num RESTA termino .
    32 termino: termino . MULT factor
    33        | termino . DIV factor
 
-    MULT  desplazar e ir al estado 70
-    DIV   desplazar e ir al estado 71
+    MULT  desplazar e ir al estado 64
+    DIV   desplazar e ir al estado 65
 
     $default  reduce usando la regla 26 (expresion_num)
 
 
-estado 92
+estado 87
 
    32 termino: termino MULT factor .
 
     $default  reduce usando la regla 32 (termino)
 
 
-estado 93
+estado 88
 
    33 termino: termino DIV factor .
 
     $default  reduce usando la regla 33 (termino)
 
 
-estado 94
+estado 89
 
-   48 condicion: NOT PARENTA condicion PARENTC .
+   48 condicion: NOT PARENTA condicion . PARENTC
 
-    $default  reduce usando la regla 48 (condicion)
+    PARENTC  desplazar e ir al estado 96
 
 
-estado 95
-
-   37 factor: PARENTA expresion_num PARENTC .
-   44 comparacion: PARENTA expresion_num PARENTC . comparador PARENTA expresion_num PARENTC
-
-    MAYOR       desplazar e ir al estado 96
-    MENOR       desplazar e ir al estado 97
-    MENORIGUAL  desplazar e ir al estado 98
-    MAYORIGUAL  desplazar e ir al estado 99
-    IGUAL       desplazar e ir al estado 100
-    DISTINTO    desplazar e ir al estado 101
-
-    $default  reduce usando la regla 37 (factor)
-
-    comparador  ir al estado 102
-
-
-estado 96
-
-   38 comparador: MAYOR .
-
-    $default  reduce usando la regla 38 (comparador)
-
-
-estado 97
-
-   39 comparador: MENOR .
-
-    $default  reduce usando la regla 39 (comparador)
-
-
-estado 98
-
-   40 comparador: MENORIGUAL .
-
-    $default  reduce usando la regla 40 (comparador)
-
-
-estado 99
-
-   41 comparador: MAYORIGUAL .
-
-    $default  reduce usando la regla 41 (comparador)
-
-
-estado 100
-
-   42 comparador: IGUAL .
-
-    $default  reduce usando la regla 42 (comparador)
-
-
-estado 101
-
-   43 comparador: DISTINTO .
-
-    $default  reduce usando la regla 43 (comparador)
-
-
-estado 102
-
-   44 comparacion: PARENTA expresion_num PARENTC comparador . PARENTA expresion_num PARENTC
-
-    PARENTA  desplazar e ir al estado 108
-
-
-estado 103
-
-   45 comparacion: PARENTA expresion_string PARENTC comparador . PARENTA expresion_string PARENTC
-
-    PARENTA  desplazar e ir al estado 109
-
-
-estado 104
-
-   46 comp_logico: PARENTA comparacion PARENTC AND . PARENTA comparacion PARENTC
-
-    PARENTA  desplazar e ir al estado 110
-
-
-estado 105
-
-   47 comp_logico: PARENTA comparacion PARENTC OR . PARENTA comparacion PARENTC
-
-    PARENTA  desplazar e ir al estado 111
-
-
-estado 106
-
-   51 iteracion: WHILE PARENTA condicion PARENTC LLAVEA bloque . LLAVEC
-
-    LLAVEC  desplazar e ir al estado 112
-
-
-estado 107
-
-   52 seleccion: IF PARENTA condicion PARENTC LLAVEA bloque . LLAVEC ELSE LLAVEA bloque LLAVEC
-
-    LLAVEC  desplazar e ir al estado 113
-
-
-estado 108
-
-   44 comparacion: PARENTA expresion_num PARENTC comparador PARENTA . expresion_num PARENTC
-
-    CENT     desplazar e ir al estado 42
-    CREAL    desplazar e ir al estado 43
-    ID       desplazar e ir al estado 66
-    PARENTA  desplazar e ir al estado 45
-
-    expresion_num  ir al estado 114
-    termino        ir al estado 49
-    factor         ir al estado 50
-
-
-estado 109
-
-   45 comparacion: PARENTA expresion_string PARENTC comparador PARENTA . expresion_string PARENTC
-
-    CSTRING  desplazar e ir al estado 41
-    ID       desplazar e ir al estado 115
-
-    expresion_string  ir al estado 116
-
-
-estado 110
-
-   46 comp_logico: PARENTA comparacion PARENTC AND PARENTA . comparacion PARENTC
-
-    PARENTA  desplazar e ir al estado 117
-
-    comparacion  ir al estado 118
-
-
-estado 111
-
-   47 comp_logico: PARENTA comparacion PARENTC OR PARENTA . comparacion PARENTC
-
-    PARENTA  desplazar e ir al estado 117
-
-    comparacion  ir al estado 119
-
-
-estado 112
-
-   51 iteracion: WHILE PARENTA condicion PARENTC LLAVEA bloque LLAVEC .
-
-    $default  reduce usando la regla 51 (iteracion)
-
-
-estado 113
-
-   52 seleccion: IF PARENTA condicion PARENTC LLAVEA bloque LLAVEC . ELSE LLAVEA bloque LLAVEC
-
-    ELSE  desplazar e ir al estado 120
-
-
-estado 114
+estado 90
 
    25 expresion_num: expresion_num . SUMA termino
    26              | expresion_num . RESTA termino
-   44 comparacion: PARENTA expresion_num PARENTC comparador PARENTA expresion_num . PARENTC
+   37 factor: PARENTA expresion_num . PARENTC
+   44 comparacion: PARENTA expresion_num . PARENTC comparador PARENTA expresion_num PARENTC
 
-    SUMA     desplazar e ir al estado 68
-    RESTA    desplazar e ir al estado 69
-    PARENTC  desplazar e ir al estado 121
-
-
-estado 115
-
-   28 expresion_string: ID . CONCAT CSTRING
-   29                 | ID . CONCAT ID
-
-    CONCAT  desplazar e ir al estado 65
+    SUMA     desplazar e ir al estado 62
+    RESTA    desplazar e ir al estado 63
+    PARENTC  desplazar e ir al estado 97
 
 
-estado 116
+estado 91
 
-   45 comparacion: PARENTA expresion_string PARENTC comparador PARENTA expresion_string . PARENTC
+   44 comparacion: PARENTA expresion_num PARENTC . comparador PARENTA expresion_num PARENTC
 
-    PARENTC  desplazar e ir al estado 122
+    MAYOR       desplazar e ir al estado 98
+    MENOR       desplazar e ir al estado 99
+    MENORIGUAL  desplazar e ir al estado 100
+    MAYORIGUAL  desplazar e ir al estado 101
+    IGUAL       desplazar e ir al estado 102
+    DISTINTO    desplazar e ir al estado 103
 
-
-estado 117
-
-   44 comparacion: PARENTA . expresion_num PARENTC comparador PARENTA expresion_num PARENTC
-   45            | PARENTA . expresion_string PARENTC comparador PARENTA expresion_string PARENTC
-
-    CSTRING  desplazar e ir al estado 41
-    CENT     desplazar e ir al estado 42
-    CREAL    desplazar e ir al estado 43
-    ID       desplazar e ir al estado 53
-    PARENTA  desplazar e ir al estado 45
-
-    expresion_num     ir al estado 55
-    expresion_string  ir al estado 56
-    termino           ir al estado 49
-    factor            ir al estado 50
+    comparador  ir al estado 104
 
 
-estado 118
+estado 92
 
-   46 comp_logico: PARENTA comparacion PARENTC AND PARENTA comparacion . PARENTC
+   45 comparacion: PARENTA expresion_string PARENTC . comparador PARENTA expresion_string PARENTC
 
-    PARENTC  desplazar e ir al estado 123
+    MAYOR       desplazar e ir al estado 98
+    MENOR       desplazar e ir al estado 99
+    MENORIGUAL  desplazar e ir al estado 100
+    MAYORIGUAL  desplazar e ir al estado 101
+    IGUAL       desplazar e ir al estado 102
+    DISTINTO    desplazar e ir al estado 103
 
-
-estado 119
-
-   47 comp_logico: PARENTA comparacion PARENTC OR PARENTA comparacion . PARENTC
-
-    PARENTC  desplazar e ir al estado 124
-
-
-estado 120
-
-   52 seleccion: IF PARENTA condicion PARENTC LLAVEA bloque LLAVEC ELSE . LLAVEA bloque LLAVEC
-
-    LLAVEA  desplazar e ir al estado 125
+    comparador  ir al estado 105
 
 
-estado 121
+estado 93
 
-   44 comparacion: PARENTA expresion_num PARENTC comparador PARENTA expresion_num PARENTC .
+   46 comp_logico: PARENTA comparacion PARENTC . AND PARENTA comparacion PARENTC
+   47            | PARENTA comparacion PARENTC . OR PARENTA comparacion PARENTC
 
-    $default  reduce usando la regla 44 (comparacion)
-
-
-estado 122
-
-   45 comparacion: PARENTA expresion_string PARENTC comparador PARENTA expresion_string PARENTC .
-
-    $default  reduce usando la regla 45 (comparacion)
+    AND  desplazar e ir al estado 106
+    OR   desplazar e ir al estado 107
 
 
-estado 123
+estado 94
 
-   46 comp_logico: PARENTA comparacion PARENTC AND PARENTA comparacion PARENTC .
-
-    $default  reduce usando la regla 46 (comp_logico)
-
-
-estado 124
-
-   47 comp_logico: PARENTA comparacion PARENTC OR PARENTA comparacion PARENTC .
-
-    $default  reduce usando la regla 47 (comp_logico)
-
-
-estado 125
-
-   52 seleccion: IF PARENTA condicion PARENTC LLAVEA bloque LLAVEC ELSE LLAVEA . bloque LLAVEC
+   52 iteracion: WHILE PARENTA $@2 condicion PARENTC LLAVEA . bloque LLAVEC
 
     WHILE  desplazar e ir al estado 1
     IF     desplazar e ir al estado 2
@@ -1355,7 +1091,7 @@ estado 125
     PUT    desplazar e ir al estado 5
     ID     desplazar e ir al estado 6
 
-    bloque      ir al estado 126
+    bloque      ir al estado 108
     sentencia   ir al estado 9
     asignacion  ir al estado 10
     iteracion   ir al estado 11
@@ -1364,15 +1100,318 @@ estado 125
     salida      ir al estado 14
 
 
+estado 95
+
+   55 seleccion: IF PARENTA $@3 condicion PARENTC LLAVEA . bloque LLAVEC $@4 ELSE LLAVEA bloque LLAVEC
+
+    WHILE  desplazar e ir al estado 1
+    IF     desplazar e ir al estado 2
+    GET    desplazar e ir al estado 4
+    PUT    desplazar e ir al estado 5
+    ID     desplazar e ir al estado 6
+
+    bloque      ir al estado 109
+    sentencia   ir al estado 9
+    asignacion  ir al estado 10
+    iteracion   ir al estado 11
+    seleccion   ir al estado 12
+    entrada     ir al estado 13
+    salida      ir al estado 14
+
+
+estado 96
+
+   48 condicion: NOT PARENTA condicion PARENTC .
+
+    $default  reduce usando la regla 48 (condicion)
+
+
+estado 97
+
+   37 factor: PARENTA expresion_num PARENTC .
+   44 comparacion: PARENTA expresion_num PARENTC . comparador PARENTA expresion_num PARENTC
+
+    MAYOR       desplazar e ir al estado 98
+    MENOR       desplazar e ir al estado 99
+    MENORIGUAL  desplazar e ir al estado 100
+    MAYORIGUAL  desplazar e ir al estado 101
+    IGUAL       desplazar e ir al estado 102
+    DISTINTO    desplazar e ir al estado 103
+
+    $default  reduce usando la regla 37 (factor)
+
+    comparador  ir al estado 104
+
+
+estado 98
+
+   38 comparador: MAYOR .
+
+    $default  reduce usando la regla 38 (comparador)
+
+
+estado 99
+
+   39 comparador: MENOR .
+
+    $default  reduce usando la regla 39 (comparador)
+
+
+estado 100
+
+   40 comparador: MENORIGUAL .
+
+    $default  reduce usando la regla 40 (comparador)
+
+
+estado 101
+
+   41 comparador: MAYORIGUAL .
+
+    $default  reduce usando la regla 41 (comparador)
+
+
+estado 102
+
+   42 comparador: IGUAL .
+
+    $default  reduce usando la regla 42 (comparador)
+
+
+estado 103
+
+   43 comparador: DISTINTO .
+
+    $default  reduce usando la regla 43 (comparador)
+
+
+estado 104
+
+   44 comparacion: PARENTA expresion_num PARENTC comparador . PARENTA expresion_num PARENTC
+
+    PARENTA  desplazar e ir al estado 110
+
+
+estado 105
+
+   45 comparacion: PARENTA expresion_string PARENTC comparador . PARENTA expresion_string PARENTC
+
+    PARENTA  desplazar e ir al estado 111
+
+
+estado 106
+
+   46 comp_logico: PARENTA comparacion PARENTC AND . PARENTA comparacion PARENTC
+
+    PARENTA  desplazar e ir al estado 112
+
+
+estado 107
+
+   47 comp_logico: PARENTA comparacion PARENTC OR . PARENTA comparacion PARENTC
+
+    PARENTA  desplazar e ir al estado 113
+
+
+estado 108
+
+   52 iteracion: WHILE PARENTA $@2 condicion PARENTC LLAVEA bloque . LLAVEC
+
+    LLAVEC  desplazar e ir al estado 114
+
+
+estado 109
+
+   55 seleccion: IF PARENTA $@3 condicion PARENTC LLAVEA bloque . LLAVEC $@4 ELSE LLAVEA bloque LLAVEC
+
+    LLAVEC  desplazar e ir al estado 115
+
+
+estado 110
+
+   44 comparacion: PARENTA expresion_num PARENTC comparador PARENTA . expresion_num PARENTC
+
+    CENT     desplazar e ir al estado 38
+    CREAL    desplazar e ir al estado 39
+    ID       desplazar e ir al estado 60
+    PARENTA  desplazar e ir al estado 41
+
+    expresion_num  ir al estado 116
+    termino        ir al estado 45
+    factor         ir al estado 46
+
+
+estado 111
+
+   45 comparacion: PARENTA expresion_string PARENTC comparador PARENTA . expresion_string PARENTC
+
+    CSTRING  desplazar e ir al estado 37
+    ID       desplazar e ir al estado 117
+
+    expresion_string  ir al estado 118
+
+
+estado 112
+
+   46 comp_logico: PARENTA comparacion PARENTC AND PARENTA . comparacion PARENTC
+
+    PARENTA  desplazar e ir al estado 119
+
+    comparacion  ir al estado 120
+
+
+estado 113
+
+   47 comp_logico: PARENTA comparacion PARENTC OR PARENTA . comparacion PARENTC
+
+    PARENTA  desplazar e ir al estado 119
+
+    comparacion  ir al estado 121
+
+
+estado 114
+
+   52 iteracion: WHILE PARENTA $@2 condicion PARENTC LLAVEA bloque LLAVEC .
+
+    $default  reduce usando la regla 52 (iteracion)
+
+
+estado 115
+
+   55 seleccion: IF PARENTA $@3 condicion PARENTC LLAVEA bloque LLAVEC . $@4 ELSE LLAVEA bloque LLAVEC
+
+    $default  reduce usando la regla 54 ($@4)
+
+    $@4  ir al estado 122
+
+
+estado 116
+
+   25 expresion_num: expresion_num . SUMA termino
+   26              | expresion_num . RESTA termino
+   44 comparacion: PARENTA expresion_num PARENTC comparador PARENTA expresion_num . PARENTC
+
+    SUMA     desplazar e ir al estado 62
+    RESTA    desplazar e ir al estado 63
+    PARENTC  desplazar e ir al estado 123
+
+
+estado 117
+
+   28 expresion_string: ID . CONCAT CSTRING
+   29                 | ID . CONCAT ID
+
+    CONCAT  desplazar e ir al estado 59
+
+
+estado 118
+
+   45 comparacion: PARENTA expresion_string PARENTC comparador PARENTA expresion_string . PARENTC
+
+    PARENTC  desplazar e ir al estado 124
+
+
+estado 119
+
+   44 comparacion: PARENTA . expresion_num PARENTC comparador PARENTA expresion_num PARENTC
+   45            | PARENTA . expresion_string PARENTC comparador PARENTA expresion_string PARENTC
+
+    CSTRING  desplazar e ir al estado 37
+    CENT     desplazar e ir al estado 38
+    CREAL    desplazar e ir al estado 39
+    ID       desplazar e ir al estado 67
+    PARENTA  desplazar e ir al estado 41
+
+    expresion_num     ir al estado 69
+    expresion_string  ir al estado 70
+    termino           ir al estado 45
+    factor            ir al estado 46
+
+
+estado 120
+
+   46 comp_logico: PARENTA comparacion PARENTC AND PARENTA comparacion . PARENTC
+
+    PARENTC  desplazar e ir al estado 125
+
+
+estado 121
+
+   47 comp_logico: PARENTA comparacion PARENTC OR PARENTA comparacion . PARENTC
+
+    PARENTC  desplazar e ir al estado 126
+
+
+estado 122
+
+   55 seleccion: IF PARENTA $@3 condicion PARENTC LLAVEA bloque LLAVEC $@4 . ELSE LLAVEA bloque LLAVEC
+
+    ELSE  desplazar e ir al estado 127
+
+
+estado 123
+
+   44 comparacion: PARENTA expresion_num PARENTC comparador PARENTA expresion_num PARENTC .
+
+    $default  reduce usando la regla 44 (comparacion)
+
+
+estado 124
+
+   45 comparacion: PARENTA expresion_string PARENTC comparador PARENTA expresion_string PARENTC .
+
+    $default  reduce usando la regla 45 (comparacion)
+
+
+estado 125
+
+   46 comp_logico: PARENTA comparacion PARENTC AND PARENTA comparacion PARENTC .
+
+    $default  reduce usando la regla 46 (comp_logico)
+
+
 estado 126
 
-   52 seleccion: IF PARENTA condicion PARENTC LLAVEA bloque LLAVEC ELSE LLAVEA bloque . LLAVEC
+   47 comp_logico: PARENTA comparacion PARENTC OR PARENTA comparacion PARENTC .
 
-    LLAVEC  desplazar e ir al estado 127
+    $default  reduce usando la regla 47 (comp_logico)
 
 
 estado 127
 
-   52 seleccion: IF PARENTA condicion PARENTC LLAVEA bloque LLAVEC ELSE LLAVEA bloque LLAVEC .
+   55 seleccion: IF PARENTA $@3 condicion PARENTC LLAVEA bloque LLAVEC $@4 ELSE . LLAVEA bloque LLAVEC
 
-    $default  reduce usando la regla 52 (seleccion)
+    LLAVEA  desplazar e ir al estado 128
+
+
+estado 128
+
+   55 seleccion: IF PARENTA $@3 condicion PARENTC LLAVEA bloque LLAVEC $@4 ELSE LLAVEA . bloque LLAVEC
+
+    WHILE  desplazar e ir al estado 1
+    IF     desplazar e ir al estado 2
+    GET    desplazar e ir al estado 4
+    PUT    desplazar e ir al estado 5
+    ID     desplazar e ir al estado 6
+
+    bloque      ir al estado 129
+    sentencia   ir al estado 9
+    asignacion  ir al estado 10
+    iteracion   ir al estado 11
+    seleccion   ir al estado 12
+    entrada     ir al estado 13
+    salida      ir al estado 14
+
+
+estado 129
+
+   55 seleccion: IF PARENTA $@3 condicion PARENTC LLAVEA bloque LLAVEC $@4 ELSE LLAVEA bloque . LLAVEC
+
+    LLAVEC  desplazar e ir al estado 130
+
+
+estado 130
+
+   55 seleccion: IF PARENTA $@3 condicion PARENTC LLAVEA bloque LLAVEC $@4 ELSE LLAVEA bloque LLAVEC .
+
+    $default  reduce usando la regla 55 (seleccion)

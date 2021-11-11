@@ -1,15 +1,13 @@
-declare  int algas,b,d,c; string var; enddeclare
+declare  int algas,b; string var; enddeclare
 
-if ((2) < (10)) {
-    algas = 3+30;
-    if ((3) < (10)) {
-        d = 13*40;
-    }else {
-        b = 20-0;
-    }
+if( (5) < (8)){
+	while( (6) < (7) ) {
+		b=4+4;
+	}
 }
-else {
-   c = 11-4;
-   var = "hola"++"mundo";
+else{
+	var="hola"++"mundo";
 }
+
+
 
