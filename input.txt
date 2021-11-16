@@ -1,12 +1,13 @@
+declare string chain,chain2; int a, z, b; string zetach; int pepe,juan;
+int pi; string yota; 
+enddeclare 
 
-declare  int algas,b; string var; enddeclare
-
-if( (5) < (8)){
-	while( (6) < (7) ) {
-		b=4+4;
-	}
-}
-else{
-	var="hola"++"mundo";
-}
-
+b = 5;
+chain="hola"++"manola";
+if ( (b) < (7) ){
+	while((6) > (3) ){
+		b=22;
+		a= b= 6 * juan - 5;}
+}else{
+	chain2="jaja"++"jojo";
+} 

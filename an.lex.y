@@ -5,6 +5,7 @@
     #include <ctype.h>
     #include <malloc.h>
     #include "y.tab.h"
+    #define TAM 100
     
     // variables para analizador lexico
     FILE * input=NULL;  
@@ -36,10 +37,17 @@
         int longitud;
     };
     typedef struct {
-        int index;
+        char index[40];
         char cell [40];
         char tag [40];
     }tira;
+    typedef struct {
+        char nombre[40];
+        char tipo [40];
+        char valor [40];
+        char longitud [40];
+    }TablaSimbolos;
+
     struct Token token_confirmado;    
     
     // funciones para analizador lexico
@@ -60,6 +68,8 @@
 
     // variables para codigo intermedio
     tira *tira_polaca;
+    TablaSimbolos * dinamic_TS;
+
     int cantidad_elementos_tira = 0; // indica la fila
     char comparador_RR [4] = {0}; // para imprimir los comparadores
     FILE * repre_intermedia=NULL;
@@ -69,9 +79,45 @@
     char TYPE_aux[40] = {0}; // para los tipos de datos
     char num_tag_else[40] = "asm-jump";
     int imprimir_cadena_NUM = 0; int indice_tira = -1; int cant_selecciones = 0; int cant_bucles = 0;
+    
     // funciones para codigo intermedio
     void apilar_polaca(char * yval, char * type_yval);  void aplicar_polaca();  void mostrar_polaca(); 
-    char habilitar_tira=' '; 
+    char * getIdTP(); char *invertir(char cadena[]);
+    void llenarTS(); void actualizarTS(char type[], int num_tipo); char * removeSubString(char * str,int num_tipo);  char * insertSpaWhite(char * line);
+    void addTypeTS(); void printTS(); void printTiraPolaca();
+    void verificar_tipos();
+
+    char habilitar_tira=' ';
+    char habilitar_multiple = ' '; 
+    char listaIDS[1000] = {0};  
+    int position_TS = 0;  // todo lo que dice TS es Tabla de Simbolos
+    char ** memory_TS;
+
+    //estructuras para la pila
+    struct elemento {
+	int dato;
+    int posicion;
+	struct elemento *next;
+    };
+
+    struct pila {
+        struct elemento *frente;
+        int tamano;
+    };
+
+    typedef struct {
+        struct elemento registro;
+    }tiraIW;
+
+    //funciones utilizadas por la pila
+    void aplicar_algoritmo_pilas();
+    int crear(struct pila *);
+    int apilar(struct pila *, struct elemento);
+    int desapilar(struct pila *, struct elemento *);
+    int estaVacia(struct pila);
+    int tamano(struct pila p);
+    int mostrar(struct pila *p, struct elemento *);
+    int retornar_tope(struct pila *p, struct elemento *elemento);
 %}
 
 %union {
@@ -121,34 +167,35 @@
 %token COMA
 
 %%
-programa: DECLARE declaracion ENDDECLARE bloque {printf("Regla 1\n"); aplicar_polaca(); mostrar_polaca(); } | 
-          bloque {printf("Regla 2\n"); };
+programa: DECLARE declaracion ENDDECLARE bloque {printf("Regla 1\n"); llenarTS(); aplicar_polaca(); aplicar_algoritmo_pilas();mostrar_polaca();} | 
+          bloque {printf("Regla 2\n"); aplicar_polaca(); aplicar_algoritmo_pilas(); mostrar_polaca();verificar_tipos();};
 
 bloque: sentencia {printf("Regla 3\n");} | 
         sentencia  bloque {printf("Regla 4\n");};
 
-declaracion: type variables PUNTOYC {printf("Regla 5\n");} | 
-             type variables PUNTOYC declaracion {printf("Regla 6\n");};
+declaracion: type variables PUNTOYC {printf("Regla 5\n"); habilitar_multiple = 'y';} | 
+             type variables PUNTOYC declaracion {printf("Regla 6\n"); habilitar_multiple = 'y';};
 
-type: INT {printf("Regla 7\n");} | 
-      REAL {printf("Regla 8\n");} | 
-      STRING {printf("Regla 9\n");};
+type: INT {printf("Regla 7\n"); } | 
+      REAL {printf("Regla 8\n"); } | 
+      STRING {printf("Regla 9\n"); };
 
-variables: ID {printf("Regla 10\n");} | 
+variables: ID {printf("Regla 10\n");   } | 
            ID COMA variables {printf("Regla 11\n");};
 
 sentencia: asignacion PUNTOYC {printf("Regla 12\n"); } | 
            iteracion {printf("Regla 13\n");} | 
            seleccion {printf("Regla 14\n");} | 
-           entrada {printf("Regla 15\n");} PUNTOYC {printf("Regla 16\n");} | 
+           entrada PUNTOYC {printf("Regla 16\n");} | 
            salida PUNTOYC {printf("Regla 17\n");};
 
-asignacion: ID ASIGN multiple {printf("Regla 18\n"); apilar_polaca(ID_aux_TP, TYPE_aux); 
-                               apilar_polaca("A=", "#operator"); };
+asignacion: ID ASIGN multiple {printf("Regla 18\n"); apilar_polaca(getIdTP(), TYPE_aux); 
+                               apilar_polaca("A=", "#operator"); };|
 
-multiple: ID ASIGN asignacion {printf("Regla 19\n"); apilar_polaca(ID_aux_TP,TYPE_aux);
+multiple: ID ASIGN asignacion {printf("Regla 19\n"); apilar_polaca(getIdTP(),TYPE_aux);
+                               apilar_polaca("A=","#operator");}| 
+          ID ASIGN expresion_num {printf("Regla 20\n"); apilar_polaca(getIdTP(),TYPE_aux);
                                apilar_polaca("A=","#operator");} | 
-          ID ASIGN expresion_num {printf("Regla 20\n");} | 
           ID ASIGN expresion_string {printf("Regla 21\n");} | 
           expresion_num {printf("Regla 22\n");} | 
           expresion_string {printf("Regla 23\n");} ;
@@ -160,15 +207,21 @@ expresion_num: termino {printf("Regla 24\n");} |
 expresion_string: CSTRING CONCAT CSTRING {printf("Regla 27\n"); apilar_polaca(STR_aux_N1,TYPE_aux); 
                                           apilar_polaca(STR_aux_N2, TYPE_aux); 
                                           apilar_polaca("++","#operator"); } | 
-                  ID CONCAT CSTRING {printf("Regla 28\n");} | 
-                  ID CONCAT ID {printf("Regla 29\n");} | 
-                  CSTRING CONCAT ID {printf("Regla 30\n");} ;
+                  ID CONCAT CSTRING {printf("Regla 28\n"); apilar_polaca(getIdTP(), TYPE_aux); 
+                                          imprimir_cadena_NUM++; apilar_polaca(STR_aux_N1,TYPE_aux); 
+                                          apilar_polaca("++","#operator");} | 
+                  ID CONCAT ID {printf("Regla 29\n"); apilar_polaca(getIdTP(), TYPE_aux); 
+                                          apilar_polaca(getIdTP(), TYPE_aux);
+                                          apilar_polaca("++","#operator");} | 
+                  CSTRING CONCAT ID {printf("Regla 30\n");imprimir_cadena_NUM++; apilar_polaca(STR_aux_N1,TYPE_aux); 
+                                          apilar_polaca(getIdTP(), TYPE_aux); 
+                                          apilar_polaca("++","#operator");} ;
 
 termino: factor {printf("Regla 31\n");} | 
          termino MULT factor {printf("Regla 32\n"); apilar_polaca("M*","#operator");} | 
          termino DIV factor {printf("Regla 33\n"); apilar_polaca("D/","#operator");} ;
 
-factor: ID {printf("Regla 34\n"); apilar_polaca(yylval.lexema, TYPE_aux); } | 
+factor: ID {printf("Regla 34\n"); apilar_polaca(getIdTP(),TYPE_aux); } | 
         CENT {printf("Regla 35\n"); apilar_polaca(yylval.valor, TYPE_aux);} | 
         CREAL {printf("Regla 36\n"); apilar_polaca(yylval.valor,TYPE_aux);} | 
         PARENTA expresion_num PARENTC {printf("Regla 37\n");};
@@ -218,25 +271,25 @@ int main(){ // INICIO MAIN
     rewind(tabla_simbolos_orig);
     rewind(tokens_unicos);
     rewind(repre_intermedia);
-    //system("pause");
     
     if((repre_intermedia != NULL)||(input != NULL)||(lista_tokens != NULL)||(tabla_simbolos != NULL)||(tokens_unicos != NULL)||(tabla_simbolos_orig != NULL)){
         fprintf (lista_tokens, "%s\t\t%s\n\n", "ID", "NOMBRE");
         fflush(lista_tokens);
-        fprintf (tabla_simbolos, "%s\t\t\t\t\t%s\t\t\t\t%s\t\t\t\t%s\n\n", "NOMBRE", "TIPO", "VALOR", "LONGITUD");
+        fprintf (tabla_simbolos, "%s\t\t\t\t%s\t\t\t\t%s\t\t\t\t%s\n\n", "NOMBRE", "TIPO", "VALOR", "LONGITUD");
         fflush(tabla_simbolos);
-        fprintf (tabla_simbolos_orig, "%s\t\t\t\t\t%s\t\t\t\t%s\t\t\t\t%s\n\n", "NOMBRE", "TIPO", "VALOR", "LONGITUD");
+        fprintf (tabla_simbolos_orig, "%s\t\t\t\t%s\t\t\t\t%s\t\t\t\t%s\n\n", "NOMBRE", "TIPO", "VALOR", "LONGITUD");
         fflush(tabla_simbolos_orig);
 
         int recibo;
         recibo = yyparse();
+        verificar_tipos();
         if (recibo == 0){
-           printf("¡Parser Ok!\n"); 
+           printf(" * * * ¡Parser Ok! * * * \n"); 
         }else   
-            printf("¡Parser Error!\n");
+            printf(" * * * ¡Parser Error! * * * \n");
         fclose(input); 
         fclose(lista_tokens);
-        fclose(tokens_unicos); 
+        fclose(tokens_unicos);
         fclose(tabla_simbolos_orig); 
         fclose(tabla_simbolos);
         fclose(repre_intermedia);
@@ -286,21 +339,29 @@ int yylex(void) {
         
         printf("YYLVAL NUMBER: %d\n", yylval.number);
         // YYLVAL almacena, por defecto, un valor de tipo ENTERO (un solo tipo)
-        if((token_confirmado.number == 260) || (token_confirmado.number == 259)) {
+
+        // si es cte INT o cte REAl
+        if((token_confirmado.number == 260) || (token_confirmado.number == 259)) { 
             strcpy(yylval.valor, token_confirmado.valor);  // guardo el valor asociado al token
             strcpy(TYPE_aux, "#");
             strcat(TYPE_aux, token_confirmado.tipo);
             printf("-----------------------------------------------------------YYLVAL TYPE ES : %s\n",TYPE_aux);
             printf("YYLVAL VALOR ES : %s\n",yylval.valor);
-        }
+        }   
+        // si es ID
         else if (yylval.number == 271) {
-            //strcpy(yylval.lexema, token_confirmado.lexema);  // guardo el valor asociado al token
-            strcpy(ID_aux_TP, token_confirmado.lexema);
-            strcpy(TYPE_aux, "#");
-            strcat(TYPE_aux, token_confirmado.tipo);
-            printf("-----------------------------------------------------------YYLVAL TYPE ES : %s\n",TYPE_aux);
-            printf("-----------------------------------------------------------YYLVAL LEXEMA ES : %s\n",ID_aux_TP);
+            if(habilitar_multiple == 'y'){
+                strcat(listaIDS, token_confirmado.lexema);
+                strcpy(TYPE_aux, "#");
+                strcat(TYPE_aux, token_confirmado.tipo);
+                printf("-----------------------------------------------------------YYLVAL TYPE ES : %s\n",TYPE_aux);
+                
+            }else{
+                strcpy(listaIDS, " ");
+            }
+            printf("-----------------------------------------------------------YYLVAL LEXEMA ES : %s\n",listaIDS);
         }
+        // si es cte STRING
         else if(yylval.number == 258) {
             //strcpy(yylval.valor, token_confirmado.valor);  // guardo el valor asociado al token
             imprimir_cadena_NUM++;
@@ -319,13 +380,17 @@ int yylex(void) {
                 printf("-----------------------------------------------------------YYLVAL TYPE ES : %s\n",TYPE_aux);    
                 imprimir_cadena_NUM = 0;
             }
-        }else if((yylval.number == 266)||(yylval.number == 267)||(yylval.number == 268)){
+        }
+        // si es de tipo INT, REAL o STRING
+        else if((yylval.number == 266)||(yylval.number == 267)||(yylval.number == 268)){
             strcpy(TYPE_aux, "#");
             strcat(TYPE_aux, token_confirmado.tipo);
             printf("-----------------------------------------------------------YYLVAL TYPE ES : %s\n",TYPE_aux);
         }
-        else 
+        // si no cumple alguna de las condiciones anteriores, guardo un espacio en blanco
+        else{
             strcpy(yylval.valor, " ");  // guardo el valor asociado al token
+        }
 
         estado_actual = 0; estado_segundo = 0; // reseteamos el automata
                 
@@ -531,8 +596,8 @@ struct Token getTokenIdWords() {
             strcpy( token.name, "ID" ); // guardo nombre del token
             strcpy ( token.lexema, "$");
             strcat( token.lexema, IdPalabraReservada); 
-            strcpy ( token.tipo, " ");
-            strcpy ( token.valor, " ");
+            strcpy ( token.tipo, "-");
+            strcpy ( token.valor, "-");
             token.longitud = strlen(IdPalabraReservada);
             return token;
         }
@@ -681,7 +746,7 @@ int tabla_estados [28][26] = {
 /*estado8*/ 	28,	    28,	    28,   	28,	    28,	    28,	    28,	    28,	    28,	    9,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,     29,     29,     
 /*estado9*/	    9,	    9,	    9,	    9,	    9,	    9,	    9,	    9,	    9,	    10,	    9,	    9,	    9,	    9,	    9,	    9,	    9,	    9,	    9,	    9,	    9,   	9,	    9,	     9,     9,      9,      
 /*estado10*/	9,	    9,	    9,	    9,	    9,	    9,	    9,	    9,	    0,	    9,	    9,	    9,	    9,	    9,	    9,	    9,	    9,	    9,	    9,	    9,	    9,      9,	    9,	     9,     9,      9,      
-/*estado11*/	28,	    28,	    28,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    12,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,     29,     29,     
+/*estado11*/	28,	    28,	    28,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    12,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,     28,     29,     
 /*estado12*/	28,	    29,	    28,	    29,	    28,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,     29,     29,     
 /*estado13*/	29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    14,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,     29,     29,     
 /*estado14*/	28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    29,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,    	28,	    28,	    28,	    28,     28,     29,     
@@ -713,7 +778,7 @@ void(*tabla_funciones[28][26])() = {        // Se omite F14 y F16
 /*F8*/	F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F9,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,      ERROR,  ERROR,
 /*F9*/	F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F10,	F9,	    F9,	    F9,	    F9,   	F9,	    F9,	    F9,	    F9,	    F9,	    F9,   	F9,	    F9,	    F9,  	F9,     F9,     F9,     
 /*F10*/	F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F0,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,     F9,     F9,
-/*F11*/	F,   	F,	    F,	    ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	F12,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,  ERROR,  ERROR,
+/*F11*/	F,   	F,	    F,	    ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	F12,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,  F,  ERROR,
 /*F12*/	F,	    ERROR,	F,	    ERROR,	F,	    ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,  ERROR,  ERROR,
 /*F13*/	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	F,	    ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,  ERROR,  ERROR,
 /*F14*/	F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    ERROR,	F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,    	F,	    F,	    F,	    F,      F,      ERROR,     
@@ -920,10 +985,11 @@ void show_TS() {
         if(imprimir == 1) {  // si vale 1 ya podemos imprimir los resultados en sus respectivos archivos
             fprintf(tokens_unicos, "%s\n",token_confirmado.lexema);
             fflush(tokens_unicos);
-            fprintf (tabla_simbolos, "%s\t %s\t\t\t %s\t\t\t %d\n", token_confirmado.lexema, token_confirmado.tipo, token_confirmado.valor, token_confirmado.longitud);
+            fprintf (tabla_simbolos, "%s\t\t\t\t%s\t\t\t\t%s\t\t\t\t%d\n", token_confirmado.lexema, token_confirmado.tipo, token_confirmado.valor, token_confirmado.longitud);
             fflush(tabla_simbolos);
-            fprintf (tabla_simbolos_orig, "%s\t %s\t\t\t %s\t\t\t %d\n", token_confirmado.lexema, token_confirmado.tipo, token_confirmado.valor, token_confirmado.longitud);
+            fprintf (tabla_simbolos_orig, "%s\t\t\t\t%s\t\t\t\t%s\t\t\t\t%d\n", token_confirmado.lexema, token_confirmado.tipo, token_confirmado.valor, token_confirmado.longitud);
             fflush(tabla_simbolos_orig);
+            position_TS++;
         }
     }
 }
@@ -936,7 +1002,6 @@ int yyerror(char *s){
 void apilar_polaca(char * yval, char * type_yval) {
     int longitud_cad = 0;
     char dato [40] = {0};
-    
     strcpy(dato, yval);
     // Pregunto si yval guarda un operador, sino se considera como digito
     if( strcmp( yval , "S+" ) == 0)       strcpy(dato, "+");
@@ -948,7 +1013,7 @@ void apilar_polaca(char * yval, char * type_yval) {
     longitud_cad = strlen(dato);
     
     printf("****estoy en funcion APILAR POLACA Y yval es: %s****\n",dato);
-    printf("****longitud de yval es: %d****\n",longitud_cad);
+    //printf("****longitud de yval es: %d****\n",longitud_cad);
     //printf("cantidad_elementos_tira  es: %d\n",cantidad_elementos_tira);
 
     //borramos todos los caracteres que tengamos en dato e id (ver variable global)
@@ -978,11 +1043,14 @@ void aplicar_polaca() {
     char auxIndice[40]={0};
     char auxCelda[40]={0};
     char auxEtiqueta[40]={0};
+    char linea[400] = {0};
+    char delimitador[] = "\t";
+    int numeroToken = 0;
 
-    printf("INDICE DE TIRA es %d \n", indice_tira);
+    //printf("INDICE DE TIRA es %d \n", indice_tira);
     rewind(repre_intermedia);
 
-    tira_polaca = (tira*)malloc(asignar+1*sizeof(tira));
+    tira_polaca = (tira*)malloc(asignar*sizeof(tira));
     if(tira_polaca==NULL){
         printf("No se asignó memoria correctamente para tira_polaca\n");
     }
@@ -990,40 +1058,726 @@ void aplicar_polaca() {
         if (repre_intermedia == NULL) {
             printf("El fichero no se ha podido abrir para lectura.\n");
             exit(1);
-        }else {
-            while(1){
-                /*if((crtt = fgetc(repre_intermedia)) != EOF){
-                    printf("%c", crtt);
-                    if(isdigit(crtt)){
-                        strcat(auxIndice,crtt);
-                    }else if(crtt==";"){
+        }   
+        else {
+            for(int i=0; i<asignar; i++){
+                fgets(linea, 400, repre_intermedia);
+                //printf("Linea es: %s", linea);
+                char * token = strtok(linea, delimitador);
 
+                if(token != NULL){
+                    while(token != NULL){
+                        numeroToken++;
+                    
+                        if (numeroToken == 1){
+                            strcpy(auxIndice, token);
+                            strcpy(tira_polaca[i].index, auxIndice);
+                            //printf("Token es: %s\n", tira_polaca[i].index);
+                        }else if (numeroToken == 2){
+                            strcpy(auxCelda, token);
+                            strcpy(tira_polaca[i].cell, auxCelda);
+                            //printf("Token es: %s\n", tira_polaca[i].cell);
+                        }else if (numeroToken == 3){
+                            strcpy(auxEtiqueta, token);
+                            strcpy(tira_polaca[i].tag, auxEtiqueta);
+                            //printf("Token es: %s\n", tira_polaca[i].tag);
+                            numeroToken = 0;
+                        }
+                        token = strtok(NULL, delimitador);
                     }
-                 */
-                fgets(repre_intermedia)   
-                }else{
-                    //fclose(repre_intermedia);
-                    break;
-                    }
+                    //printf("\n\n");
                 }
+
+                // para salir del bucle y evitar duplicados de linea
+                if(i == asignar) printf("SALE\n");
             }
+        }
+    }
+
+    printf("\n * * SE GENERO LA ESTRUCTURA DE TIRA POLACA! * * \n\n");
+}
+///////////////////////////////////////////////////////////////////////////////////////////////
+void aplicar_algoritmo_pilas(){
+    printf("\n - - Estoy aplicando algoritmo de pilas. . .  - - \n\n");
+
+    // defino las pilas para if y while
+    struct pila pila_while;
+    struct pila pila_if;
+
+    // defino los elementos para if y while
+    struct elemento elem_while;
+    struct elemento elem_if;
+    struct elemento elemento_tope_while;
+    struct elemento elemento_tope_if;
+
+    // defino los indices de los arreglos: tira if y tira if while
+    int position_wh = -1;
+    int position_if = -1;
+
+    //string para itoa
+    char string_espWhite[40]={0};
+
+    // asignamos espacio para los arreglos: tira if y tira if while. 
+    // Vamos a guardar los indices de la tira polaca (ya llena anteriormente)
+    tiraIW *tira_wh, *tira_if;
+	tira_wh = (tiraIW *)malloc(TAM*sizeof(tiraIW));
+    tira_if = (tiraIW *)malloc(TAM*sizeof(tiraIW));
+
+    //auxiliar para pilas
+    int aux_z_wh=0;
+    int aux_z_if=0;
+
+    // preguntamos si se reservo espacio para las tiras
+    if((tira_wh == NULL)||(tira_if == NULL)){
+		printf("No se asigno espacio para tira while o tira if\n");
+        exit(1);
+	}
+
+    // creamos las pilas while e if
+    crear(&pila_while);
+    crear(&pila_if);
+    
+    // ************* logica del algoritmo de pilas **********************
+
+    ///////////////////   logica pila while   ///////////////////
+    for(int j=0; j<indice_tira; j++) {
+        //printf("tag is:%s\n", tira_polaca[j].tag);
+        if(strcmp(tira_polaca[j].cell,";WH_I;")==0){
+            position_wh++; // primer incremento --> es 0
+            //printf("lei el inicio de un while en celda %s +1\n",tira_polaca[j].index);
+            int indice_tira_aux = 1 + atoi(tira_polaca[j].index);
+            //printf("Indice tiene el valor = %d\n",indice_tira_aux);
+            elem_while = tira_wh[position_wh].registro;  // guardamos el elemento registro
+            elem_while.dato = indice_tira_aux;
+            elem_while.posicion = j;  // guarda la posicion actual
+            apilar(&pila_while, elem_while);
+        }
+        else if(strcmp(tira_polaca[j].tag,"#comparator_while\n")==0){
+            //printf("COMPARATOR WHILE\n");
+            position_wh++; // primer incremento --> es 0
+            int indice_tira_aux = 2 + atoi(tira_polaca[j].index);
+            elem_while = tira_wh[position_wh].registro;  // guardamos el elemento registro
+            elem_while.dato = indice_tira_aux;
+            elem_while.posicion = j;  // guarda la posicion actual
+            apilar(&pila_while, elem_while);
+        }else if(strcmp(tira_polaca[j].cell,";WH_F;")==0){
+            //printf("FIN WHILE\n");
+            int indice_tira_aux = 1 + atoi(tira_polaca[j].index);
+            aux_z_wh= retornar_tope(&pila_while , &elemento_tope_while);
+            //printf("aux_z_whi es %d:\n",aux_z_wh);
+            desapilar(&pila_while , &elemento_tope_while);
+            //EN celda Z, PONGO CELDA ACTUAL+1
+            sprintf(string_espWhite,"%d",indice_tira_aux);
+            strcpy(tira_polaca[aux_z_wh].cell , ";");
+            strcat(tira_polaca[aux_z_wh].cell , string_espWhite);//copiamos en celda aux_z_wh la celda actual+1 
+            strcat(tira_polaca[aux_z_wh].cell , ";");
+            //printf("celda espacio en blanco, es: %s\n",tira_polaca[aux_z_wh].cell);
+
+            indice_tira_aux =atoi(tira_polaca[j].index)-2;
+            //printf("indice_tira_aux, osea celda actual -2 es: %d",indice_tira_aux);
+            aux_z_wh= retornar_tope(&pila_while , &elemento_tope_while);
+            //printf("aux_z_whi es %d:\n",aux_z_wh);
+            desapilar(&pila_while, &elemento_tope_while);
+            //PONGO CELDA ACTUAL-2 , PONGO Z
+            sprintf(string_espWhite,"%d",aux_z_wh);
+            strcpy(tira_polaca[indice_tira_aux].cell , ";");
+            strcat(tira_polaca[indice_tira_aux].cell , string_espWhite);
+            strcat(tira_polaca[indice_tira_aux].cell , ";");
+            //printf("celda espacio en blanco, es: %s\n" , tira_polaca[indice_tira_aux].cell);
+        }
 
     }
     
+    int tam = tamano(pila_while);
+    printf(" -  Tamanio pila while despues de aplicar el algortimo es: %d  -  \n",tam);
+    //mostrar(&pila_while, &elemento_tope_while);
+
+    ///////////////////   logica pila if    ///////////////////
+    for(int j=0; j<indice_tira; j++) {
+        tam = tamano(pila_if);
+        if(strcmp(tira_polaca[j].cell,";IF_I;")==0){
+            position_if++; // primer incremento --> es 0
+            //printf("lei el inicio de un if en celda %s +1\n",tira_polaca[j].index);
+            int indice_tira_aux = 1 + atoi(tira_polaca[j].index);
+            //printf("Indice tiene el valor = %d\n",indice_tira_aux);
+            elem_if = tira_if[position_if].registro;  // guardamos el elemento registro
+            elem_if.dato = indice_tira_aux;
+            elem_if.posicion = j;  // guarda la posicion actual
+            apilar(&pila_if, elem_if);
+        }else if(strcmp(tira_polaca[j].tag,"#comparator_if\n")==0){ 
+            //printf("COMPARATOR IF\n");
+            position_if++; // primer incremento --> es 0
+            int indice_tira_aux = 2 + atoi(tira_polaca[j].index);
+            elem_if = tira_wh[position_if].registro;  // guardamos el elemento registro
+            elem_if.dato = indice_tira_aux;
+            elem_if.posicion = j;  // guarda la posicion actual
+            apilar(&pila_if, elem_if);
+        }else if(strcmp(tira_polaca[j].cell,";IF_F;")==0){
+            //printf("FIN IF\n");
+            int indice_tira_aux = 1 + atoi(tira_polaca[j].index);
+            aux_z_if= retornar_tope(&pila_if , &elemento_tope_if);
+            //printf("aux_z_if es %d:\n",aux_z_if);
+            desapilar(&pila_if , &elemento_tope_if);
+            //EN celda Z, PONGO CELDA ACTUAL+1
+            sprintf(string_espWhite,"%d",indice_tira_aux);
+            strcpy(tira_polaca[aux_z_if].cell , ";");
+            strcat(tira_polaca[aux_z_if].cell , string_espWhite);//copiamos en celda aux_z_if la celda actual+1 
+            strcat(tira_polaca[aux_z_if].cell , ";");
+            //printf("celda aux_z_if %d que estaba en blanco ahora es: %s\n",aux_z_if,tira_polaca[aux_z_if].cell);
+        
+            indice_tira_aux =  atoi(tira_polaca[j].index) -2;
+            //printf("apilo celda indice_tira_aux , es decir:%d\n", indice_tira_aux);
+            position_if++;
+            elem_if = tira_if[position_if].registro;  // guardamos el elemento registro
+            elem_if.dato = indice_tira_aux;
+            elem_if.posicion = j;  // guarda la posicion actual
+            apilar(&pila_if, elem_if);
+        }else if (strcmp(tira_polaca[j].cell,";ELSE_F;")==0){
+            //printf("FIN ELSE\n");
+            int indice_tira_aux = 1 + atoi(tira_polaca[j].index);
+            aux_z_if= retornar_tope(&pila_if , &elemento_tope_if);
+            //printf("aux_z_if es %d:\n",aux_z_if);
+            desapilar(&pila_if , &elemento_tope_if);
+            //EN celda Z, PONGO CELDA ACTUAL+1
+            sprintf(string_espWhite,"%d",indice_tira_aux);
+            strcpy(tira_polaca[aux_z_if].cell , ";");
+            strcat(tira_polaca[aux_z_if].cell , string_espWhite);//copiamos en celda aux_z_if la celda actual+1 
+            strcat(tira_polaca[aux_z_if].cell , ";");
+            //printf("celda aux_z_if %d que estaba en blanco ahora es: %s\n",aux_z_if,tira_polaca[aux_z_if].cell);
+            aux_z_if= retornar_tope(&pila_if , &elemento_tope_if);
+            //printf("aux_z_if desapilo inicio de condicion inservible y es %d:\n",aux_z_if);
+            desapilar(&pila_if , &elemento_tope_if);
+        }
+        
+    }
+    tam = tamano(pila_if);
+    printf(" -  Tamanio pila if despues de aplicar el algortimo es: %d   -  \n",tam);
+    //mostrar(&pila_if, &elemento_tope_if);
+    
+    printf("\n - - SE APLICO CORRECTAMENTE EL ALGORITMO DE PILAS! - - \n\n");
+    printTiraPolaca();
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////
 void mostrar_polaca(){
-    int cant_cmp = -1;                //     0         1       2        3
-    int select[cant_selecciones][4];  // [BFINDEX, BFVALUE, BIINDEX, BIVALUE ]      columnas de select
-    /*
     for(int j=0; j<indice_tira; j++) {
-        printf ("%d %s %s\n", tira_polaca[j].index, tira_polaca[j].cell, tira_polaca[j].tag);
-        if( strcmp( tira_polaca[j].cell , "|CMP|" ) == 0){
-            cant_cmp++;                                     //referencia a la fila de tira polaca
-            select[cant_cmp][0] = j+2;
-            printf("CMP es: %d\n",select[cant_cmp][0]);
-        }
+        printf ("%s %s %s\n", tira_polaca[j].index, tira_polaca[j].cell, tira_polaca[j].tag);
     }
-    */
+     printf("\n * * SE IMPRIMIO LA ESTRUCTURA DE TIRA POLACA CON EL ALGORITMO DE PILAS APLICADO! * * \n\n");
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//    FUNCIONES PARA LAS PILAS   //
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+int crear(struct pila *p) {
+	p->frente = NULL;
+	p->tamano = 0;
+	return 1;
+}
+
+int apilar(struct pila *p, struct elemento elemento){
+	struct elemento *nuevo = (struct elemento *) malloc(sizeof(struct elemento));
+	
+    if (nuevo == NULL) { 
+        return -1; 
+    }
+	nuevo->dato = elemento.dato;
+	nuevo->next = NULL;
+	
+	nuevo->next = p->frente;
+	p->frente = nuevo;
+	p->tamano++;
+	return 1;
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+int desapilar(struct pila *p, struct elemento *elemento){
+	// si la pila esta vacia retornamos -1
+	if (estaVacia(*p) ) { return -1; }
+
+	elemento->dato = p->frente->dato;
+	p->frente = p->frente->next;
+	p->tamano--;
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+int estaVacia(struct pila p){
+	if (p.tamano == 0) { return 1; }
+	return 0;
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+int tamano(struct pila p){
+	return p.tamano;
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+int retornar_tope(struct pila *p, struct elemento *elemento){
+    elemento->dato = p->frente->dato;
+    //printf("Elemento dato es: %d\n",elemento->dato);
+    return elemento->dato;
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////7
+int mostrar(struct pila *p, struct elemento *elemento){
+	struct pila *p_aux;
+	p_aux = p;
+
+	int tamanio = p_aux->tamano;
+	// si la pila esta vacia retornamos -1
+	if (estaVacia(*p_aux) ) { 
+        return -1;
+    } 
+	// sino, mostramos el contenido
+    for(int i=0; i<tamanio; i++){
+		elemento->dato = p_aux->frente->dato;
+        //printf("Elemento dato es: %d\n",elemento->dato);
+		if(i!=tamanio-1)
+			p_aux->frente = p_aux->frente->next;
+    }
+    return 1;
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+char * getIdTP(){
+    int indice=-1; char * cad_aux;
+    char letter; int i,j;
+    
+    for(j=0; j<40;j++){
+        ID_aux_TP[j] = '\0';
+    }
+    
+    int length = strlen(listaIDS);
+    //printf("Tengo %d caracteres\n", length);
+    
+    for(i=length-1; i>=0; i--){
+        letter = listaIDS[i];
+        //printf("letter is: %c\n", letter);
+        indice++;
+        ID_aux_TP[indice] = letter;
+        listaIDS[i] = '\0';
+        if(letter == '$') break;
+    }
+    //printf("YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYyVALLLLLLLLLLLLLLLLLLLLLLLLLLLLLL es: %ld\n",strlen(ID_aux_TP));
+    cad_aux = invertir(ID_aux_TP);
+    return cad_aux;
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+char *invertir(char cadena[]) {
+  int longitud = strlen(cadena);
+  char temporal;
+  for (int izquierda = 0, derecha = longitud - 1; izquierda < (longitud / 2);
+       izquierda++, derecha--) {
+    temporal = cadena[izquierda];
+    cadena[izquierda] = cadena[derecha];
+    cadena[derecha] = temporal;
+  }
+  return cadena;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void mostrar_TSD(){
+    
+    for(int j=0; j<position_TS; j++) {
+        printf ("%s %s %s %s\n", dinamic_TS[j].nombre, dinamic_TS[j].tipo, dinamic_TS[j].valor,dinamic_TS[j].longitud);
+    }
+    
+     printf("\n * * SE IMPRIMIO LA ESTRUCTURA DE LA TABLA DE SIMBOLOS DINAMICA! * * \n\n");
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+void llenarTS(){
+    //printf("Posicion max TS es: %d\n", position_TS);
+    rewind(tabla_simbolos);
+      
+    char auxNombre[40]={0};
+    char auxTipo[40]={0};
+    char auxValor[40]={0};
+    char auxLongitud[40]={0};
+
+    char linea[400] = {0};
+    char delimitador[] = "\t";
+    int numeroToken = 0;
+    dinamic_TS = (TablaSimbolos*)malloc(position_TS*sizeof(TablaSimbolos));
+
+     if(dinamic_TS==NULL){
+        printf("No se asignó memoria correctamente para dinamic TS\n");
+    }else{
+        if (tabla_simbolos == NULL) {
+            printf("El fichero no se ha podido abrir para lectura.\n");
+            exit(1);
+        }else{
+            for(int i=0; i<position_TS+2; i++){
+                fgets(linea, 400, tabla_simbolos);
+            
+                if(i>=2){
+                    //printf("Linea es: %s\n", linea);
+                    char * token = strtok(linea, delimitador);
+
+                    if(token != NULL){
+                        while(token != NULL){
+                            numeroToken++;
+                        
+                            if (numeroToken == 1){
+                                strcpy(auxNombre, token);
+                                strcpy(dinamic_TS [i-2].nombre, auxNombre);
+                                //printf("Token es: %s\n", dinamic_TS[i-2].nombre);
+                            }else if (numeroToken == 2){
+                                strcpy(auxTipo, token);
+                                strcpy(dinamic_TS [i-2].tipo, auxTipo);
+                                //printf("Token es: %s\n", dinamic_TS[i-2].tipo);
+                            }else if (numeroToken == 3){
+                                strcpy(auxValor, token);
+                                strcpy(dinamic_TS[i-2].valor, auxValor);
+                                //printf("Token es: %s\n", dinamic_TS[i].valor);
+                            }else if (numeroToken == 4){
+                                strcpy(auxLongitud, token);
+                                strcpy(dinamic_TS[i-2].longitud, auxLongitud);
+                                //printf("Token es: %s\n", dinamic_TS[i].longitud);
+                                numeroToken = 0;
+                            }
+                            token = strtok(NULL, delimitador);
+                        }
+                        //printf("\n\n");
+                    }
+                    // para salir del bucle y evitar duplicados de linea
+                    if(i == position_TS+1) printf("SALE\n");
+                }
+                
+            }
+        }
+    }
+
+    printf("\n * * SE GENERO LA ESTRUCTURA DE LA TABLA DE SIMBOLOS DINAMICA! * * \n");
+    mostrar_TSD();
+    addTypeTS();
+    printTS();
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+char * removeSubString(char str [],int num_tipo){ // quita los tipos de datos (int, real, string) despues de haber aplicado strstr()
+    char tmpCad [300];
+    int indice=-1;
+    for (int i = 0; i < strlen(str)+1; i++) {
+        if(i >= num_tipo){
+            indice++;
+            tmpCad[indice] = str[i];
+        }
+    }
+    strcpy(str, tmpCad);
+    return str;
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+char * insertSpaWhite(char line []){
+    char tmpCad [300];
+    printf("La vieja fila es: %s\n", line);
+    for(int i=0; i<strlen(line)+1; i++){
+        if(i==0){
+            tmpCad[i] = ' ';
+        }
+        if(i>0){
+            tmpCad[i] = line[i-1];
+        }
+    }
+    strcpy(line, tmpCad);
+    printf("La nueva fila es: %s\n", line);
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void actualizarTS(char type[],int num_tipo){
+    char linea[300] = {0}; char cadena_aux[300]={0}; char cadena_aux_2[300]={0}; char nuevo_arreglo[300]={0};
+    int indice_arreglo=-1;
+    char * arreglo_int_aux; char * arreglo_enddec_aux;  char * arreglo_int;
+    int i=0, num_linea=0;
+    cadena_aux_2[0]='%';
+    int foraux=0;
+    rewind(input);  // rebobino el fichero al principio
+    
+    while(1)
+    { // se ejecuta hasta encontrar un enddeclare
+        fgets(linea, 300, input);  // leemos cada fila del fichero input.txt
+        arreglo_int = insertSpaWhite(linea);
+
+        printf("Linea de fichero input es: %s\n",linea);
+        num_linea++;  // Es un contador de linea. En la primera pasada, vale 1
+    
+        arreglo_enddec_aux = strstr(linea, "enddeclare");
+        arreglo_int_aux = strstr(linea, type);
+        printf("Arreglo_enddec_aux : %s\n", arreglo_enddec_aux);
+
+       if(arreglo_int_aux != NULL) {
+           while(1)
+           {
+                printf("el arreglo_int_aux es: %s\n", arreglo_int_aux); // imprime toda la fila, desde int.
+
+                for (i=0 ; i<300 ; i++){  // recorro toda la fila, desde int
+                    if( (i>=num_tipo) && (arreglo_int_aux[i] != ';') && (arreglo_int_aux[i] != ' ') && (arreglo_int_aux[i] != '\0') ){  // pregunto por lo que sigue despues de int
+                        indice_arreglo++; // primera pasada --> 0
+                        printf("\n\n I es: %d\n\n",indice_arreglo);
+                        //printf("\narreglo_int_aux[%d]es: %s\n\n\n", i,arreglo_int_aux[i]);
+                        cadena_aux[indice_arreglo] = arreglo_int_aux[i]; // desde la posicion que sigue al string int, empiezo a guardar datos
+                        printf("letra de cadena_aux es: %c\n", cadena_aux[indice_arreglo]);
+                        strcpy(nuevo_arreglo, cadena_aux );
+                        printf("\nnuevo_Arreglo es: %s\n\n\n", nuevo_arreglo);
+                    }
+                    else if( (i>=num_tipo) && (arreglo_int_aux[i] == ';') && (arreglo_int_aux[i] != ' ') && (arreglo_int_aux[i] != '\0') ) {
+                        indice_arreglo++;
+                        printf("\n\n I es: %d\n\n",indice_arreglo);
+                        //printf("\narreglo_int_aux[%d]es: %s\n\n\n", i,arreglo_int_aux);
+                        strcat(cadena_aux, ",");
+                        printf("letra de cadena_aux es: %c\n\n", cadena_aux[indice_arreglo]);
+                        printf("\ncadena_aux es x else: %s\n\n\n", cadena_aux);
+                        break;  // sale del bucle for (i=0 ; i<400 ; i++)
+                    }
+                }
+                // para evitar que se omitan otras cadenas
+                for(i =0; i<300;i++){
+                    if(foraux<300){
+                        if (cadena_aux[i]!=','){
+                        cadena_aux_2[foraux+1]=cadena_aux[i];
+                        foraux++;
+                        }
+                        if((cadena_aux[i]==',')&&(cadena_aux[i+1]!='\0')){
+                            cadena_aux_2[foraux+1]=',';
+                            cadena_aux_2[foraux+2]='%';
+                            foraux= foraux +2;
+                        }         
+                    }
+                }
+                strcat(cadena_aux_2,",");
+                printf("--------------------- cadena_aux_2 es: %s\n\n\n", cadena_aux_2);
+                foraux=0;
+
+                //printf("arreglo antes es: %s\n", arreglo_int_aux);
+                arreglo_int = removeSubString(arreglo_int_aux,num_tipo); // string x,y;        string x;
+                strcpy(arreglo_int_aux, arreglo_int);
+
+                //printf("ANTES arreglo_int_aux es: %s\n", arreglo_int_aux);
+                arreglo_int_aux = strstr(arreglo_int_aux, type);
+                //printf("DESPUES arreglo_int_aux es: %s\n", arreglo_int_aux);
+                
+                if(arreglo_int_aux == NULL) {
+                    break; // sale del primer bucle xq ya detecto el enddeclare, y no necesito leer mas nada
+                }
+            }
+        }
+        if(arreglo_enddec_aux != NULL) {
+            break; // sale del primer bucle xq ya detecto el enddeclare, y no necesito leer mas nada
+        }
+
+    }
+     for(i=0;i<position_TS;i++){	       //recorro dinamicTS
+        char cadenita [40]= {0};
+        cadenita[0]='%';
+        
+        for(int j=1; j<40; j++){
+            cadenita[j] = dinamic_TS[i].nombre[j];
+        }
+        
+        strcat(cadenita,",");
+        printf("\n\ncadenita es %s:\n\n",cadenita);
+        printf("\n\ny la comparo con cadena_aux que es %s\n\n:",cadena_aux_2);
+        if (strstr(cadena_aux_2,cadenita) != NULL){
+                strcpy(dinamic_TS[i].tipo, type);
+        }
+        printf("\n\ndinamic_ts tipo ahora es %s:\n\n",dinamic_TS[i].tipo);
+    }
+    mostrar_TSD(); 
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void addTypeTS(){ 
+    for(int i=1; i<=3;i++){
+        switch (i){
+            case 1: actualizarTS(" int ",4);
+                  break;
+            case 2: actualizarTS(" real ",5);
+                  break;
+            case 3: actualizarTS(" string ",7);
+                  break;
+        }
+    }   
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void printTS(){
+    fclose(tabla_simbolos);
+
+    tabla_simbolos = fopen("tabla_simbolos.txt", "w+");
+    rewind(tabla_simbolos);
+
+    if(tabla_simbolos != NULL){
+        fprintf (tabla_simbolos, "%s\t\t\t\t%s\t\t\t\t%s\t\t\t\t%s\n\n", "NOMBRE", "TIPO", "VALOR", "LONGITUD");
+        fflush(tabla_simbolos); 
+
+        for(int i=0;i<position_TS;i++){
+            fprintf (tabla_simbolos, "%s\t\t\t\t%s\t\t\t\t%s\t\t\t\t%s", dinamic_TS[i].nombre, dinamic_TS[i].tipo, dinamic_TS[i].valor, dinamic_TS[i].longitud);
+            fflush(tabla_simbolos);
+        }
+    }  // NO HACE FALTA CERRAR EL ARCHIVO --> se hace en el MAIN()
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void printTiraPolaca(){  // <--- ACA HAY QUE COMPROBAR TIPOS. SE llama en la f() donde se aplica el algoritmo
+    fclose(repre_intermedia);     // de pilas
+    char id_name_TS[40];
+    //char type_TS[40];
+    
+    repre_intermedia = fopen("intermedia.txt", "w+");
+    //rewind(repre_intermedia);
+
+    if(repre_intermedia != NULL){
+        for(int i=0;i<position_TS;i++){
+            strcpy(id_name_TS, ";");  // para hacer la comparacion de TS con la tira polaca
+            strcat(id_name_TS, dinamic_TS[i].nombre);
+            strcat(id_name_TS, ";");  // para hacer la comparacion de TS con la tira polaca
+
+            for(int j=0; j<indice_tira; j++) {
+                if(strcmp(id_name_TS, tira_polaca[j].cell) == 0){
+
+                    
+                    strcpy(tira_polaca[j].tag, "#");
+                    for(int z=1;z<=strlen(dinamic_TS[z].tipo)+1;z++){
+                        if(z==1){
+                        tira_polaca[j].tag[z]=dinamic_TS[i].tipo[z];
+                        }else{
+                            tira_polaca[j].tag[z]=dinamic_TS[i].tipo[z];
+                        }
+                    }
+                    //strcat(tira_polaca[j].tag, dinamic_TS[i].tipo);
+                }
+            }
+        }
+
+        // printeo en el archivo
+        for(int itp=0; itp<indice_tira; itp++) {
+                if(tira_polaca[itp].cell[1] == '$') {
+                    fprintf(repre_intermedia, "%s\t%s\t%s\n", tira_polaca[itp].index, tira_polaca[itp].cell, tira_polaca[itp].tag);
+                    fflush(repre_intermedia);
+                }else{
+                    fprintf(repre_intermedia, "%s\t%s\t%s", tira_polaca[itp].index, tira_polaca[itp].cell, tira_polaca[itp].tag);
+                    fflush(repre_intermedia);
+                }
+        }
+    }// NO HACE FALTA CERRAR EL ARCHIVO --> se hace en el MAIN()
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void verificar_tipos(){
+    int jaux=0,zaux=0,ultimo_asign=0, primer_asign=0, fin_de_asign=0, inicio_ultimo_asign=0;
+    char tipos_aux[30]={0};
+    char caux=' ';
+
+    for(int j=0; j<indice_tira; j++) {  //para las comparaciones #cstring #string
+       
+        if(j>=2){
+            if(tira_polaca[j-1].tag[1]=='c'){
+                strcpy(tira_polaca[j-1].tag,"#string");
+            }
+            if(tira_polaca[j-2].tag[1]=='c'){
+                strcpy(tira_polaca[j-2].tag,"#string");
+            } 
+       
+                
+            if(strcmp(tira_polaca[j].cell,";CMP;")==0){
+                if((tira_polaca[j-1].tag[1])!=(tira_polaca[j-2].tag[1])){ 
+                    printf("error de tipos en %s:\n",tira_polaca[j].index);
+                    //system("pause");
+                    exit(1);  
+                }
+            }
+            if(strcmp(tira_polaca[j].cell,";++;")==0){  
+                if(tira_polaca[j-1].tag[1]!=tira_polaca[j-2].tag[1]){
+                    printf("error de tipos en %s:\n",tira_polaca[j].index);
+                    //system("pause");
+                    exit(1);   
+                    }
+            }
+            if(strcmp(tira_polaca[j].cell,";=;")==0){
+                printf("\n\nestoy por entrar a la tira de las ASIGN\n\n");
+                if(primer_asign==0){
+                    primer_asign=1;
+                }
+                
+                jaux=j;
+                while(strcmp(tira_polaca[jaux+2].cell,";=;")==0){
+                    jaux = jaux +2;
+                    j=jaux;
+                    printf("\n\nencontre otro ASIGN en :%d\n\n", jaux);
+                }
+
+                // desde jaxu (oomitiendo ;=;) hasta que aparezca 
+                //||#space||fin_wh||fin_if||#asm-jump(bi eslef)
+                if(primer_asign==1){
+                    int a=jaux;
+                    inicio_ultimo_asign=a;
+                    for(a;a>=0;a--){     
+                        if((strcmp(tira_polaca[a].tag,"#space")==0)||(strcmp(tira_polaca[a].tag,"#space\n")==0)||
+                        (strcmp(tira_polaca[a].tag,"#fin_wh")==0)||(strcmp(tira_polaca[a].tag,"#fin_wh\n")==0)||
+                        (strcmp(tira_polaca[a].tag,"#fin_if")==0)||(strcmp(tira_polaca[a].tag,"#fin_if\n")==0)||
+                        (strcmp(tira_polaca[a].tag,"#asm-jump")==0)|| (strcmp(tira_polaca[a].tag,"#asm-jump\n")==0)||
+                        (a==0)){
+                            printf("\nprimera asignacion termina en :%d\n", a);
+                            fin_de_asign=a;
+                            primer_asign=2;
+                            break;
+                        }                     
+                    }       
+                }
+                else if(primer_asign==2){
+                    int a=jaux;
+                    for(a;a>=inicio_ultimo_asign;a--){     
+                        if((strcmp(tira_polaca[a].tag,"#space")==0)||(strcmp(tira_polaca[a].tag,"#space\n")==0)||
+                        (strcmp(tira_polaca[a].tag,"#fin_wh")==0)||(strcmp(tira_polaca[a].tag,"#fin_wh\n")==0)||
+                        (strcmp(tira_polaca[a].tag,"#fin_if")==0)||(strcmp(tira_polaca[a].tag,"#fin_if\n")==0)||
+                        (strcmp(tira_polaca[a].tag,"#asm-jump")==0)|| (strcmp(tira_polaca[a].tag,"#asm-jump\n")==0)||
+                        (a==inicio_ultimo_asign)){
+                            printf("\nsiguiente asignacion termina en :%d\n", a);
+                            fin_de_asign=a;
+                            break;
+                        }                     
+                    }
+                    inicio_ultimo_asign=jaux;    
+                }
+                
+                
+                printf("\n\n Al entrar al FOR, JAUX=%d, inicio_ultimo_asign=%d y findeasign=%d\n\n",jaux,inicio_ultimo_asign, fin_de_asign);                             
+                for(jaux;jaux>=fin_de_asign;jaux--){ 
+                    printf("\n\nEstoy en celda %d para comparar tipos en asignacion\n\n", jaux);
+                    
+                    
+                    if((strcmp(tira_polaca[jaux].tag,"#int")==0)||(strcmp(tira_polaca[jaux].tag,"#int ")==0)||(strcmp(tira_polaca[jaux].tag,"#int\0")==0)||(strcmp(tira_polaca[jaux].tag,"#int\n")==0)){
+                        printf("tira_polaca[%d].cell: %s, tira_polaca[%d].tag %s\n", jaux,tira_polaca[jaux].cell,jaux,tira_polaca[jaux].tag);
+                        tipos_aux[zaux]='i';
+                        zaux++;
+                    }
+                    if((strcmp(tira_polaca[jaux].tag,"#real")==0)||(strcmp(tira_polaca[jaux].tag,"#real ")==0)||(strcmp(tira_polaca[jaux].tag,"#real\0")==0)||(strcmp(tira_polaca[jaux].tag,"#real\n")==0)){
+                        printf("tira_polaca[%d].cell: %s, tira_polaca[%d].tag %s\n", jaux,tira_polaca[jaux].cell,jaux,tira_polaca[jaux].tag);
+                        tipos_aux[zaux]='r';
+                        zaux++;
+                    }
+                    if((strcmp(tira_polaca[jaux].tag,"#string")==0)||(strcmp(tira_polaca[jaux].tag,"#cstring")==0)||(strcmp(tira_polaca[jaux].tag,"#stringg\n")==0)||(strcmp(tira_polaca[jaux].tag,"#string\n")==0)||(strcmp(tira_polaca[jaux].tag,"#cstring\0")==0)||(strcmp(tira_polaca[jaux].tag,"#cstring\n")==0)){
+                        printf("tira_polaca[%d].cell: %s, tira_polaca[%d].tag %s\n", jaux,tira_polaca[jaux].cell,jaux,tira_polaca[jaux].tag);
+                        printf("es string\n");
+                        tipos_aux[zaux]='s';
+                        zaux++;
+                    } 
+                    if((strcmp(tira_polaca[jaux].tag,"#")==0)||strcmp(tira_polaca[jaux].tag,"#")==0){
+                        printf("es NO declarada\n");
+                        tipos_aux[zaux]='x';
+                        zaux++;
+                    }
+                    if((strcmp(tira_polaca[jaux].tag,"#space")==0)||(strcmp(tira_polaca[jaux].tag,"#space\n")==0)||
+                        (strcmp(tira_polaca[jaux].tag,"#fin_wh")==0)||(strcmp(tira_polaca[jaux].tag,"#fin_wh\n")==0)||
+                        (strcmp(tira_polaca[jaux].tag,"#fin_if")==0)||(strcmp(tira_polaca[jaux].tag,"#fin_if\n")==0)||
+                        (strcmp(tira_polaca[jaux].tag,"#asm-jump")==0)||(strcmp(tira_polaca[jaux].tag,"#asm-jump\n")==0)){
+                            printf("\nentre en el break en :%d\n", jaux);
+                            break;
+                    }
+                    
+                }  
+                printf("\n\n TIPOS AUX, ES: %s\n\n",tipos_aux); 
+                caux=tipos_aux[0];
+                for(jaux=1;jaux<strlen(tipos_aux);jaux++){
+                    printf("\nestoy comparando VECTOR TIPOS_AUX\n");
+                    if(caux!=tipos_aux[jaux]){
+                    printf("error de tipos en %s:\n",tira_polaca[j].index);
+                    //system("pause");
+                    exit(1);
+                    }   
+                }
+                for(int k=0;k<30;k++){
+                    tipos_aux[k]='\0';
+                }
+                zaux=0;     
+            }
+        }
+    }
+}
