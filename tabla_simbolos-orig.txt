@@ -1,12 +1,21 @@
-NOMBRE					TIPO				VALOR				LONGITUD
+NOMBRE				TIPO				VALOR				LONGITUD
 
-$algas	  			  			 5
-$b	  			  			 1
-$var	  			  			 3
-$5	 int			 5			 0
-$8	 int			 8			 0
-$6	 int			 6			 0
-$7	 int			 7			 0
-$4	 int			 4			 0
-$"hola"	 cstring			 "hola"			 5
-$"mundo"	 cstring			 "mundo"			 6
+$chain				-				-				5
+$chain2				-				-				6
+$a				-				-				1
+$z				-				-				1
+$b				-				-				1
+$zetach				-				-				6
+$pepe				-				-				4
+$juan				-				-				4
+$pi				-				-				2
+$yota				-				-				4
+$5				int				5				0
+$"hola"				cstring				"hola"				5
+$"manola"				cstring				"manola"				7
+$7				int				7				0
+$6				int				6				0
+$3				int				3				0
+$22				int				22				0
+$"jaja"				cstring				"jaja"				5
+$"jojo"				cstring				"jojo"				5
