@@ -1,13 +1,14 @@
 0	;5;	#int
-1	;$b;	#
+1	;$b;	#int 
 2	;=;	#operator
 3	;"hola";	#cstring
 4	;"manola";	#cstring
 5	;++;	#operator
-6	;$chain;	#
+6	;$chain;	#stringg
+
 7	;=;	#operator
 8	;IF_I;	#inicio_if
-9	;$b;	#
+9	;$b;	#int 
 10	;7;	#int
 11	;CMP;	#comparator_if
 12	;BGE;	#asm-comparator
@@ -19,16 +20,16 @@
 18	;BLE;	#asm-comparator
 19	;35;	#space
 20	;22;	#int
-21	;$b;	#
+21	;$b;	#int 
 22	;=;	#operator
-23	;6;	#int
-24	;$juan;	#
+23	;$chain;	#string
+24	;$juan;	#int 
 25	;*;	#operator
 26	;5;	#int
 27	;-;	#operator
-28	;$b;	#
+28	;$b;	#int 
 29	;=;	#operator
-30	;$a;	#
+30	;$a;	#int 
 31	;=;	#operator
 32	;15;	#space
 33	;BI;	#asm-jump
@@ -39,6 +40,7 @@
 38	;"jaja";	#cstring
 39	;"jojo";	#cstring
 40	;++;	#operator
-41	;$chain2;	#
+41	;$chain2;	#stringg
+
 42	;=;	#operator
 43	;ELSE_F;	#asm-jump
