@@ -167,7 +167,7 @@
 %token COMA
 
 %%
-programa: DECLARE declaracion ENDDECLARE bloque {printf("Regla 1\n"); llenarTS(); aplicar_polaca(); aplicar_algoritmo_pilas();mostrar_polaca();} | 
+programa: DECLARE declaracion ENDDECLARE bloque {printf("Regla 1\n"); llenarTS(); aplicar_polaca(); aplicar_algoritmo_pilas();mostrar_polaca();verificar_tipos();} | 
           bloque {printf("Regla 2\n"); aplicar_polaca(); aplicar_algoritmo_pilas(); mostrar_polaca();verificar_tipos();};
 
 bloque: sentencia {printf("Regla 3\n");} | 
@@ -198,7 +198,9 @@ multiple: ID ASIGN asignacion {printf("Regla 19\n"); apilar_polaca(getIdTP(),TYP
                                apilar_polaca("A=","#operator");} | 
           ID ASIGN expresion_string {printf("Regla 21\n");} | 
           expresion_num {printf("Regla 22\n");} | 
-          expresion_string {printf("Regla 23\n");} ;
+          expresion_string {printf("Regla 23\n");} |
+          CSTRING {printf("regla =CTESTRING\n"); apilar_polaca(STR_aux_N1,TYPE_aux); 
+                          } ;
 
 expresion_num: termino {printf("Regla 24\n");} | 
                expresion_num SUMA termino {printf("Regla 25\n"); apilar_polaca("S+","#operator");} | 
@@ -215,7 +217,8 @@ expresion_string: CSTRING CONCAT CSTRING {printf("Regla 27\n"); apilar_polaca(ST
                                           apilar_polaca("++","#operator");} | 
                   CSTRING CONCAT ID {printf("Regla 30\n");imprimir_cadena_NUM++; apilar_polaca(STR_aux_N1,TYPE_aux); 
                                           apilar_polaca(getIdTP(), TYPE_aux); 
-                                          apilar_polaca("++","#operator");} ;
+                                          apilar_polaca("++","#operator");};
+
 
 termino: factor {printf("Regla 31\n");} | 
          termino MULT factor {printf("Regla 32\n"); apilar_polaca("M*","#operator");} | 
@@ -282,7 +285,6 @@ int main(){ // INICIO MAIN
 
         int recibo;
         recibo = yyparse();
-        verificar_tipos();
         if (recibo == 0){
            printf(" * * * ¡Parser Ok! * * * \n"); 
         }else   
@@ -1633,9 +1635,14 @@ void printTiraPolaca(){  // <--- ACA HAY QUE COMPROBAR TIPOS. SE llama en la f()
                     }
                     //strcat(tira_polaca[j].tag, dinamic_TS[i].tipo);
                 }
+                
             }
         }
-
+        for(int v=0;v<indice_tira;v++){
+            if(strcmp(tira_polaca[v].tag,"#stringg\n") == 0){
+                    strcpy(tira_polaca[v].tag,"#string");
+            }
+        }
         // printeo en el archivo
         for(int itp=0; itp<indice_tira; itp++) {
                 if(tira_polaca[itp].cell[1] == '$') {
@@ -1645,6 +1652,7 @@ void printTiraPolaca(){  // <--- ACA HAY QUE COMPROBAR TIPOS. SE llama en la f()
                     fprintf(repre_intermedia, "%s\t%s\t%s", tira_polaca[itp].index, tira_polaca[itp].cell, tira_polaca[itp].tag);
                     fflush(repre_intermedia);
                 }
+          
         }
     }// NO HACE FALTA CERRAR EL ARCHIVO --> se hace en el MAIN()
 }
@@ -1655,9 +1663,11 @@ void verificar_tipos(){
     char tipos_aux[30]={0};
     char caux=' ';
 
+    
     for(int j=0; j<indice_tira; j++) {  //para las comparaciones #cstring #string
        
         if(j>=2){
+            
             if(tira_polaca[j-1].tag[1]=='c'){
                 strcpy(tira_polaca[j-1].tag,"#string");
             }
@@ -1781,3 +1791,8 @@ void verificar_tipos(){
         }
     }
 }
+
+
+
+
+

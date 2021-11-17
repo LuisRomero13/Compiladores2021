@@ -12,7 +12,6 @@ $pi				-				-				2
 $yota				-				-				4
 $5				int				5				0
 $"hola"				cstring				"hola"				5
-$"manola"				cstring				"manola"				7
 $7				int				7				0
 $6				int				6				0
 $3				int				3				0

@@ -3,7 +3,7 @@ int pi; string yota;
 enddeclare 
 
 b = 5;
-chain="hola"++"manola";
+chain="hola";
 if ( (b) < (7) ){
 	while((6) > (3) ){
 		b=22;
