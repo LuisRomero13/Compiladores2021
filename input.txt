@@ -4,8 +4,8 @@ enddeclare
 
 b = 5;
 chain="hola";
-if ( (b) < (7) ){
-	while((6) > (3) ){
+if ( b < 7 ){
+	while( 6 > 3 ){
 		b=22;
 		a= b= 6 * juan - 5;}
 }else{

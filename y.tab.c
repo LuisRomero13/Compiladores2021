@@ -84,6 +84,7 @@
     FILE * tabla_simbolos=NULL;
     FILE * tabla_simbolos_orig=NULL;  
     FILE * tokens_unicos=NULL;
+    FILE * final_asm=NULL;
     char constanteEntera [40] = {0}; 
     char constanteReal [40]= {0};
     char constanteString [40]= {0}; 
@@ -190,9 +191,12 @@
     int mostrar(struct pila *p, struct elemento *);
     int retornar_tope(struct pila *p, struct elemento *elemento);
 
+    //ASSEMBLER
+    void generarAssembler();
+
 
 /* Line 189 of yacc.c  */
-#line 196 "y.tab.c"
+#line 200 "y.tab.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -301,7 +305,7 @@ typedef union YYSTYPE
 {
 
 /* Line 214 of yacc.c  */
-#line 123 "an.lex.y"
+#line 127 "an.lex.y"
 
     int number;
     char name[40];      
@@ -313,7 +317,7 @@ typedef union YYSTYPE
 
 
 /* Line 214 of yacc.c  */
-#line 317 "y.tab.c"
+#line 321 "y.tab.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -325,7 +329,7 @@ typedef union YYSTYPE
 
 
 /* Line 264 of yacc.c  */
-#line 329 "y.tab.c"
+#line 333 "y.tab.c"
 
 #ifdef short
 # undef short
@@ -540,7 +544,7 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  25
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   161
+#define YYLAST   150
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  38
@@ -549,7 +553,7 @@ union yyalloc
 /* YYNRULES -- Number of rules.  */
 #define YYNRULES  63
 /* YYNRULES -- Number of states.  */
-#define YYNSTATES  133
+#define YYNSTATES  124
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
@@ -602,9 +606,9 @@ static const yytype_uint8 yyprhs[] =
       28,    30,    32,    36,    39,    41,    43,    46,    49,    53,
       54,    58,    62,    66,    68,    70,    72,    74,    78,    82,
       86,    90,    94,    98,   100,   104,   108,   110,   112,   114,
-     118,   120,   122,   124,   126,   128,   130,   138,   146,   154,
-     162,   167,   169,   171,   172,   173,   183,   184,   185,   186,
-     201,   204,   207,   210
+     118,   120,   122,   124,   126,   128,   130,   134,   138,   146,
+     154,   159,   161,   163,   164,   165,   175,   176,   177,   178,
+     193,   196,   199,   202
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
@@ -623,27 +627,26 @@ static const yytype_int8 yyrhs[] =
       49,    19,    50,    -1,    49,    20,    50,    -1,    16,    -1,
        4,    -1,     5,    -1,    35,    47,    36,    -1,    26,    -1,
       27,    -1,    28,    -1,    29,    -1,    30,    -1,    31,    -1,
-      35,    47,    36,    51,    35,    47,    36,    -1,    35,    48,
-      36,    51,    35,    48,    36,    -1,    35,    52,    36,    23,
-      35,    52,    36,    -1,    35,    52,    36,    24,    35,    52,
-      36,    -1,    25,    35,    54,    36,    -1,    52,    -1,    53,
-      -1,    -1,    -1,    56,     6,    35,    57,    54,    36,    33,
-      40,    34,    -1,    -1,    -1,    -1,    59,     7,    35,    60,
-      54,    36,    33,    40,    34,    61,     8,    33,    40,    34,
-      -1,    15,     3,    -1,    15,     4,    -1,    15,     5,    -1,
-      14,    16,    -1
+      47,    51,    47,    -1,    48,    51,    48,    -1,    35,    52,
+      36,    23,    35,    52,    36,    -1,    35,    52,    36,    24,
+      35,    52,    36,    -1,    25,    35,    54,    36,    -1,    52,
+      -1,    53,    -1,    -1,    -1,    56,     6,    35,    57,    54,
+      36,    33,    40,    34,    -1,    -1,    -1,    -1,    59,     7,
+      35,    60,    54,    36,    33,    40,    34,    61,     8,    33,
+      40,    34,    -1,    15,     3,    -1,    15,     4,    -1,    15,
+       5,    -1,    14,    16,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   170,   170,   171,   173,   174,   176,   177,   179,   180,
-     181,   183,   184,   186,   187,   188,   189,   190,   192,   193,
-     195,   197,   199,   200,   201,   202,   205,   206,   207,   209,
-     212,   215,   218,   223,   224,   225,   227,   228,   229,   230,
-     232,   233,   234,   235,   236,   237,   239,   240,   242,   243,
-     245,   246,   248,   250,   250,   250,   253,   253,   253,   253,
-     257,   258,   259,   261
+       0,   174,   174,   175,   177,   178,   180,   181,   183,   184,
+     185,   187,   188,   190,   191,   192,   193,   194,   196,   197,
+     199,   201,   203,   204,   205,   206,   209,   210,   211,   213,
+     216,   219,   222,   227,   228,   229,   231,   232,   233,   234,
+     236,   237,   238,   239,   240,   241,   243,   244,   246,   247,
+     249,   250,   252,   254,   254,   254,   257,   257,   257,   257,
+     261,   262,   263,   265
 };
 #endif
 
@@ -696,7 +699,7 @@ static const yytype_uint8 yyr2[] =
        1,     1,     3,     2,     1,     1,     2,     2,     3,     0,
        3,     3,     3,     1,     1,     1,     1,     3,     3,     3,
        3,     3,     3,     1,     3,     3,     1,     1,     1,     3,
-       1,     1,     1,     1,     1,     1,     7,     7,     7,     7,
+       1,     1,     1,     1,     1,     1,     3,     3,     7,     7,
        4,     1,     1,     0,     0,     9,     0,     0,     0,    14,
        2,     2,     2,     2
 };
@@ -713,21 +716,20 @@ static const yytype_uint8 yydefact[] =
       18,    23,    24,    26,    33,    54,    57,     2,     0,     6,
        0,    19,     0,    36,     0,     0,     0,     0,     0,     0,
        0,    12,     7,    29,    32,     0,    36,    20,    21,    22,
-      30,    31,    39,    27,    28,    34,    35,     0,     0,    51,
-      52,     0,     0,     0,    36,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,    19,    19,    50,    39,
-      40,    41,    42,    43,    44,    45,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,    55,    58,     0,     0,
-       0,     0,     0,     0,     0,    46,    47,    48,    49,     0,
-      19,     0,    59
+      30,    31,    39,    27,    28,    34,    35,    36,     0,     0,
+       0,     0,    51,    52,     0,     0,     0,     0,     0,    40,
+      41,    42,    43,    44,    45,     0,     0,     0,     0,     0,
+       0,    46,     0,    47,    19,    19,    50,     0,     0,     0,
+       0,     0,     0,    55,    58,     0,     0,     0,    48,    49,
+       0,    19,     0,    59
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     5,     6,    18,    19,    34,     7,     8,    40,    86,
-      87,    43,    44,   106,    79,    80,    81,     9,    10,    59,
-      11,    12,    60,   124,    13,    14
+      -1,     5,     6,    18,    19,    34,     7,     8,    40,    80,
+      81,    43,    44,    95,    82,    83,    84,     9,    10,    59,
+      11,    12,    60,   117,    13,    14
 };
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
@@ -735,27 +737,26 @@ static const yytype_int8 yydefgoto[] =
 #define YYPACT_NINF -78
 static const yytype_int8 yypact[] =
 {
-      64,    82,   -10,   100,    -3,    24,   -78,    42,    -5,   -78,
-      40,   -78,    25,    35,    45,   -78,   -78,   -78,   103,    94,
-     -78,   -78,   -78,   -78,     4,   -78,   -78,   -78,    79,    80,
-     -78,   -78,    69,    81,    84,    95,   -78,   -78,    39,    17,
-     -78,    46,   -78,    62,   -78,   -78,   -78,   -78,    94,    82,
-       0,     7,    14,   -78,    23,    17,    17,    17,    17,    61,
-      61,   -78,   -78,   -78,   -78,    95,    66,   -78,    46,   -78,
-     -78,   -78,   -78,    62,    62,   -78,   -78,    85,    10,   -78,
-     -78,    86,    88,    61,    97,    31,    26,    89,    90,    96,
-      98,    91,    33,    71,    71,    83,    69,    69,   -78,    71,
-     -78,   -78,   -78,   -78,   -78,   -78,    93,    99,   101,   102,
-      87,   104,    17,    52,   105,   105,   -78,   -78,    36,    97,
-     106,    31,   107,   108,   122,   -78,   -78,   -78,   -78,   112,
-      69,   113,   -78
+      56,    42,    -3,    84,     3,    29,   -78,    34,     0,   -78,
+      37,   -78,    52,    25,    43,   -78,   -78,   -78,    51,    53,
+     -78,   -78,   -78,   -78,     4,   -78,   -78,   -78,    55,    78,
+     -78,   -78,    93,    73,    85,   103,   -78,   -78,    63,    17,
+     -78,    94,   -78,    96,   -78,   -78,   -78,   -78,    53,    42,
+      28,     7,    44,   -78,    20,    17,    17,    17,    17,     1,
+       1,   -78,   -78,   -78,   -78,   103,    97,   -78,    94,   -78,
+     -78,   -78,   -78,    96,    96,   -78,   -78,   106,    95,    11,
+      65,    75,   -78,   -78,    99,   100,     1,    50,   101,   -78,
+     -78,   -78,   -78,   -78,   -78,    17,    48,    87,   105,   104,
+      98,    94,   106,   -78,    93,    93,   -78,   107,   108,   110,
+     111,    11,    11,   -78,   -78,   112,   113,   121,   -78,   -78,
+     114,    93,   116,   -78
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -78,   -78,    -7,    92,   -78,   109,   -78,   110,   -78,   -20,
-     -22,    53,    54,    38,   -77,   -78,   -55,   -78,   -78,   -78,
+     -78,   -78,    -7,    82,   -78,    86,   -78,    81,   -78,   -21,
+     -23,    68,    69,    58,   -77,   -78,   -41,   -78,   -78,   -78,
      -78,   -78,   -78,   -78,   -78,   -78
 };
 
@@ -764,46 +765,44 @@ static const yytype_int8 yypgoto[] =
    number is the opposite.  If zero, do what YYDEFACT says.
    If YYTABLE_NINF, syntax error.  */
 #define YYTABLE_NINF -57
-static const yytype_int16 yytable[] =
+static const yytype_int8 yytable[] =
 {
-      26,    88,    42,    63,    41,    82,    20,    35,    36,    37,
-      65,    36,    37,    65,    36,    37,    64,    70,    24,    54,
-      38,    36,    37,    66,    25,    47,    84,    27,    91,    69,
-      71,    68,    29,    53,    65,    36,    37,   122,   123,    39,
-      55,    56,    39,    55,    56,    85,    28,    84,   -53,   -56,
-      55,    56,    39,    55,    56,    65,     2,     3,     4,    72,
-      51,    52,    93,    55,    56,    92,    39,    30,   119,    99,
-     -53,   -56,   125,     1,   -19,   -53,   -56,    31,     2,     3,
-       4,    57,    58,     2,     3,     4,    77,    24,    52,   110,
-     111,   120,   118,    15,    16,    17,    78,   100,   101,   102,
-     103,   104,   105,    21,    22,    23,   108,   109,    73,    74,
-      33,    75,    76,    32,    45,    46,    49,    50,    48,    52,
-      83,   116,    89,   131,    90,    94,    95,    98,   112,    96,
-     129,    97,   107,     0,   113,     0,   114,   115,   117,     0,
-     121,    62,   126,   127,   128,   130,     0,   132,     0,     0,
-       0,     0,     0,     0,     0,     0,     0,    61,     0,     0,
-       0,    67
+      26,    42,    88,    41,    65,    36,    37,    35,    36,    37,
+      65,    36,    37,    20,    65,    36,    37,    77,    54,    85,
+      38,    36,    37,    66,    24,    47,    78,    77,    69,    25,
+      68,    63,    27,    53,   115,   116,    79,    55,    56,    39,
+     -53,   -56,    39,    28,    64,    99,    39,    70,     2,     3,
+       4,    65,    39,    15,    16,    17,    72,    30,    87,    29,
+      71,    32,   -53,   -56,   102,     1,   -19,    55,    56,    33,
+       2,     3,     4,   103,   101,    31,    89,    90,    91,    92,
+      93,    94,    55,    56,    51,    52,    72,    21,    22,    23,
+      45,    89,    90,    91,    92,    93,    94,   109,   110,   -53,
+     -56,    89,    90,    91,    92,    93,    94,     2,     3,     4,
+      48,    55,    56,    46,   122,    57,    58,    49,    24,    52,
+     104,   107,   108,    73,    74,    50,    75,    76,    52,   120,
+      86,    62,    67,     0,    61,    97,    98,   100,   105,    96,
+     106,     0,   111,   112,   113,   114,     0,   121,   118,   119,
+     123
 };
 
-static const yytype_int16 yycheck[] =
+static const yytype_int8 yycheck[] =
 {
-       7,    78,    24,     3,    24,    60,    16,     3,     4,     5,
-       3,     4,     5,     3,     4,     5,    16,     3,    21,    39,
-      16,     4,     5,    16,     0,    32,    16,    32,    83,    51,
-      16,    51,     7,    16,     3,     4,     5,   114,   115,    35,
-      17,    18,    35,    17,    18,    35,     6,    16,     6,     7,
-      17,    18,    35,    17,    18,     3,    14,    15,    16,    36,
-      21,    22,    36,    17,    18,    85,    35,    32,    16,    36,
-       6,     7,    36,     9,    32,     6,     7,    32,    14,    15,
-      16,    19,    20,    14,    15,    16,    25,    21,    22,    96,
-      97,   113,   112,    11,    12,    13,    35,    26,    27,    28,
-      29,    30,    31,     3,     4,     5,    23,    24,    55,    56,
-      16,    57,    58,    10,    35,    35,    32,    22,    37,    22,
-      35,    34,    36,   130,    36,    36,    36,    36,    35,    33,
-       8,    33,    94,    -1,    35,    -1,    35,    35,    34,    -1,
-      35,    49,    36,    36,    36,    33,    -1,    34,    -1,    -1,
-      -1,    -1,    -1,    -1,    -1,    -1,    -1,    48,    -1,    -1,
-      -1,    51
+       7,    24,    79,    24,     3,     4,     5,     3,     4,     5,
+       3,     4,     5,    16,     3,     4,     5,    16,    39,    60,
+      16,     4,     5,    16,    21,    32,    25,    16,    51,     0,
+      51,     3,    32,    16,   111,   112,    35,    17,    18,    35,
+       6,     7,    35,     6,    16,    86,    35,     3,    14,    15,
+      16,     3,    35,    11,    12,    13,    36,    32,    79,     7,
+      16,    10,     6,     7,    16,     9,    32,    17,    18,    16,
+      14,    15,    16,    96,    95,    32,    26,    27,    28,    29,
+      30,    31,    17,    18,    21,    22,    36,     3,     4,     5,
+      35,    26,    27,    28,    29,    30,    31,   104,   105,     6,
+       7,    26,    27,    28,    29,    30,    31,    14,    15,    16,
+      37,    17,    18,    35,   121,    19,    20,    32,    21,    22,
+      33,    23,    24,    55,    56,    22,    57,    58,    22,     8,
+      35,    49,    51,    -1,    48,    36,    36,    36,    33,    81,
+      36,    -1,    35,    35,    34,    34,    -1,    33,    36,    36,
+      34
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
@@ -817,13 +816,12 @@ static const yytype_uint8 yystos[] =
       46,    47,    48,    49,    50,    35,    35,    40,    37,    32,
       22,    21,    22,    16,    47,    17,    18,    19,    20,    57,
       60,    43,    41,     3,    16,     3,    16,    45,    47,    48,
-       3,    16,    36,    49,    49,    50,    50,    25,    35,    52,
-      53,    54,    54,    35,    16,    35,    47,    48,    52,    36,
-      36,    54,    47,    36,    36,    36,    33,    33,    36,    36,
-      26,    27,    28,    29,    30,    31,    51,    51,    23,    24,
-      40,    40,    35,    35,    35,    35,    34,    34,    47,    16,
-      48,    35,    52,    52,    61,    36,    36,    36,    36,     8,
-      33,    40,    34
+       3,    16,    36,    49,    49,    50,    50,    16,    25,    35,
+      47,    48,    52,    53,    54,    54,    35,    47,    52,    26,
+      27,    28,    29,    30,    31,    51,    51,    36,    36,    54,
+      36,    47,    16,    48,    33,    33,    36,    23,    24,    40,
+      40,    35,    35,    34,    34,    52,    52,    61,    36,    36,
+       8,    33,    40,    34
 };
 
 #define yyerrok		(yyerrstatus = 0)
@@ -1637,119 +1635,119 @@ yyreduce:
         case 2:
 
 /* Line 1455 of yacc.c  */
-#line 170 "an.lex.y"
-    {printf("Regla 1\n"); llenarTS(); aplicar_polaca(); aplicar_algoritmo_pilas();mostrar_polaca();verificar_tipos();}
+#line 174 "an.lex.y"
+    {printf("Regla 1\n"); llenarTS(); aplicar_polaca(); aplicar_algoritmo_pilas();mostrar_polaca();verificar_tipos();generarAssembler();}
     break;
 
   case 3:
 
 /* Line 1455 of yacc.c  */
-#line 171 "an.lex.y"
+#line 175 "an.lex.y"
     {printf("Regla 2\n"); aplicar_polaca(); aplicar_algoritmo_pilas(); mostrar_polaca();verificar_tipos();}
     break;
 
   case 4:
 
 /* Line 1455 of yacc.c  */
-#line 173 "an.lex.y"
+#line 177 "an.lex.y"
     {printf("Regla 3\n");}
     break;
 
   case 5:
 
 /* Line 1455 of yacc.c  */
-#line 174 "an.lex.y"
+#line 178 "an.lex.y"
     {printf("Regla 4\n");}
     break;
 
   case 6:
 
 /* Line 1455 of yacc.c  */
-#line 176 "an.lex.y"
+#line 180 "an.lex.y"
     {printf("Regla 5\n"); habilitar_multiple = 'y';}
     break;
 
   case 7:
 
 /* Line 1455 of yacc.c  */
-#line 177 "an.lex.y"
+#line 181 "an.lex.y"
     {printf("Regla 6\n"); habilitar_multiple = 'y';}
     break;
 
   case 8:
 
 /* Line 1455 of yacc.c  */
-#line 179 "an.lex.y"
+#line 183 "an.lex.y"
     {printf("Regla 7\n"); }
     break;
 
   case 9:
 
 /* Line 1455 of yacc.c  */
-#line 180 "an.lex.y"
+#line 184 "an.lex.y"
     {printf("Regla 8\n"); }
     break;
 
   case 10:
 
 /* Line 1455 of yacc.c  */
-#line 181 "an.lex.y"
+#line 185 "an.lex.y"
     {printf("Regla 9\n"); }
     break;
 
   case 11:
 
 /* Line 1455 of yacc.c  */
-#line 183 "an.lex.y"
+#line 187 "an.lex.y"
     {printf("Regla 10\n");   }
     break;
 
   case 12:
 
 /* Line 1455 of yacc.c  */
-#line 184 "an.lex.y"
+#line 188 "an.lex.y"
     {printf("Regla 11\n");}
     break;
 
   case 13:
 
 /* Line 1455 of yacc.c  */
-#line 186 "an.lex.y"
+#line 190 "an.lex.y"
     {printf("Regla 12\n"); }
     break;
 
   case 14:
 
 /* Line 1455 of yacc.c  */
-#line 187 "an.lex.y"
+#line 191 "an.lex.y"
     {printf("Regla 13\n");}
     break;
 
   case 15:
 
 /* Line 1455 of yacc.c  */
-#line 188 "an.lex.y"
+#line 192 "an.lex.y"
     {printf("Regla 14\n");}
     break;
 
   case 16:
 
 /* Line 1455 of yacc.c  */
-#line 189 "an.lex.y"
+#line 193 "an.lex.y"
     {printf("Regla 16\n");}
     break;
 
   case 17:
 
 /* Line 1455 of yacc.c  */
-#line 190 "an.lex.y"
+#line 194 "an.lex.y"
     {printf("Regla 17\n");}
     break;
 
   case 18:
 
 /* Line 1455 of yacc.c  */
-#line 192 "an.lex.y"
+#line 196 "an.lex.y"
     {printf("Regla 18\n"); apilar_polaca(getIdTP(), TYPE_aux); 
                                apilar_polaca("A=", "#operator"); }
     break;
@@ -1757,7 +1755,7 @@ yyreduce:
   case 20:
 
 /* Line 1455 of yacc.c  */
-#line 195 "an.lex.y"
+#line 199 "an.lex.y"
     {printf("Regla 19\n"); apilar_polaca(getIdTP(),TYPE_aux);
                                apilar_polaca("A=","#operator");}
     break;
@@ -1765,7 +1763,7 @@ yyreduce:
   case 21:
 
 /* Line 1455 of yacc.c  */
-#line 197 "an.lex.y"
+#line 201 "an.lex.y"
     {printf("Regla 20\n"); apilar_polaca(getIdTP(),TYPE_aux);
                                apilar_polaca("A=","#operator");}
     break;
@@ -1773,28 +1771,28 @@ yyreduce:
   case 22:
 
 /* Line 1455 of yacc.c  */
-#line 199 "an.lex.y"
+#line 203 "an.lex.y"
     {printf("Regla 21\n");}
     break;
 
   case 23:
 
 /* Line 1455 of yacc.c  */
-#line 200 "an.lex.y"
+#line 204 "an.lex.y"
     {printf("Regla 22\n");}
     break;
 
   case 24:
 
 /* Line 1455 of yacc.c  */
-#line 201 "an.lex.y"
+#line 205 "an.lex.y"
     {printf("Regla 23\n");}
     break;
 
   case 25:
 
 /* Line 1455 of yacc.c  */
-#line 202 "an.lex.y"
+#line 206 "an.lex.y"
     {printf("regla =CTESTRING\n"); apilar_polaca(STR_aux_N1,TYPE_aux); 
                           }
     break;
@@ -1802,28 +1800,28 @@ yyreduce:
   case 26:
 
 /* Line 1455 of yacc.c  */
-#line 205 "an.lex.y"
+#line 209 "an.lex.y"
     {printf("Regla 24\n");}
     break;
 
   case 27:
 
 /* Line 1455 of yacc.c  */
-#line 206 "an.lex.y"
+#line 210 "an.lex.y"
     {printf("Regla 25\n"); apilar_polaca("S+","#operator");}
     break;
 
   case 28:
 
 /* Line 1455 of yacc.c  */
-#line 207 "an.lex.y"
+#line 211 "an.lex.y"
     {printf("Regla 26\n"); apilar_polaca("R-","#operator");}
     break;
 
   case 29:
 
 /* Line 1455 of yacc.c  */
-#line 209 "an.lex.y"
+#line 213 "an.lex.y"
     {printf("Regla 27\n"); apilar_polaca(STR_aux_N1,TYPE_aux); 
                                           apilar_polaca(STR_aux_N2, TYPE_aux); 
                                           apilar_polaca("++","#operator"); }
@@ -1832,7 +1830,7 @@ yyreduce:
   case 30:
 
 /* Line 1455 of yacc.c  */
-#line 212 "an.lex.y"
+#line 216 "an.lex.y"
     {printf("Regla 28\n"); apilar_polaca(getIdTP(), TYPE_aux); 
                                           imprimir_cadena_NUM++; apilar_polaca(STR_aux_N1,TYPE_aux); 
                                           apilar_polaca("++","#operator");}
@@ -1841,7 +1839,7 @@ yyreduce:
   case 31:
 
 /* Line 1455 of yacc.c  */
-#line 215 "an.lex.y"
+#line 219 "an.lex.y"
     {printf("Regla 29\n"); apilar_polaca(getIdTP(), TYPE_aux); 
                                           apilar_polaca(getIdTP(), TYPE_aux);
                                           apilar_polaca("++","#operator");}
@@ -1850,7 +1848,7 @@ yyreduce:
   case 32:
 
 /* Line 1455 of yacc.c  */
-#line 218 "an.lex.y"
+#line 222 "an.lex.y"
     {printf("Regla 30\n");imprimir_cadena_NUM++; apilar_polaca(STR_aux_N1,TYPE_aux); 
                                           apilar_polaca(getIdTP(), TYPE_aux); 
                                           apilar_polaca("++","#operator");}
@@ -1859,133 +1857,133 @@ yyreduce:
   case 33:
 
 /* Line 1455 of yacc.c  */
-#line 223 "an.lex.y"
+#line 227 "an.lex.y"
     {printf("Regla 31\n");}
     break;
 
   case 34:
 
 /* Line 1455 of yacc.c  */
-#line 224 "an.lex.y"
+#line 228 "an.lex.y"
     {printf("Regla 32\n"); apilar_polaca("M*","#operator");}
     break;
 
   case 35:
 
 /* Line 1455 of yacc.c  */
-#line 225 "an.lex.y"
+#line 229 "an.lex.y"
     {printf("Regla 33\n"); apilar_polaca("D/","#operator");}
     break;
 
   case 36:
 
 /* Line 1455 of yacc.c  */
-#line 227 "an.lex.y"
+#line 231 "an.lex.y"
     {printf("Regla 34\n"); apilar_polaca(getIdTP(),TYPE_aux); }
     break;
 
   case 37:
 
 /* Line 1455 of yacc.c  */
-#line 228 "an.lex.y"
+#line 232 "an.lex.y"
     {printf("Regla 35\n"); apilar_polaca(yylval.valor, TYPE_aux);}
     break;
 
   case 38:
 
 /* Line 1455 of yacc.c  */
-#line 229 "an.lex.y"
+#line 233 "an.lex.y"
     {printf("Regla 36\n"); apilar_polaca(yylval.valor,TYPE_aux);}
     break;
 
   case 39:
 
 /* Line 1455 of yacc.c  */
-#line 230 "an.lex.y"
+#line 234 "an.lex.y"
     {printf("Regla 37\n");}
     break;
 
   case 40:
 
 /* Line 1455 of yacc.c  */
-#line 232 "an.lex.y"
+#line 236 "an.lex.y"
     {printf("Regla 38\n"); strcpy(comparador_RR, "BLE"); }
     break;
 
   case 41:
 
 /* Line 1455 of yacc.c  */
-#line 233 "an.lex.y"
+#line 237 "an.lex.y"
     {printf("Regla 39\n"); strcpy(comparador_RR, "BGE"); }
     break;
 
   case 42:
 
 /* Line 1455 of yacc.c  */
-#line 234 "an.lex.y"
+#line 238 "an.lex.y"
     {printf("Regla 40\n"); strcpy(comparador_RR, "BGT"); }
     break;
 
   case 43:
 
 /* Line 1455 of yacc.c  */
-#line 235 "an.lex.y"
+#line 239 "an.lex.y"
     {printf("Regla 41\n"); strcpy(comparador_RR, "BLT"); }
     break;
 
   case 44:
 
 /* Line 1455 of yacc.c  */
-#line 236 "an.lex.y"
+#line 240 "an.lex.y"
     {printf("Regla 42\n"); strcpy(comparador_RR, "BEQ"); }
     break;
 
   case 45:
 
 /* Line 1455 of yacc.c  */
-#line 237 "an.lex.y"
+#line 241 "an.lex.y"
     {printf("Regla 43\n"); strcpy(comparador_RR, "BNE");}
     break;
 
   case 46:
 
 /* Line 1455 of yacc.c  */
-#line 239 "an.lex.y"
+#line 243 "an.lex.y"
     {printf("Regla 44\n"); }
     break;
 
   case 47:
 
 /* Line 1455 of yacc.c  */
-#line 240 "an.lex.y"
+#line 244 "an.lex.y"
     {printf("Regla 45\n");}
     break;
 
   case 48:
 
 /* Line 1455 of yacc.c  */
-#line 242 "an.lex.y"
+#line 246 "an.lex.y"
     {printf("Regla 46\n");}
     break;
 
   case 49:
 
 /* Line 1455 of yacc.c  */
-#line 243 "an.lex.y"
+#line 247 "an.lex.y"
     {printf("Regla 47\n");}
     break;
 
   case 50:
 
 /* Line 1455 of yacc.c  */
-#line 245 "an.lex.y"
+#line 249 "an.lex.y"
     {printf("Regla 48\n");}
     break;
 
   case 51:
 
 /* Line 1455 of yacc.c  */
-#line 246 "an.lex.y"
+#line 250 "an.lex.y"
     {printf("Regla 49\n"); if(habilitar_tira=='s'){apilar_polaca("CMP","#comparator_if");}else if(habilitar_tira=='w'){apilar_polaca("CMP","#comparator_while");}; 
                         apilar_polaca(comparador_RR,"#asm-comparator"); apilar_polaca(" ","#space");}
     break;
@@ -1993,28 +1991,28 @@ yyreduce:
   case 52:
 
 /* Line 1455 of yacc.c  */
-#line 248 "an.lex.y"
+#line 252 "an.lex.y"
     {printf("Regla 50\n");}
     break;
 
   case 53:
 
 /* Line 1455 of yacc.c  */
-#line 250 "an.lex.y"
+#line 254 "an.lex.y"
     {apilar_polaca("WH_I","#inicio_wh");}
     break;
 
   case 54:
 
 /* Line 1455 of yacc.c  */
-#line 250 "an.lex.y"
+#line 254 "an.lex.y"
     {habilitar_tira='w';}
     break;
 
   case 55:
 
 /* Line 1455 of yacc.c  */
-#line 250 "an.lex.y"
+#line 254 "an.lex.y"
     {printf("Regla 51\n"); apilar_polaca(" ","#space"); 
                                                                                                                             apilar_polaca("BI","#asm-jump"); apilar_polaca("WH_F","#fin_wh");}
     break;
@@ -2022,21 +2020,21 @@ yyreduce:
   case 56:
 
 /* Line 1455 of yacc.c  */
-#line 253 "an.lex.y"
+#line 257 "an.lex.y"
     {apilar_polaca("IF_I","#inicio_if");}
     break;
 
   case 57:
 
 /* Line 1455 of yacc.c  */
-#line 253 "an.lex.y"
+#line 257 "an.lex.y"
     {habilitar_tira='s';}
     break;
 
   case 58:
 
 /* Line 1455 of yacc.c  */
-#line 253 "an.lex.y"
+#line 257 "an.lex.y"
     { printf("Regla 52\n"); cant_selecciones++; printf("CANT SELECCIONES ES: %d\n",cant_selecciones);
                                                                                                                         apilar_polaca(" ","#space"); apilar_polaca("BI","#asm-jump"); apilar_polaca("IF_F","#fin_if");  }
     break;
@@ -2044,42 +2042,42 @@ yyreduce:
   case 59:
 
 /* Line 1455 of yacc.c  */
-#line 255 "an.lex.y"
+#line 259 "an.lex.y"
     { printf("Regla 53\n"); apilar_polaca("ELSE_F","#asm-jump");}
     break;
 
   case 60:
 
 /* Line 1455 of yacc.c  */
-#line 257 "an.lex.y"
+#line 261 "an.lex.y"
     {printf("Regla 54\n");}
     break;
 
   case 61:
 
 /* Line 1455 of yacc.c  */
-#line 258 "an.lex.y"
+#line 262 "an.lex.y"
     {printf("Regla 55\n");}
     break;
 
   case 62:
 
 /* Line 1455 of yacc.c  */
-#line 259 "an.lex.y"
+#line 263 "an.lex.y"
     {printf("Regla 56\n");}
     break;
 
   case 63:
 
 /* Line 1455 of yacc.c  */
-#line 261 "an.lex.y"
+#line 265 "an.lex.y"
     {printf("Regla 56\n");}
     break;
 
 
 
 /* Line 1455 of yacc.c  */
-#line 2083 "y.tab.c"
+#line 2081 "y.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2291,7 +2289,7 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 262 "an.lex.y"
+#line 266 "an.lex.y"
 
 
 int main(){ // INICIO MAIN
@@ -2301,14 +2299,16 @@ int main(){ // INICIO MAIN
     tabla_simbolos_orig = fopen("tabla_simbolos-orig.txt", "w+");
     tokens_unicos = fopen("tokens_unicos.txt", "w+");
     repre_intermedia = fopen("intermedia.txt", "w+");
+    final_asm = fopen("final.asm", "w+");
 
     rewind(lista_tokens);
     rewind(tabla_simbolos);
     rewind(tabla_simbolos_orig);
     rewind(tokens_unicos);
     rewind(repre_intermedia);
+    rewind(final_asm);
     
-    if((repre_intermedia != NULL)||(input != NULL)||(lista_tokens != NULL)||(tabla_simbolos != NULL)||(tokens_unicos != NULL)||(tabla_simbolos_orig != NULL)){
+    if((repre_intermedia != NULL)||(input != NULL)||(lista_tokens != NULL)||(tabla_simbolos != NULL)||(tokens_unicos != NULL)||(tabla_simbolos_orig != NULL)||(final_asm != NULL)){
         fprintf (lista_tokens, "%s\t\t%s\n\n", "ID", "NOMBRE");
         fflush(lista_tokens);
         fprintf (tabla_simbolos, "%s\t\t\t\t%s\t\t\t\t%s\t\t\t\t%s\n\n", "NOMBRE", "TIPO", "VALOR", "LONGITUD");
@@ -2328,6 +2328,7 @@ int main(){ // INICIO MAIN
         fclose(tabla_simbolos_orig); 
         fclose(tabla_simbolos);
         fclose(repre_intermedia);
+        fclose(final_asm);
         remove("tokens_unicos.txt"); // Destruimos el archivo una vez utilizado
     }
     else{
@@ -2340,6 +2341,7 @@ int main(){ // INICIO MAIN
     fflush(tabla_simbolos_orig);
     fflush(tokens_unicos);
     fflush(repre_intermedia);
+    fflush(final_asm);
     free(tira_polaca); // liberamos la memoria dinamica
     return 0;
 }
@@ -3738,7 +3740,7 @@ void verificar_tipos(){
 
                 // desde jaxu (oomitiendo ;=;) hasta que aparezca 
                 //||#space||fin_wh||fin_if||#asm-jump(bi eslef)
-                if(primer_asign==1){
+                if(primer_asign==1){          //guardo inicio y fin de primera asignacion que aparece
                     int a=jaux;
                     inicio_ultimo_asign=a;
                     for(a;a>=0;a--){     
@@ -3754,7 +3756,7 @@ void verificar_tipos(){
                         }                     
                     }       
                 }
-                else if(primer_asign==2){
+                else if(primer_asign==2){   //guardo inicio y fin de la siguiente asignacion que aparece
                     int a=jaux;
                     for(a;a>=inicio_ultimo_asign;a--){     
                         if((strcmp(tira_polaca[a].tag,"#space")==0)||(strcmp(tira_polaca[a].tag,"#space\n")==0)||
@@ -3767,7 +3769,7 @@ void verificar_tipos(){
                             break;
                         }                     
                     }
-                    inicio_ultimo_asign=jaux;    
+                    inicio_ultimo_asign=jaux;    //seteo el inicio de esta asignacion por si viene otra asignacion
                 }
                 
                 
@@ -3778,30 +3780,30 @@ void verificar_tipos(){
                     
                     if((strcmp(tira_polaca[jaux].tag,"#int")==0)||(strcmp(tira_polaca[jaux].tag,"#int ")==0)||(strcmp(tira_polaca[jaux].tag,"#int\0")==0)||(strcmp(tira_polaca[jaux].tag,"#int\n")==0)){
                         printf("tira_polaca[%d].cell: %s, tira_polaca[%d].tag %s\n", jaux,tira_polaca[jaux].cell,jaux,tira_polaca[jaux].tag);
-                        tipos_aux[zaux]='i';
+                        tipos_aux[zaux]='i'; //lleno vector auxiliar con i para tipo int
                         zaux++;
                     }
                     if((strcmp(tira_polaca[jaux].tag,"#real")==0)||(strcmp(tira_polaca[jaux].tag,"#real ")==0)||(strcmp(tira_polaca[jaux].tag,"#real\0")==0)||(strcmp(tira_polaca[jaux].tag,"#real\n")==0)){
                         printf("tira_polaca[%d].cell: %s, tira_polaca[%d].tag %s\n", jaux,tira_polaca[jaux].cell,jaux,tira_polaca[jaux].tag);
-                        tipos_aux[zaux]='r';
+                        tipos_aux[zaux]='r'; //lleno vector auxiliar con r para tipo real
                         zaux++;
                     }
                     if((strcmp(tira_polaca[jaux].tag,"#string")==0)||(strcmp(tira_polaca[jaux].tag,"#cstring")==0)||(strcmp(tira_polaca[jaux].tag,"#stringg\n")==0)||(strcmp(tira_polaca[jaux].tag,"#string\n")==0)||(strcmp(tira_polaca[jaux].tag,"#cstring\0")==0)||(strcmp(tira_polaca[jaux].tag,"#cstring\n")==0)){
                         printf("tira_polaca[%d].cell: %s, tira_polaca[%d].tag %s\n", jaux,tira_polaca[jaux].cell,jaux,tira_polaca[jaux].tag);
-                        printf("es string\n");
-                        tipos_aux[zaux]='s';
+                        printf("es string\n"); 
+                        tipos_aux[zaux]='s'; //lleno vector auxiliar con s para tipo string
                         zaux++;
                     } 
                     if((strcmp(tira_polaca[jaux].tag,"#")==0)||strcmp(tira_polaca[jaux].tag,"#")==0){
-                        printf("es NO declarada\n");
-                        tipos_aux[zaux]='x';
+                        printf("es NO declarada\n"); 
+                        tipos_aux[zaux]='x'; //lleno vector auxiliar con x para tipo no declarada
                         zaux++;
                     }
                     if((strcmp(tira_polaca[jaux].tag,"#space")==0)||(strcmp(tira_polaca[jaux].tag,"#space\n")==0)||
                         (strcmp(tira_polaca[jaux].tag,"#fin_wh")==0)||(strcmp(tira_polaca[jaux].tag,"#fin_wh\n")==0)||
                         (strcmp(tira_polaca[jaux].tag,"#fin_if")==0)||(strcmp(tira_polaca[jaux].tag,"#fin_if\n")==0)||
                         (strcmp(tira_polaca[jaux].tag,"#asm-jump")==0)||(strcmp(tira_polaca[jaux].tag,"#asm-jump\n")==0)){
-                            printf("\nentre en el break en :%d\n", jaux);
+                            printf("\nentre en el break en :%d\n", jaux); //si encuentro algo de esto, finalize el guardado de tipos de asignacion que inicio en jaux
                             break;
                     }
                     
@@ -3811,7 +3813,7 @@ void verificar_tipos(){
                 for(jaux=1;jaux<strlen(tipos_aux);jaux++){
                     printf("\nestoy comparando VECTOR TIPOS_AUX\n");
                     if(caux!=tipos_aux[jaux]){
-                    printf("error de tipos en %s:\n",tira_polaca[j].index);
+                    printf("error de tipos en %s:\n",tira_polaca[j].index);  //si el vector no contiene letras de un solo tipo, hay error de tipos
                     //system("pause");
                     exit(1);
                     }   
@@ -3824,6 +3826,108 @@ void verificar_tipos(){
         }
     }
 }
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+void generarAssembler(){
+    char auxiliarN[30]={0};
+    char auxiliarT[3]={0};
+    char auxiliarV[30]={0};
+        
+    fprintf (final_asm, ".MODEL LARGE\n");
+    fflush(final_asm);
+    fprintf (final_asm, ".386\n");
+    fflush(final_asm);
+    fprintf (final_asm, ".STACK 200h\n");
+    fflush(final_asm); 
+    fprintf (final_asm, ".DATA\n");
+    fflush(final_asm); 
+
+    fprintf (final_asm, "MAXTEXTSIZE equ 50\n\n");
+    fflush(final_asm); 
+    /*dinamic_TS[i].nombre
+    dinamic_TS[i].tipo
+    dinamic_TS[i].valor
+    dinamic_TS[i].longitud*/
+    for(int i=0;i<position_TS;i++){
+
+            //para sacar comillas de nombre de var cstring
+            if(dinamic_TS[i].nombre[1]=='"'){  
+                auxiliarN[0]='$';
+                for(int j=2;j<strlen(dinamic_TS[i].nombre)-1;j++){
+                        auxiliarN[j-1]=dinamic_TS[i].nombre[j];                
+                }
+            }else{
+                strcpy(auxiliarN,dinamic_TS[i].nombre);
+            }
+
+            //para int y real
+            if((strstr(dinamic_TS[i].tipo,"int") != NULL) || (strstr(dinamic_TS[i].tipo,"real")!= NULL)){
+               strcpy(auxiliarT,"dd");
+                if (strcmp(dinamic_TS[i].valor,"-")==0){
+                    strcpy(auxiliarV,"?");
+                }else if(strcmp(dinamic_TS[i].valor,"-")!=0){
+                    strcpy(auxiliarV,dinamic_TS[i].valor);
+                }
+            }
+
+            //para string y cstring
+            else if(strstr(dinamic_TS[i].tipo,"string") != NULL ){
+                strcpy(auxiliarT,"db");
+                if (strcmp(dinamic_TS[i].valor,"-")==0){
+                    strcpy(auxiliarV,"MAXTEXTSIZE dup (?),'$'");
+                }else if(strcmp(dinamic_TS[i].valor,"-")!=0){
+                    
+                    strcpy(auxiliarV,dinamic_TS[i].valor);
+                    
+                    auxiliarV[strlen(dinamic_TS[i].valor)-1]='$'; 
+                    auxiliarV[strlen(dinamic_TS[i].valor)]='"';            
+                    
+                }
+            }
+        
+            fprintf(final_asm,"%s %s %s\n",auxiliarN,auxiliarT,auxiliarV);
+            fflush(final_asm);
+            for(int k=0;k<30;k++){
+                auxiliarV[k]='\0';
+                auxiliarN[k]='\0';
+            }
+    }
+
+    //TABLA DE SIMB
+    fprintf (final_asm, "\n");
+    fflush(final_asm);
+    fprintf (final_asm, ".CODE\n");
+    fflush(final_asm);
+    fprintf (final_asm, "mov AX,@DATA\n");
+    fflush(final_asm);
+    fprintf (final_asm, "mov DS,AX\n");
+    fflush(final_asm); 
+    fprintf (final_asm, "mov es,ax\n\n");
+    fflush(final_asm); 
+
+
+    //codigo assembler
+
+
+    fprintf (final_asm, "mov ax,4c00h\n");
+    fflush(final_asm);
+    fprintf (final_asm, "int 21h\n");
+    fflush(final_asm); 
+    fprintf (final_asm, "End\n");
+    fflush(final_asm); 
+    
+
+}
+
+
+
+
+
+
 
 
 

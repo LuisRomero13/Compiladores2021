@@ -121,7 +121,7 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 123 "an.lex.y"
+#line 127 "an.lex.y"
 
     int number;
     char name[40];      

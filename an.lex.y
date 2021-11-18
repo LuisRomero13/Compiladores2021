@@ -13,6 +13,7 @@
     FILE * tabla_simbolos=NULL;
     FILE * tabla_simbolos_orig=NULL;  
     FILE * tokens_unicos=NULL;
+    FILE * final_asm=NULL;
     char constanteEntera [40] = {0}; 
     char constanteReal [40]= {0};
     char constanteString [40]= {0}; 
@@ -118,6 +119,9 @@
     int tamano(struct pila p);
     int mostrar(struct pila *p, struct elemento *);
     int retornar_tope(struct pila *p, struct elemento *elemento);
+
+    //ASSEMBLER
+    void generarAssembler();
 %}
 
 %union {
@@ -167,7 +171,7 @@
 %token COMA
 
 %%
-programa: DECLARE declaracion ENDDECLARE bloque {printf("Regla 1\n"); llenarTS(); aplicar_polaca(); aplicar_algoritmo_pilas();mostrar_polaca();verificar_tipos();} | 
+programa: DECLARE declaracion ENDDECLARE bloque {printf("Regla 1\n"); llenarTS(); aplicar_polaca(); aplicar_algoritmo_pilas();mostrar_polaca();verificar_tipos();generarAssembler();} | 
           bloque {printf("Regla 2\n"); aplicar_polaca(); aplicar_algoritmo_pilas(); mostrar_polaca();verificar_tipos();};
 
 bloque: sentencia {printf("Regla 3\n");} | 
@@ -236,8 +240,8 @@ comparador: MAYOR {printf("Regla 38\n"); strcpy(comparador_RR, "BLE"); } |
             IGUAL {printf("Regla 42\n"); strcpy(comparador_RR, "BEQ"); } | 
             DISTINTO {printf("Regla 43\n"); strcpy(comparador_RR, "BNE");} ;
 
-comparacion: PARENTA expresion_num PARENTC comparador PARENTA expresion_num PARENTC {printf("Regla 44\n"); } | 
-             PARENTA expresion_string PARENTC comparador PARENTA expresion_string PARENTC {printf("Regla 45\n");} ;
+comparacion:  expresion_num  comparador  expresion_num  {printf("Regla 44\n"); } | 
+              expresion_string  comparador expresion_string  {printf("Regla 45\n");} ;
 
 comp_logico: PARENTA comparacion PARENTC AND PARENTA comparacion PARENTC {printf("Regla 46\n");} | 
              PARENTA comparacion PARENTC OR PARENTA comparacion PARENTC {printf("Regla 47\n");} ;
@@ -268,14 +272,16 @@ int main(){ // INICIO MAIN
     tabla_simbolos_orig = fopen("tabla_simbolos-orig.txt", "w+");
     tokens_unicos = fopen("tokens_unicos.txt", "w+");
     repre_intermedia = fopen("intermedia.txt", "w+");
+    final_asm = fopen("final.asm", "w+");
 
     rewind(lista_tokens);
     rewind(tabla_simbolos);
     rewind(tabla_simbolos_orig);
     rewind(tokens_unicos);
     rewind(repre_intermedia);
+    rewind(final_asm);
     
-    if((repre_intermedia != NULL)||(input != NULL)||(lista_tokens != NULL)||(tabla_simbolos != NULL)||(tokens_unicos != NULL)||(tabla_simbolos_orig != NULL)){
+    if((repre_intermedia != NULL)||(input != NULL)||(lista_tokens != NULL)||(tabla_simbolos != NULL)||(tokens_unicos != NULL)||(tabla_simbolos_orig != NULL)||(final_asm != NULL)){
         fprintf (lista_tokens, "%s\t\t%s\n\n", "ID", "NOMBRE");
         fflush(lista_tokens);
         fprintf (tabla_simbolos, "%s\t\t\t\t%s\t\t\t\t%s\t\t\t\t%s\n\n", "NOMBRE", "TIPO", "VALOR", "LONGITUD");
@@ -295,6 +301,7 @@ int main(){ // INICIO MAIN
         fclose(tabla_simbolos_orig); 
         fclose(tabla_simbolos);
         fclose(repre_intermedia);
+        fclose(final_asm);
         remove("tokens_unicos.txt"); // Destruimos el archivo una vez utilizado
     }
     else{
@@ -307,6 +314,7 @@ int main(){ // INICIO MAIN
     fflush(tabla_simbolos_orig);
     fflush(tokens_unicos);
     fflush(repre_intermedia);
+    fflush(final_asm);
     free(tira_polaca); // liberamos la memoria dinamica
     return 0;
 }
@@ -1705,7 +1713,7 @@ void verificar_tipos(){
 
                 // desde jaxu (oomitiendo ;=;) hasta que aparezca 
                 //||#space||fin_wh||fin_if||#asm-jump(bi eslef)
-                if(primer_asign==1){
+                if(primer_asign==1){          //guardo inicio y fin de primera asignacion que aparece
                     int a=jaux;
                     inicio_ultimo_asign=a;
                     for(a;a>=0;a--){     
@@ -1721,7 +1729,7 @@ void verificar_tipos(){
                         }                     
                     }       
                 }
-                else if(primer_asign==2){
+                else if(primer_asign==2){   //guardo inicio y fin de la siguiente asignacion que aparece
                     int a=jaux;
                     for(a;a>=inicio_ultimo_asign;a--){     
                         if((strcmp(tira_polaca[a].tag,"#space")==0)||(strcmp(tira_polaca[a].tag,"#space\n")==0)||
@@ -1734,7 +1742,7 @@ void verificar_tipos(){
                             break;
                         }                     
                     }
-                    inicio_ultimo_asign=jaux;    
+                    inicio_ultimo_asign=jaux;    //seteo el inicio de esta asignacion por si viene otra asignacion
                 }
                 
                 
@@ -1745,30 +1753,30 @@ void verificar_tipos(){
                     
                     if((strcmp(tira_polaca[jaux].tag,"#int")==0)||(strcmp(tira_polaca[jaux].tag,"#int ")==0)||(strcmp(tira_polaca[jaux].tag,"#int\0")==0)||(strcmp(tira_polaca[jaux].tag,"#int\n")==0)){
                         printf("tira_polaca[%d].cell: %s, tira_polaca[%d].tag %s\n", jaux,tira_polaca[jaux].cell,jaux,tira_polaca[jaux].tag);
-                        tipos_aux[zaux]='i';
+                        tipos_aux[zaux]='i'; //lleno vector auxiliar con i para tipo int
                         zaux++;
                     }
                     if((strcmp(tira_polaca[jaux].tag,"#real")==0)||(strcmp(tira_polaca[jaux].tag,"#real ")==0)||(strcmp(tira_polaca[jaux].tag,"#real\0")==0)||(strcmp(tira_polaca[jaux].tag,"#real\n")==0)){
                         printf("tira_polaca[%d].cell: %s, tira_polaca[%d].tag %s\n", jaux,tira_polaca[jaux].cell,jaux,tira_polaca[jaux].tag);
-                        tipos_aux[zaux]='r';
+                        tipos_aux[zaux]='r'; //lleno vector auxiliar con r para tipo real
                         zaux++;
                     }
                     if((strcmp(tira_polaca[jaux].tag,"#string")==0)||(strcmp(tira_polaca[jaux].tag,"#cstring")==0)||(strcmp(tira_polaca[jaux].tag,"#stringg\n")==0)||(strcmp(tira_polaca[jaux].tag,"#string\n")==0)||(strcmp(tira_polaca[jaux].tag,"#cstring\0")==0)||(strcmp(tira_polaca[jaux].tag,"#cstring\n")==0)){
                         printf("tira_polaca[%d].cell: %s, tira_polaca[%d].tag %s\n", jaux,tira_polaca[jaux].cell,jaux,tira_polaca[jaux].tag);
-                        printf("es string\n");
-                        tipos_aux[zaux]='s';
+                        printf("es string\n"); 
+                        tipos_aux[zaux]='s'; //lleno vector auxiliar con s para tipo string
                         zaux++;
                     } 
                     if((strcmp(tira_polaca[jaux].tag,"#")==0)||strcmp(tira_polaca[jaux].tag,"#")==0){
-                        printf("es NO declarada\n");
-                        tipos_aux[zaux]='x';
+                        printf("es NO declarada\n"); 
+                        tipos_aux[zaux]='x'; //lleno vector auxiliar con x para tipo no declarada
                         zaux++;
                     }
                     if((strcmp(tira_polaca[jaux].tag,"#space")==0)||(strcmp(tira_polaca[jaux].tag,"#space\n")==0)||
                         (strcmp(tira_polaca[jaux].tag,"#fin_wh")==0)||(strcmp(tira_polaca[jaux].tag,"#fin_wh\n")==0)||
                         (strcmp(tira_polaca[jaux].tag,"#fin_if")==0)||(strcmp(tira_polaca[jaux].tag,"#fin_if\n")==0)||
                         (strcmp(tira_polaca[jaux].tag,"#asm-jump")==0)||(strcmp(tira_polaca[jaux].tag,"#asm-jump\n")==0)){
-                            printf("\nentre en el break en :%d\n", jaux);
+                            printf("\nentre en el break en :%d\n", jaux); //si encuentro algo de esto, finalize el guardado de tipos de asignacion que inicio en jaux
                             break;
                     }
                     
@@ -1778,7 +1786,7 @@ void verificar_tipos(){
                 for(jaux=1;jaux<strlen(tipos_aux);jaux++){
                     printf("\nestoy comparando VECTOR TIPOS_AUX\n");
                     if(caux!=tipos_aux[jaux]){
-                    printf("error de tipos en %s:\n",tira_polaca[j].index);
+                    printf("error de tipos en %s:\n",tira_polaca[j].index);  //si el vector no contiene letras de un solo tipo, hay error de tipos
                     //system("pause");
                     exit(1);
                     }   
@@ -1791,6 +1799,107 @@ void verificar_tipos(){
         }
     }
 }
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+void generarAssembler(){
+    char auxiliarN[30]={0};
+    char auxiliarT[3]={0};
+    char auxiliarV[30]={0};
+        
+    fprintf (final_asm, ".MODEL LARGE\n");
+    fflush(final_asm);
+    fprintf (final_asm, ".386\n");
+    fflush(final_asm);
+    fprintf (final_asm, ".STACK 200h\n");
+    fflush(final_asm); 
+    fprintf (final_asm, ".DATA\n");
+    fflush(final_asm); 
+
+    fprintf (final_asm, "MAXTEXTSIZE equ 50\n\n");
+    fflush(final_asm); 
+    /*dinamic_TS[i].nombre
+    dinamic_TS[i].tipo
+    dinamic_TS[i].valor
+    dinamic_TS[i].longitud*/
+    for(int i=0;i<position_TS;i++){
+
+            //para sacar comillas de nombre de var cstring
+            if(dinamic_TS[i].nombre[1]=='"'){  
+                auxiliarN[0]='$';
+                for(int j=2;j<strlen(dinamic_TS[i].nombre)-1;j++){
+                        auxiliarN[j-1]=dinamic_TS[i].nombre[j];                
+                }
+            }else{
+                strcpy(auxiliarN,dinamic_TS[i].nombre);
+            }
+
+            //para int y real
+            if((strstr(dinamic_TS[i].tipo,"int") != NULL) || (strstr(dinamic_TS[i].tipo,"real")!= NULL)){
+               strcpy(auxiliarT,"dd");
+                if (strcmp(dinamic_TS[i].valor,"-")==0){
+                    strcpy(auxiliarV,"?");
+                }else if(strcmp(dinamic_TS[i].valor,"-")!=0){
+                    strcpy(auxiliarV,dinamic_TS[i].valor);
+                }
+            }
+
+            //para string y cstring
+            else if(strstr(dinamic_TS[i].tipo,"string") != NULL ){
+                strcpy(auxiliarT,"db");
+                if (strcmp(dinamic_TS[i].valor,"-")==0){
+                    strcpy(auxiliarV,"MAXTEXTSIZE dup (?),'$'");
+                }else if(strcmp(dinamic_TS[i].valor,"-")!=0){
+                    
+                    strcpy(auxiliarV,dinamic_TS[i].valor);
+                    
+                    auxiliarV[strlen(dinamic_TS[i].valor)-1]='$'; 
+                    auxiliarV[strlen(dinamic_TS[i].valor)]='"';            
+                    
+                }
+            }
+        
+            fprintf(final_asm,"%s %s %s\n",auxiliarN,auxiliarT,auxiliarV);
+            fflush(final_asm);
+            for(int k=0;k<30;k++){
+                auxiliarV[k]='\0';
+                auxiliarN[k]='\0';
+            }
+    }
+
+    //TABLA DE SIMB
+    fprintf (final_asm, "\n");
+    fflush(final_asm);
+    fprintf (final_asm, ".CODE\n");
+    fflush(final_asm);
+    fprintf (final_asm, "mov AX,@DATA\n");
+    fflush(final_asm);
+    fprintf (final_asm, "mov DS,AX\n");
+    fflush(final_asm); 
+    fprintf (final_asm, "mov es,ax\n\n");
+    fflush(final_asm); 
+
+
+    //codigo assembler
+
+
+    fprintf (final_asm, "mov ax,4c00h\n");
+    fflush(final_asm);
+    fprintf (final_asm, "int 21h\n");
+    fflush(final_asm); 
+    fprintf (final_asm, "End\n");
+    fflush(final_asm); 
+
+}
+
+
+
+
+
+
 
 
 
