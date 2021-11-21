@@ -1,13 +1,14 @@
-declare string chain,chain2; int a, z, b; string zetach; int pepe,juan;
-int pi; string yota; 
+declare string chain,chain2; int a, z, b, x1,x2; string zetach; int pepe,juan;
+int pi; string yota; real pruebareal;
 enddeclare 
 
-b = 5;
-chain="hola";
+pruebareal=3.25;
+
 if ( b < 7 ){
-	while( 6 > 3 ){
-		b=22;
-		a= b= 6 * juan - 5;}
+	while( 6 > 3 ){	
+        b=22;
+		x1 = x2 = a= b= (6 * juan) + 5;
+    }
 }else{
-	chain2="jaja"++"jojo";
+    x2=  5;	
 } 
