@@ -141,6 +141,7 @@
 
     // variables para codigo intermedio
     tira *tira_polaca;
+    tira *tira_polaca_copia;
     TablaSimbolos * dinamic_TS;
 
     int cantidad_elementos_tira = 0; // indica la fila
@@ -152,12 +153,13 @@
     char TYPE_aux[40] = {0}; // para los tipos de datos
     char num_tag_else[40] = "asm-jump";
     int imprimir_cadena_NUM = 0; int indice_tira = -1; int cant_selecciones = 0; int cant_bucles = 0;
-    
+    int put = 0; char negt_number[40] = {0};
+
     // funciones para codigo intermedio
     void apilar_polaca(char * yval, char * type_yval);  void aplicar_polaca();  void mostrar_polaca(); 
     char * getIdTP(); char *invertir(char cadena[]);
     void llenarTS(); void actualizarTS(char type[], int num_tipo); char * removeSubString(char * str,int num_tipo);  char * insertSpaWhite(char * line);
-    void addTypeTS(); void printTS(); void printTiraPolaca();
+    void addTypeTS(); void printTS(); void printTiraPolaca(); char * skipMenosOP(char celda_tira []);
     void verificar_tipos();
 
     char habilitar_tira=' ';
@@ -193,12 +195,12 @@
     int retornar_tope(struct pila *p, struct elemento *elemento);
 
     //funciones para generar ASSEMBLER
-    void generarAssembler(); char * skipPointsC(char celda_tira []); char * skipComillasC(char string []); char * changeRealC(char stringR []);
+    void generarAssembler(); char * skipPointsC(char celda_tira []); char * skipComillasC(char string []); char * changeRealC(char stringR []);char * skipPesosC(char celda_tira []);
     void contar_if_wh(); 
 
 
 /* Line 189 of yacc.c  */
-#line 202 "y.tab.c"
+#line 204 "y.tab.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -307,7 +309,7 @@ typedef union YYSTYPE
 {
 
 /* Line 214 of yacc.c  */
-#line 129 "an.lex.y"
+#line 131 "an.lex.y"
 
     int number;
     char name[40];      
@@ -319,7 +321,7 @@ typedef union YYSTYPE
 
 
 /* Line 214 of yacc.c  */
-#line 323 "y.tab.c"
+#line 325 "y.tab.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -331,7 +333,7 @@ typedef union YYSTYPE
 
 
 /* Line 264 of yacc.c  */
-#line 335 "y.tab.c"
+#line 337 "y.tab.c"
 
 #ifdef short
 # undef short
@@ -544,18 +546,18 @@ union yyalloc
 #endif
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  25
+#define YYFINAL  26
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   150
+#define YYLAST   155
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  38
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  26
+#define YYNNTS  29
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  63
+#define YYNRULES  68
 /* YYNRULES -- Number of states.  */
-#define YYNSTATES  124
+#define YYNSTATES  130
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
@@ -606,11 +608,11 @@ static const yytype_uint8 yyprhs[] =
 {
        0,     0,     3,     8,    10,    12,    15,    19,    24,    26,
       28,    30,    32,    36,    39,    41,    43,    46,    49,    53,
-      54,    58,    62,    66,    68,    70,    72,    74,    78,    82,
-      86,    90,    94,    98,   100,   104,   108,   110,   112,   114,
-     118,   120,   122,   124,   126,   128,   130,   134,   138,   146,
-     154,   159,   161,   163,   164,   165,   175,   176,   177,   178,
-     193,   196,   199,   202
+      57,    61,    65,    67,    69,    71,    75,    79,    83,    87,
+      91,    95,    97,    99,   103,   107,   109,   111,   113,   116,
+     119,   123,   125,   127,   129,   131,   133,   135,   139,   143,
+     144,   153,   154,   163,   168,   170,   172,   173,   174,   184,
+     185,   186,   187,   202,   203,   207,   210,   213,   216
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
@@ -619,36 +621,37 @@ static const yytype_int8 yyrhs[] =
       39,     0,    -1,     9,    41,    10,    40,    -1,    40,    -1,
       44,    -1,    44,    40,    -1,    42,    43,    32,    -1,    42,
       43,    32,    41,    -1,    12,    -1,    11,    -1,    13,    -1,
-      16,    -1,    16,    37,    43,    -1,    45,    32,    -1,    55,
-      -1,    58,    -1,    62,    32,    -1,    63,    32,    -1,    16,
-      21,    46,    -1,    -1,    16,    21,    45,    -1,    16,    21,
-      47,    -1,    16,    21,    48,    -1,    47,    -1,    48,    -1,
-       3,    -1,    49,    -1,    47,    17,    49,    -1,    47,    18,
-      49,    -1,     3,    22,     3,    -1,    16,    22,     3,    -1,
-      16,    22,    16,    -1,     3,    22,    16,    -1,    50,    -1,
-      49,    19,    50,    -1,    49,    20,    50,    -1,    16,    -1,
-       4,    -1,     5,    -1,    35,    47,    36,    -1,    26,    -1,
-      27,    -1,    28,    -1,    29,    -1,    30,    -1,    31,    -1,
-      47,    51,    47,    -1,    48,    51,    48,    -1,    35,    52,
-      36,    23,    35,    52,    36,    -1,    35,    52,    36,    24,
-      35,    52,    36,    -1,    25,    35,    54,    36,    -1,    52,
-      -1,    53,    -1,    -1,    -1,    56,     6,    35,    57,    54,
-      36,    33,    40,    34,    -1,    -1,    -1,    -1,    59,     7,
-      35,    60,    54,    36,    33,    40,    34,    61,     8,    33,
-      40,    34,    -1,    15,     3,    -1,    15,     4,    -1,    15,
-       5,    -1,    14,    16,    -1
+      16,    -1,    16,    37,    43,    -1,    45,    32,    -1,    57,
+      -1,    60,    -1,    66,    32,    -1,    64,    32,    -1,    16,
+      21,    46,    -1,    16,    21,    45,    -1,    16,    21,    47,
+      -1,    16,    21,    48,    -1,    47,    -1,    48,    -1,    49,
+      -1,    47,    17,    49,    -1,    47,    18,    49,    -1,     3,
+      22,     3,    -1,    16,    22,     3,    -1,    16,    22,    16,
+      -1,     3,    22,    16,    -1,     3,    -1,    50,    -1,    49,
+      19,    50,    -1,    49,    20,    50,    -1,    16,    -1,     4,
+      -1,     5,    -1,    18,     4,    -1,    18,     5,    -1,    35,
+      47,    36,    -1,    26,    -1,    27,    -1,    28,    -1,    29,
+      -1,    30,    -1,    31,    -1,    47,    51,    47,    -1,    48,
+      51,    48,    -1,    -1,    35,    52,    36,    54,    23,    35,
+      52,    36,    -1,    -1,    35,    52,    36,    55,    24,    35,
+      52,    36,    -1,    25,    35,    56,    36,    -1,    52,    -1,
+      53,    -1,    -1,    -1,    58,     6,    35,    59,    56,    36,
+      33,    40,    34,    -1,    -1,    -1,    -1,    61,     7,    35,
+      62,    56,    36,    33,    40,    34,    63,     8,    33,    40,
+      34,    -1,    -1,    15,    65,     3,    -1,    15,     4,    -1,
+      15,     5,    -1,    15,    16,    -1,    14,    16,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   176,   176,   177,   179,   180,   182,   183,   185,   186,
-     187,   189,   190,   192,   193,   194,   195,   196,   198,   199,
-     201,   203,   205,   206,   207,   208,   211,   212,   213,   215,
-     218,   221,   224,   229,   230,   231,   233,   234,   235,   236,
-     238,   239,   240,   241,   242,   243,   245,   246,   248,   249,
-     251,   252,   254,   256,   256,   256,   259,   259,   259,   259,
-     263,   264,   265,   267
+       0,   178,   178,   179,   181,   182,   184,   185,   187,   188,
+     189,   191,   192,   194,   195,   196,   197,   198,   200,   203,
+     205,   207,   208,   209,   211,   212,   213,   215,   218,   221,
+     224,   227,   233,   234,   235,   237,   238,   239,   240,   242,
+     244,   246,   247,   248,   249,   250,   251,   253,   254,   256,
+     256,   257,   257,   259,   260,   262,   264,   264,   264,   267,
+     267,   267,   267,   271,   271,   272,   273,   274,   276
 };
 #endif
 
@@ -665,8 +668,8 @@ static const char *const yytname[] =
   "$accept", "programa", "bloque", "declaracion", "type", "variables",
   "sentencia", "asignacion", "multiple", "expresion_num",
   "expresion_string", "termino", "factor", "comparador", "comparacion",
-  "comp_logico", "condicion", "iteracion", "$@1", "$@2", "seleccion",
-  "$@3", "$@4", "$@5", "entrada", "salida", 0
+  "comp_logico", "$@1", "$@2", "condicion", "iteracion", "$@3", "$@4",
+  "seleccion", "$@5", "$@6", "$@7", "salida", "$@8", "entrada", 0
 };
 #endif
 
@@ -686,24 +689,24 @@ static const yytype_uint16 yytoknum[] =
 static const yytype_uint8 yyr1[] =
 {
        0,    38,    39,    39,    40,    40,    41,    41,    42,    42,
-      42,    43,    43,    44,    44,    44,    44,    44,    45,    45,
-      46,    46,    46,    46,    46,    46,    47,    47,    47,    48,
-      48,    48,    48,    49,    49,    49,    50,    50,    50,    50,
-      51,    51,    51,    51,    51,    51,    52,    52,    53,    53,
-      54,    54,    54,    56,    57,    55,    59,    60,    61,    58,
-      62,    62,    62,    63
+      42,    43,    43,    44,    44,    44,    44,    44,    45,    46,
+      46,    46,    46,    46,    47,    47,    47,    48,    48,    48,
+      48,    48,    49,    49,    49,    50,    50,    50,    50,    50,
+      50,    51,    51,    51,    51,    51,    51,    52,    52,    54,
+      53,    55,    53,    56,    56,    56,    58,    59,    57,    61,
+      62,    63,    60,    65,    64,    64,    64,    64,    66
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
        0,     2,     4,     1,     1,     2,     3,     4,     1,     1,
-       1,     1,     3,     2,     1,     1,     2,     2,     3,     0,
-       3,     3,     3,     1,     1,     1,     1,     3,     3,     3,
-       3,     3,     3,     1,     3,     3,     1,     1,     1,     3,
-       1,     1,     1,     1,     1,     1,     3,     3,     7,     7,
-       4,     1,     1,     0,     0,     9,     0,     0,     0,    14,
-       2,     2,     2,     2
+       1,     1,     3,     2,     1,     1,     2,     2,     3,     3,
+       3,     3,     1,     1,     1,     3,     3,     3,     3,     3,
+       3,     1,     1,     3,     3,     1,     1,     1,     2,     2,
+       3,     1,     1,     1,     1,     1,     1,     3,     3,     0,
+       8,     0,     8,     4,     1,     1,     0,     0,     9,     0,
+       0,     0,    14,     0,     3,     2,     2,     2,     2
 };
 
 /* YYDEFACT[STATE-NAME] -- Default rule to reduce with in state
@@ -711,119 +714,119 @@ static const yytype_uint8 yyr2[] =
    means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-      19,     0,     0,     0,     0,     0,     3,     4,     0,    14,
+      56,     0,     0,    63,     0,     0,     3,     4,     0,    14,
        0,    15,     0,     0,     0,     9,     8,    10,     0,     0,
-      63,    60,    61,    62,     0,     1,     5,    13,     0,     0,
-      16,    17,    19,    11,     0,    25,    37,    38,    36,     0,
-      18,    23,    24,    26,    33,    54,    57,     2,     0,     6,
-       0,    19,     0,    36,     0,     0,     0,     0,     0,     0,
-       0,    12,     7,    29,    32,     0,    36,    20,    21,    22,
-      30,    31,    39,    27,    28,    34,    35,    36,     0,     0,
-       0,     0,    51,    52,     0,     0,     0,     0,     0,    40,
-      41,    42,    43,    44,    45,     0,     0,     0,     0,     0,
-       0,    46,     0,    47,    19,    19,    50,     0,     0,     0,
-       0,     0,     0,    55,    58,     0,     0,     0,    48,    49,
-       0,    19,     0,    59
+      68,    65,    66,    67,     0,     0,     1,     5,    13,     0,
+       0,    17,    16,    56,    11,     0,    64,    31,    36,    37,
+      35,     0,     0,    18,    22,    23,    24,    32,    57,    60,
+       2,     0,     6,     0,     0,     0,    38,    39,    35,     0,
+       0,     0,     0,     0,     0,     0,    12,     7,    27,    30,
+      35,    19,    20,    21,    28,    29,    40,    25,    26,    33,
+      34,    35,     0,     0,     0,     0,    54,    55,     0,     0,
+       0,     0,     0,    41,    42,    43,    44,    45,    46,     0,
+       0,     0,     0,     0,    49,    47,     0,    48,    56,    56,
+      53,     0,     0,     0,     0,     0,     0,    58,    61,     0,
+       0,     0,     0,     0,     0,    50,    52,    56,     0,    62
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     5,     6,    18,    19,    34,     7,     8,    40,    80,
-      81,    43,    44,    95,    82,    83,    84,     9,    10,    59,
-      11,    12,    60,   117,    13,    14
+      -1,     5,     6,    18,    19,    35,     7,     8,    43,    84,
+      85,    46,    47,    99,    86,    87,   111,   112,    88,     9,
+      10,    64,    11,    12,    65,   121,    13,    24,    14
 };
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
    STATE-NUM.  */
-#define YYPACT_NINF -78
-static const yytype_int8 yypact[] =
+#define YYPACT_NINF -82
+static const yytype_int16 yypact[] =
 {
-      56,    42,    -3,    84,     3,    29,   -78,    34,     0,   -78,
-      37,   -78,    52,    25,    43,   -78,   -78,   -78,    51,    53,
-     -78,   -78,   -78,   -78,     4,   -78,   -78,   -78,    55,    78,
-     -78,   -78,    93,    73,    85,   103,   -78,   -78,    63,    17,
-     -78,    94,   -78,    96,   -78,   -78,   -78,   -78,    53,    42,
-      28,     7,    44,   -78,    20,    17,    17,    17,    17,     1,
-       1,   -78,   -78,   -78,   -78,   103,    97,   -78,    94,   -78,
-     -78,   -78,   -78,    96,    96,   -78,   -78,   106,    95,    11,
-      65,    75,   -78,   -78,    99,   100,     1,    50,   101,   -78,
-     -78,   -78,   -78,   -78,   -78,    17,    48,    87,   105,   104,
-      98,    94,   106,   -78,    93,    93,   -78,   107,   108,   110,
-     111,    11,    11,   -78,   -78,   112,   113,   121,   -78,   -78,
-     114,    93,   116,   -78
+      57,    43,    -9,    47,     2,    37,   -82,    93,    21,   -82,
+      51,   -82,    55,    35,    60,   -82,   -82,   -82,    79,    90,
+     -82,   -82,   -82,   -82,   116,     1,   -82,   -82,   -82,    88,
+      91,   -82,   -82,    96,    92,    95,   -82,   106,   -82,   -82,
+      -6,    70,    24,   -82,    69,   -82,    71,   -82,   -82,   -82,
+     -82,    90,    43,     5,     9,    42,   -82,   -82,   -82,    32,
+      24,    24,    24,    24,     6,     6,   -82,   -82,   -82,   -82,
+      83,   -82,    69,   -82,   -82,   -82,   -82,    71,    71,   -82,
+     -82,   108,    97,    30,    67,    87,   -82,   -82,    98,    99,
+       6,    52,   100,   -82,   -82,   -82,   -82,   -82,   -82,    24,
+      44,   104,   105,   103,   107,    69,   108,   -82,    96,    96,
+     -82,   110,   117,   109,   111,   112,   113,   -82,   -82,    30,
+      30,   132,   114,   115,   119,   -82,   -82,    96,   120,   -82
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -78,   -78,    -7,    82,   -78,    86,   -78,    81,   -78,   -21,
-     -23,    68,    69,    58,   -77,   -78,   -41,   -78,   -78,   -78,
-     -78,   -78,   -78,   -78,   -78,   -78
+     -82,   -82,    -7,    94,   -82,   102,   -82,   101,   -82,   -22,
+     -24,    61,    62,    59,   -81,   -82,   -82,   -82,   -47,   -82,
+     -82,   -82,   -82,   -82,   -82,   -82,   -82,   -82,   -82
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
    positive, shift that token.  If negative, reduce the rule which
    number is the opposite.  If zero, do what YYDEFACT says.
    If YYTABLE_NINF, syntax error.  */
-#define YYTABLE_NINF -57
-static const yytype_int8 yytable[] =
+#define YYTABLE_NINF -60
+static const yytype_int16 yytable[] =
 {
-      26,    42,    88,    41,    65,    36,    37,    35,    36,    37,
-      65,    36,    37,    20,    65,    36,    37,    77,    54,    85,
-      38,    36,    37,    66,    24,    47,    78,    77,    69,    25,
-      68,    63,    27,    53,   115,   116,    79,    55,    56,    39,
-     -53,   -56,    39,    28,    64,    99,    39,    70,     2,     3,
-       4,    65,    39,    15,    16,    17,    72,    30,    87,    29,
-      71,    32,   -53,   -56,   102,     1,   -19,    55,    56,    33,
-       2,     3,     4,   103,   101,    31,    89,    90,    91,    92,
-      93,    94,    55,    56,    51,    52,    72,    21,    22,    23,
-      45,    89,    90,    91,    92,    93,    94,   109,   110,   -53,
-     -56,    89,    90,    91,    92,    93,    94,     2,     3,     4,
-      48,    55,    56,    46,   122,    57,    58,    49,    24,    52,
-     104,   107,   108,    73,    74,    50,    75,    76,    52,   120,
-      86,    62,    67,     0,    61,    97,    98,   100,   105,    96,
-     106,     0,   111,   112,   113,   114,     0,   121,   118,   119,
-     123
+      27,    45,    92,    44,    37,    38,    39,    20,    68,    37,
+      38,    39,    37,    38,    39,    54,    55,    40,    89,    41,
+      59,    69,    81,    25,    41,    70,    50,    41,    38,    39,
+      73,    82,    72,    37,    38,    39,    42,    26,   122,   123,
+      58,    83,    41,   103,    42,    74,    81,    37,    41,    60,
+      61,    21,    22,    28,    15,    16,    17,    29,    75,    42,
+     106,    91,    30,    23,   -59,    42,     1,    31,    76,    60,
+      61,     2,     3,     4,    56,    57,   107,   105,    93,    94,
+      95,    96,    97,    98,    60,    61,    60,    61,    76,    33,
+      62,    63,    32,    93,    94,    95,    96,    97,    98,   -56,
+     -59,   113,   114,   -59,    25,    55,    34,     2,     3,     4,
+       2,     3,     4,    93,    94,    95,    96,    97,    98,    36,
+     128,    77,    78,    48,    79,    80,    49,    52,    53,    51,
+      55,   -51,    90,   115,   101,   102,   104,   108,   109,   110,
+     124,   116,     0,   117,   100,   118,    67,   119,   120,     0,
+     125,   126,   127,    66,   129,    71
 };
 
 static const yytype_int8 yycheck[] =
 {
-       7,    24,    79,    24,     3,     4,     5,     3,     4,     5,
-       3,     4,     5,    16,     3,     4,     5,    16,    39,    60,
-      16,     4,     5,    16,    21,    32,    25,    16,    51,     0,
-      51,     3,    32,    16,   111,   112,    35,    17,    18,    35,
-       6,     7,    35,     6,    16,    86,    35,     3,    14,    15,
-      16,     3,    35,    11,    12,    13,    36,    32,    79,     7,
-      16,    10,     6,     7,    16,     9,    32,    17,    18,    16,
-      14,    15,    16,    96,    95,    32,    26,    27,    28,    29,
-      30,    31,    17,    18,    21,    22,    36,     3,     4,     5,
-      35,    26,    27,    28,    29,    30,    31,   104,   105,     6,
-       7,    26,    27,    28,    29,    30,    31,    14,    15,    16,
-      37,    17,    18,    35,   121,    19,    20,    32,    21,    22,
-      33,    23,    24,    55,    56,    22,    57,    58,    22,     8,
-      35,    49,    51,    -1,    48,    36,    36,    36,    33,    81,
-      36,    -1,    35,    35,    34,    34,    -1,    33,    36,    36,
-      34
+       7,    25,    83,    25,     3,     4,     5,    16,     3,     3,
+       4,     5,     3,     4,     5,    21,    22,    16,    65,    18,
+      42,    16,    16,    21,    18,    16,    33,    18,     4,     5,
+      54,    25,    54,     3,     4,     5,    35,     0,   119,   120,
+      16,    35,    18,    90,    35,     3,    16,     3,    18,    17,
+      18,     4,     5,    32,    11,    12,    13,     6,    16,    35,
+      16,    83,     7,    16,     7,    35,     9,    32,    36,    17,
+      18,    14,    15,    16,     4,     5,   100,    99,    26,    27,
+      28,    29,    30,    31,    17,    18,    17,    18,    36,    10,
+      19,    20,    32,    26,    27,    28,    29,    30,    31,     6,
+       7,   108,   109,     7,    21,    22,    16,    14,    15,    16,
+      14,    15,    16,    26,    27,    28,    29,    30,    31,     3,
+     127,    60,    61,    35,    62,    63,    35,    32,    22,    37,
+      22,    24,    35,    23,    36,    36,    36,    33,    33,    36,
+       8,    24,    -1,    34,    85,    34,    52,    35,    35,    -1,
+      36,    36,    33,    51,    34,    54
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
    symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,     9,    14,    15,    16,    39,    40,    44,    45,    55,
-      56,    58,    59,    62,    63,    11,    12,    13,    41,    42,
-      16,     3,     4,     5,    21,     0,    40,    32,     6,     7,
-      32,    32,    10,    16,    43,     3,     4,     5,    16,    35,
-      46,    47,    48,    49,    50,    35,    35,    40,    37,    32,
-      22,    21,    22,    16,    47,    17,    18,    19,    20,    57,
-      60,    43,    41,     3,    16,     3,    16,    45,    47,    48,
-       3,    16,    36,    49,    49,    50,    50,    16,    25,    35,
-      47,    48,    52,    53,    54,    54,    35,    47,    52,    26,
-      27,    28,    29,    30,    31,    51,    51,    36,    36,    54,
-      36,    47,    16,    48,    33,    33,    36,    23,    24,    40,
-      40,    35,    35,    34,    34,    52,    52,    61,    36,    36,
-       8,    33,    40,    34
+       0,     9,    14,    15,    16,    39,    40,    44,    45,    57,
+      58,    60,    61,    64,    66,    11,    12,    13,    41,    42,
+      16,     4,     5,    16,    65,    21,     0,    40,    32,     6,
+       7,    32,    32,    10,    16,    43,     3,     3,     4,     5,
+      16,    18,    35,    46,    47,    48,    49,    50,    35,    35,
+      40,    37,    32,    22,    21,    22,     4,     5,    16,    47,
+      17,    18,    19,    20,    59,    62,    43,    41,     3,    16,
+      16,    45,    47,    48,     3,    16,    36,    49,    49,    50,
+      50,    16,    25,    35,    47,    48,    52,    53,    56,    56,
+      35,    47,    52,    26,    27,    28,    29,    30,    31,    51,
+      51,    36,    36,    56,    36,    47,    16,    48,    33,    33,
+      36,    54,    55,    40,    40,    23,    24,    34,    34,    35,
+      35,    63,    52,    52,     8,    36,    36,    33,    40,    34
 };
 
 #define yyerrok		(yyerrstatus = 0)
@@ -1637,190 +1640,182 @@ yyreduce:
         case 2:
 
 /* Line 1455 of yacc.c  */
-#line 176 "an.lex.y"
-    {printf("Regla 1\n"); llenarTS(); aplicar_polaca(); aplicar_algoritmo_pilas();mostrar_polaca();verificar_tipos();;generarAssembler();}
+#line 178 "an.lex.y"
+    {printf("Regla 1\n"); llenarTS(); aplicar_polaca(); aplicar_algoritmo_pilas();mostrar_polaca();verificar_tipos();contar_if_wh();generarAssembler();}
     break;
 
   case 3:
 
 /* Line 1455 of yacc.c  */
-#line 177 "an.lex.y"
-    {printf("Regla 2\n"); aplicar_polaca(); aplicar_algoritmo_pilas(); mostrar_polaca();verificar_tipos();}
+#line 179 "an.lex.y"
+    {printf("Regla 2\n"); llenarTS(); aplicar_polaca(); aplicar_algoritmo_pilas();mostrar_polaca();verificar_tipos();contar_if_wh();generarAssembler();}
     break;
 
   case 4:
 
 /* Line 1455 of yacc.c  */
-#line 179 "an.lex.y"
+#line 181 "an.lex.y"
     {printf("Regla 3\n");}
     break;
 
   case 5:
 
 /* Line 1455 of yacc.c  */
-#line 180 "an.lex.y"
+#line 182 "an.lex.y"
     {printf("Regla 4\n");}
     break;
 
   case 6:
 
 /* Line 1455 of yacc.c  */
-#line 182 "an.lex.y"
+#line 184 "an.lex.y"
     {printf("Regla 5\n"); habilitar_multiple = 'y';}
     break;
 
   case 7:
 
 /* Line 1455 of yacc.c  */
-#line 183 "an.lex.y"
+#line 185 "an.lex.y"
     {printf("Regla 6\n"); habilitar_multiple = 'y';}
     break;
 
   case 8:
 
 /* Line 1455 of yacc.c  */
-#line 185 "an.lex.y"
+#line 187 "an.lex.y"
     {printf("Regla 7\n"); }
     break;
 
   case 9:
 
 /* Line 1455 of yacc.c  */
-#line 186 "an.lex.y"
+#line 188 "an.lex.y"
     {printf("Regla 8\n"); }
     break;
 
   case 10:
 
 /* Line 1455 of yacc.c  */
-#line 187 "an.lex.y"
+#line 189 "an.lex.y"
     {printf("Regla 9\n"); }
     break;
 
   case 11:
 
 /* Line 1455 of yacc.c  */
-#line 189 "an.lex.y"
+#line 191 "an.lex.y"
     {printf("Regla 10\n");   }
     break;
 
   case 12:
 
 /* Line 1455 of yacc.c  */
-#line 190 "an.lex.y"
+#line 192 "an.lex.y"
     {printf("Regla 11\n");}
     break;
 
   case 13:
 
 /* Line 1455 of yacc.c  */
-#line 192 "an.lex.y"
-    {printf("Regla 12\n"); }
+#line 194 "an.lex.y"
+    {printf("Regla 12\n"); put=3;}
     break;
 
   case 14:
 
 /* Line 1455 of yacc.c  */
-#line 193 "an.lex.y"
+#line 195 "an.lex.y"
     {printf("Regla 13\n");}
     break;
 
   case 15:
 
 /* Line 1455 of yacc.c  */
-#line 194 "an.lex.y"
+#line 196 "an.lex.y"
     {printf("Regla 14\n");}
     break;
 
   case 16:
 
 /* Line 1455 of yacc.c  */
-#line 195 "an.lex.y"
+#line 197 "an.lex.y"
     {printf("Regla 16\n");}
     break;
 
   case 17:
 
 /* Line 1455 of yacc.c  */
-#line 196 "an.lex.y"
-    {printf("Regla 17\n");}
+#line 198 "an.lex.y"
+    {printf("Regla 17\n"); }
     break;
 
   case 18:
 
 /* Line 1455 of yacc.c  */
-#line 198 "an.lex.y"
+#line 200 "an.lex.y"
     {printf("Regla 18\n"); apilar_polaca(getIdTP(), TYPE_aux); 
                                apilar_polaca("A=", "#operator"); }
+    break;
+
+  case 19:
+
+/* Line 1455 of yacc.c  */
+#line 203 "an.lex.y"
+    {printf("Regla 19\n"); apilar_polaca(getIdTP(),TYPE_aux);
+                               apilar_polaca("A=","#operator");}
     break;
 
   case 20:
 
 /* Line 1455 of yacc.c  */
-#line 201 "an.lex.y"
-    {printf("Regla 19\n"); apilar_polaca(getIdTP(),TYPE_aux);
+#line 205 "an.lex.y"
+    {printf("Regla 20\n"); apilar_polaca(getIdTP(),TYPE_aux);
                                apilar_polaca("A=","#operator");}
     break;
 
   case 21:
 
 /* Line 1455 of yacc.c  */
-#line 203 "an.lex.y"
-    {printf("Regla 20\n"); apilar_polaca(getIdTP(),TYPE_aux);
-                               apilar_polaca("A=","#operator");}
+#line 207 "an.lex.y"
+    {printf("Regla 21\n"); apilar_polaca("A=","#operator");}
     break;
 
   case 22:
 
 /* Line 1455 of yacc.c  */
-#line 205 "an.lex.y"
-    {printf("Regla 21\n");}
+#line 208 "an.lex.y"
+    {printf("Regla 22\n");}
     break;
 
   case 23:
 
 /* Line 1455 of yacc.c  */
-#line 206 "an.lex.y"
-    {printf("Regla 22\n");}
-    break;
-
-  case 24:
-
-/* Line 1455 of yacc.c  */
-#line 207 "an.lex.y"
+#line 209 "an.lex.y"
     {printf("Regla 23\n");}
     break;
 
-  case 25:
-
-/* Line 1455 of yacc.c  */
-#line 208 "an.lex.y"
-    {printf("regla =CTESTRING\n"); apilar_polaca(STR_aux_N1,TYPE_aux); 
-                          }
-    break;
-
-  case 26:
+  case 24:
 
 /* Line 1455 of yacc.c  */
 #line 211 "an.lex.y"
     {printf("Regla 24\n");}
     break;
 
-  case 27:
+  case 25:
 
 /* Line 1455 of yacc.c  */
 #line 212 "an.lex.y"
     {printf("Regla 25\n"); apilar_polaca("S+","#operator");}
     break;
 
-  case 28:
+  case 26:
 
 /* Line 1455 of yacc.c  */
 #line 213 "an.lex.y"
     {printf("Regla 26\n"); apilar_polaca("R-","#operator");}
     break;
 
-  case 29:
+  case 27:
 
 /* Line 1455 of yacc.c  */
 #line 215 "an.lex.y"
@@ -1829,7 +1824,7 @@ yyreduce:
                                           apilar_polaca("++","#operator"); }
     break;
 
-  case 30:
+  case 28:
 
 /* Line 1455 of yacc.c  */
 #line 218 "an.lex.y"
@@ -1838,7 +1833,7 @@ yyreduce:
                                           apilar_polaca("++","#operator");}
     break;
 
-  case 31:
+  case 29:
 
 /* Line 1455 of yacc.c  */
 #line 221 "an.lex.y"
@@ -1847,7 +1842,7 @@ yyreduce:
                                           apilar_polaca("++","#operator");}
     break;
 
-  case 32:
+  case 30:
 
 /* Line 1455 of yacc.c  */
 #line 224 "an.lex.y"
@@ -1856,230 +1851,284 @@ yyreduce:
                                           apilar_polaca("++","#operator");}
     break;
 
+  case 31:
+
+/* Line 1455 of yacc.c  */
+#line 227 "an.lex.y"
+    {printf("regla =CTESTRING\n");  
+                                             if(put==1){apilar_polaca(STR_aux_N2,TYPE_aux);}
+                                            else{apilar_polaca(STR_aux_N1,TYPE_aux);};
+                                            }
+    break;
+
+  case 32:
+
+/* Line 1455 of yacc.c  */
+#line 233 "an.lex.y"
+    {printf("Regla 31\n");}
+    break;
+
   case 33:
 
 /* Line 1455 of yacc.c  */
-#line 229 "an.lex.y"
-    {printf("Regla 31\n");}
+#line 234 "an.lex.y"
+    {printf("Regla 32\n"); apilar_polaca("M*","#operator");}
     break;
 
   case 34:
 
 /* Line 1455 of yacc.c  */
-#line 230 "an.lex.y"
-    {printf("Regla 32\n"); apilar_polaca("M*","#operator");}
+#line 235 "an.lex.y"
+    {printf("Regla 33\n"); apilar_polaca("D/","#operator");}
     break;
 
   case 35:
 
 /* Line 1455 of yacc.c  */
-#line 231 "an.lex.y"
-    {printf("Regla 33\n"); apilar_polaca("D/","#operator");}
+#line 237 "an.lex.y"
+    {printf("Regla 34\n"); apilar_polaca(getIdTP(),TYPE_aux);}
     break;
 
   case 36:
 
 /* Line 1455 of yacc.c  */
-#line 233 "an.lex.y"
-    {printf("Regla 34\n"); apilar_polaca(getIdTP(),TYPE_aux); }
+#line 238 "an.lex.y"
+    {printf("Regla 35\n"); apilar_polaca(yylval.valor, TYPE_aux);}
     break;
 
   case 37:
 
 /* Line 1455 of yacc.c  */
-#line 234 "an.lex.y"
-    {printf("Regla 35\n"); apilar_polaca(yylval.valor, TYPE_aux);}
+#line 239 "an.lex.y"
+    {printf("Regla 36\n"); apilar_polaca(yylval.valor,TYPE_aux);}
     break;
 
   case 38:
 
 /* Line 1455 of yacc.c  */
-#line 235 "an.lex.y"
-    {printf("Regla 36\n"); apilar_polaca(yylval.valor,TYPE_aux);}
+#line 240 "an.lex.y"
+    {printf("Regla 35-partea\n"); strcpy(negt_number, "-"); strcat(negt_number,yylval.valor);
+                    apilar_polaca(negt_number,TYPE_aux);}
     break;
 
   case 39:
 
 /* Line 1455 of yacc.c  */
-#line 236 "an.lex.y"
-    {printf("Regla 37\n");}
+#line 242 "an.lex.y"
+    {printf("Regla 36-parteb\n"); strcpy(negt_number, "-"); strcat(negt_number,yylval.valor);  
+                    apilar_polaca(negt_number,TYPE_aux);}
     break;
 
   case 40:
 
 /* Line 1455 of yacc.c  */
-#line 238 "an.lex.y"
-    {printf("Regla 38\n"); strcpy(comparador_RR, "BLE"); }
+#line 244 "an.lex.y"
+    {printf("Regla 37\n");}
     break;
 
   case 41:
 
 /* Line 1455 of yacc.c  */
-#line 239 "an.lex.y"
-    {printf("Regla 39\n"); strcpy(comparador_RR, "BGE"); }
+#line 246 "an.lex.y"
+    {printf("Regla 38\n"); strcpy(comparador_RR, "BLE"); }
     break;
 
   case 42:
 
 /* Line 1455 of yacc.c  */
-#line 240 "an.lex.y"
-    {printf("Regla 40\n"); strcpy(comparador_RR, "BGT"); }
+#line 247 "an.lex.y"
+    {printf("Regla 39\n"); strcpy(comparador_RR, "BGE"); }
     break;
 
   case 43:
 
 /* Line 1455 of yacc.c  */
-#line 241 "an.lex.y"
-    {printf("Regla 41\n"); strcpy(comparador_RR, "BLT"); }
+#line 248 "an.lex.y"
+    {printf("Regla 40\n"); strcpy(comparador_RR, "BGT"); }
     break;
 
   case 44:
 
 /* Line 1455 of yacc.c  */
-#line 242 "an.lex.y"
-    {printf("Regla 42\n"); strcpy(comparador_RR, "BEQ"); }
+#line 249 "an.lex.y"
+    {printf("Regla 41\n"); strcpy(comparador_RR, "BLT"); }
     break;
 
   case 45:
 
 /* Line 1455 of yacc.c  */
-#line 243 "an.lex.y"
-    {printf("Regla 43\n"); strcpy(comparador_RR, "BNE");}
+#line 250 "an.lex.y"
+    {printf("Regla 42\n"); strcpy(comparador_RR, "BNE"); }
     break;
 
   case 46:
 
 /* Line 1455 of yacc.c  */
-#line 245 "an.lex.y"
-    {printf("Regla 44\n"); if(habilitar_tira=='s'){apilar_polaca("CMP","#comparator_if");}else if(habilitar_tira=='w'){apilar_polaca("CMP","#comparator_while");}; }
+#line 251 "an.lex.y"
+    {printf("Regla 43\n"); strcpy(comparador_RR, "BEQ");}
     break;
 
   case 47:
 
 /* Line 1455 of yacc.c  */
-#line 246 "an.lex.y"
-    {printf("Regla 45\n"); if(habilitar_tira=='s'){apilar_polaca("CMP","#comparator_if");}else if(habilitar_tira=='w'){apilar_polaca("CMP","#comparator_while");}}
+#line 253 "an.lex.y"
+    {printf("Regla 44\n"); if(habilitar_tira=='s'){apilar_polaca("CMP","#comparator_if");}else if(habilitar_tira=='w'){apilar_polaca("CMP","#comparator_while");}; }
     break;
 
   case 48:
 
 /* Line 1455 of yacc.c  */
-#line 248 "an.lex.y"
-    {printf("Regla 46\n");apilar_polaca("AND","#logico"); apilar_polaca(comparador_RR,"#asm-comparator"); apilar_polaca(" ","#space");}
+#line 254 "an.lex.y"
+    {printf("Regla 45\n"); if(habilitar_tira=='s'){apilar_polaca("CMP","#comparator_if");}else if(habilitar_tira=='w'){apilar_polaca("CMP","#comparator_while");}}
     break;
 
   case 49:
 
 /* Line 1455 of yacc.c  */
-#line 249 "an.lex.y"
-    {printf("Regla 47\n");apilar_polaca("OR","#logico"); apilar_polaca(comparador_RR,"#asm-comparator"); apilar_polaca(" ","#space");}
+#line 256 "an.lex.y"
+    { apilar_polaca(comparador_RR,"#asm-comparator"); }
     break;
 
   case 50:
 
 /* Line 1455 of yacc.c  */
-#line 251 "an.lex.y"
-    {printf("Regla 48\n"); apilar_polaca("NOT","#logico");}
+#line 256 "an.lex.y"
+    {printf("Regla 46\n"); apilar_polaca(comparador_RR,"#asm-comparator"); apilar_polaca("AND","#logico"); apilar_polaca(" ","#space");}
     break;
 
   case 51:
 
 /* Line 1455 of yacc.c  */
-#line 252 "an.lex.y"
-    {printf("Regla 49\n"); 
-                        apilar_polaca(comparador_RR,"#asm-comparator"); apilar_polaca(" ","#space");}
+#line 257 "an.lex.y"
+    { apilar_polaca(comparador_RR,"#asm-comparator"); }
     break;
 
   case 52:
 
 /* Line 1455 of yacc.c  */
-#line 254 "an.lex.y"
-    {printf("Regla 50\n");}
+#line 257 "an.lex.y"
+    {printf("Regla 47\n"); apilar_polaca(comparador_RR,"#asm-comparator"); apilar_polaca("OR","#logico"); apilar_polaca(" ","#space");}
     break;
 
   case 53:
 
 /* Line 1455 of yacc.c  */
-#line 256 "an.lex.y"
-    {apilar_polaca("WH_I","#inicio_wh");}
+#line 259 "an.lex.y"
+    {printf("Regla 48\n"); apilar_polaca("NOT","#logico");}
     break;
 
   case 54:
 
 /* Line 1455 of yacc.c  */
-#line 256 "an.lex.y"
-    {habilitar_tira='w';}
+#line 260 "an.lex.y"
+    {printf("Regla 49\n"); 
+                        apilar_polaca(comparador_RR,"#asm-comparator"); apilar_polaca(" ","#space");}
     break;
 
   case 55:
 
 /* Line 1455 of yacc.c  */
-#line 256 "an.lex.y"
-    {printf("Regla 51\n"); apilar_polaca(" ","#space"); 
-                                                                                                                            apilar_polaca("BI","#asm-jump"); apilar_polaca("WH_F","#fin_wh");}
+#line 262 "an.lex.y"
+    {printf("Regla 50\n");}
     break;
 
   case 56:
 
 /* Line 1455 of yacc.c  */
-#line 259 "an.lex.y"
-    {apilar_polaca("IF_I","#inicio_if");}
+#line 264 "an.lex.y"
+    {apilar_polaca("WH_I","#inicio_wh");}
     break;
 
   case 57:
 
 /* Line 1455 of yacc.c  */
-#line 259 "an.lex.y"
-    {habilitar_tira='s';}
+#line 264 "an.lex.y"
+    {habilitar_tira='w';}
     break;
 
   case 58:
 
 /* Line 1455 of yacc.c  */
-#line 259 "an.lex.y"
-    { printf("Regla 52\n"); cant_selecciones++; printf("CANT SELECCIONES ES: %d\n",cant_selecciones);
-                                                                                                                        apilar_polaca(" ","#space"); apilar_polaca("BI","#asm-jump"); apilar_polaca("IF_F","#fin_if");  }
+#line 264 "an.lex.y"
+    {printf("Regla 51\n"); apilar_polaca(" ","#space"); 
+                                                                                                                            apilar_polaca("BI","#asm-jump"); apilar_polaca("WH_F","#fin_wh");}
     break;
 
   case 59:
 
 /* Line 1455 of yacc.c  */
-#line 261 "an.lex.y"
-    { printf("Regla 53\n"); apilar_polaca("ELSE_F","#asm-jump");}
+#line 267 "an.lex.y"
+    {apilar_polaca("IF_I","#inicio_if");}
     break;
 
   case 60:
 
 /* Line 1455 of yacc.c  */
-#line 263 "an.lex.y"
-    {printf("Regla 54\n");}
+#line 267 "an.lex.y"
+    {habilitar_tira='s';}
     break;
 
   case 61:
 
 /* Line 1455 of yacc.c  */
-#line 264 "an.lex.y"
-    {printf("Regla 55\n");}
+#line 267 "an.lex.y"
+    { printf("Regla 52\n"); cant_selecciones++; printf("CANT SELECCIONES ES: %d\n",cant_selecciones);
+                                                                                                                        apilar_polaca(" ","#space"); apilar_polaca("BI","#asm-jump"); apilar_polaca("IF_F","#fin_if");  }
     break;
 
   case 62:
 
 /* Line 1455 of yacc.c  */
-#line 265 "an.lex.y"
-    {printf("Regla 56\n");}
+#line 269 "an.lex.y"
+    { printf("Regla 53\n"); apilar_polaca("ELSE_F","#asm-jump");}
     break;
 
   case 63:
 
 /* Line 1455 of yacc.c  */
-#line 267 "an.lex.y"
-    {printf("Regla 56\n");}
+#line 271 "an.lex.y"
+    { printf("IMPRIMIR CADENA es: %d\n\n\n\n", imprimir_cadena_NUM); }
+    break;
+
+  case 64:
+
+/* Line 1455 of yacc.c  */
+#line 271 "an.lex.y"
+    {printf("Regla 54\n"); apilar_polaca(STR_aux_N2,TYPE_aux);apilar_polaca("PUT","#operator"); put=1; }
+    break;
+
+  case 65:
+
+/* Line 1455 of yacc.c  */
+#line 272 "an.lex.y"
+    {printf("Regla 55\n"); apilar_polaca(yylval.valor, TYPE_aux); apilar_polaca("PUT","#operator"); }
+    break;
+
+  case 66:
+
+/* Line 1455 of yacc.c  */
+#line 273 "an.lex.y"
+    {printf("Regla 56\n"); apilar_polaca(yylval.valor, TYPE_aux); apilar_polaca("PUT","#operator"); }
+    break;
+
+  case 67:
+
+/* Line 1455 of yacc.c  */
+#line 274 "an.lex.y"
+    {printf("Regla 57\n"); apilar_polaca(getIdTP(),TYPE_aux);apilar_polaca("PUT","#operator");}
+    break;
+
+  case 68:
+
+/* Line 1455 of yacc.c  */
+#line 276 "an.lex.y"
+    {printf("Regla 58\n"); apilar_polaca(getIdTP(),TYPE_aux);apilar_polaca("GET","#operator");}
     break;
 
 
 
 /* Line 1455 of yacc.c  */
-#line 2083 "y.tab.c"
+#line 2132 "y.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2291,17 +2340,17 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 268 "an.lex.y"
+#line 277 "an.lex.y"
 
 
 int main(){ // INICIO MAIN
-    input = fopen("input.txt", "rb"); 
+    input = fopen("prueba.txt", "rb"); 
     lista_tokens = fopen("lista_tokens.txt", "w");
     tabla_simbolos = fopen("tabla_simbolos.txt", "w+"); 
     tabla_simbolos_orig = fopen("tabla_simbolos-orig.txt", "w+");
     tokens_unicos = fopen("tokens_unicos.txt", "w+");
     repre_intermedia = fopen("intermedia.txt", "w+");
-    final_asm = fopen("final.asm", "w+");
+    final_asm = fopen("Grupo2.asm", "w+");
     concat=fopen("concat.txt", "r");
 
     rewind(lista_tokens);
@@ -2348,6 +2397,7 @@ int main(){ // INICIO MAIN
     fflush(final_asm);
     fflush(concat);
     free(tira_polaca); // liberamos la memoria dinamica
+    free(tira_polaca_copia);
     return 0;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2407,21 +2457,31 @@ int yylex(void) {
         else if(yylval.number == 258) {
             //strcpy(yylval.valor, token_confirmado.valor);  // guardo el valor asociado al token
             imprimir_cadena_NUM++;
+            if(put==3){
+                imprimir_cadena_NUM == 0;
+                strcpy(STR_aux_N2, token_confirmado.valor);
+                printf("-----------------------------------------------------------YYLVAL VALOR STRING N2 ES : %s\n",STR_aux_N2);
+                strcpy(TYPE_aux, "#");
+                strcat(TYPE_aux, token_confirmado.tipo);
+                printf("-----------------------------------------------------------YYLVAL TYPE ES : %s\n",TYPE_aux);    
+                put=0;
+            }
             if(imprimir_cadena_NUM == 1) {
                 strcpy(STR_aux_N1, token_confirmado.valor);
                 strcpy(TYPE_aux, "#");
                 strcat(TYPE_aux, token_confirmado.tipo);
                 printf("-----------------------------------------------------------YYLVAL TYPE ES : %s\n",TYPE_aux);    
-                printf("-----------------------------------------------------------YYLVAL VALOR STRING ES : %s\n",STR_aux_N1);
+                printf("-----------------------------------------------------------YYLVAL VALOR STRING N1 ES : %s\n",STR_aux_N1);
             }
             else if(imprimir_cadena_NUM == 2){
                 strcpy(STR_aux_N2, token_confirmado.valor);
-                printf("-----------------------------------------------------------YYLVAL VALOR STRING ES : %s\n",STR_aux_N2);
+                printf("-----------------------------------------------------------YYLVAL VALOR STRING N2 ES : %s\n",STR_aux_N2);
                 strcpy(TYPE_aux, "#");
                 strcat(TYPE_aux, token_confirmado.tipo);
                 printf("-----------------------------------------------------------YYLVAL TYPE ES : %s\n",TYPE_aux);    
                 imprimir_cadena_NUM = 0;
             }
+
         }
         // si es de tipo INT, REAL o STRING
         else if((yylval.number == 266)||(yylval.number == 267)||(yylval.number == 268)){
@@ -2782,13 +2842,13 @@ int tabla_estados [28][26] = {
 /*estado2*/	    29,	    2,	    28,	    3,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,     28,     29,
 /*estado3*/	    29,	    3,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,     28,     29,
 /*estado4*/	    4,	    4,	    4,	    4,	    28,	    4,	    4,	    4,	    4,	    4,	    4,	    4,	    4,	    4,	    4,	    4,	    4,	    4,	    4,	    4,	    4,	    4,	    4,	    4,      4,      29,      
-/*estado5*/ 	28,	    28,	    28,	    29,	    29,	    29,	    29,	    28,	    29,	    29,	    29,	    29,	    29,	    29,	    28,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,     28,     29,     
-/*estado6*/ 	28,	    28,	    28,	    29,	    29,	    28,	    29,	    28,	    29,	    29,	    29,	    29,	    29,	    29,	    28,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,     28,     29,     
-/*estado7*/ 	28,	    28,	    28,	    29,	    28,	    29,	    29,	    28,	    29,	    29,	    29,	    29,	    29,	    29,	    28,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,     28,     29,     
+/*estado5*/ 	28,	    28,	    28,	    29,	    29,	    29,	    29,	    28,	    29,	    29,	    29,	    29,	    29,	    29,	    28,	    29,	    29,	    29,	    29,	    29,	    28,	    29,	    29,	    29,     28,     29,     
+/*estado6*/ 	28,	    28,	    28,	    29,	    29,	    28,	    29,	    28,	    29,	    29,	    29,	    29,	    29,	    29,	    28,	    29,	    29,	    29,	    29,	    29,	    28,	    29,	    29,	    29,     28,     29,     
+/*estado7*/ 	28,	    28,	    28,	    29,	    28,	    29,	    29,	    28,	    29,	    29,	    29,	    29,	    29,	    29,	    28,	    29,	    29,	    29,	    29,	    29,	    28,	    29,	    29,	    29,     28,     29,     
 /*estado8*/ 	28,	    28,	    28,   	28,	    28,	    28,	    28,	    28,	    28,	    9,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,     28,     29,     
 /*estado9*/	    9,	    9,	    9,	    9,	    9,	    9,	    9,	    9,	    9,	    10,	    9,	    9,	    9,	    9,	    9,	    9,	    9,	    9,	    9,	    9,	    9,   	9,	    9,	     9,     9,      9,      
 /*estado10*/	9,	    9,	    9,	    9,	    9,	    9,	    9,	    9,	    0,	    9,	    9,	    9,	    9,	    9,	    9,	    9,	    9,	    9,	    9,	    9,	    9,      9,	    9,	     9,     9,      9,      
-/*estado11*/	28,	    28,	    28,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    12,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,     28,     29,     
+/*estado11*/	28,	    28,	    28,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    12,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    28,	    29,	    29,	    29,     28,     29,     
 /*estado12*/	28,	    29,	    28,	    29,	    28,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,     29,     29,     
 /*estado13*/	29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    14,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,	    29,     29,     29,     
 /*estado14*/	28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    29,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,	    28,    	28,	    28,	    28,	    28,     28,     29,     
@@ -2814,13 +2874,13 @@ void(*tabla_funciones[28][26])() = {        // Se omite F14 y F16
 /*F2*/	ERROR,	F2,	    F,	    F3,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,   	F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,      F,      ERROR,
 /*F3*/	ERROR,	F3,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,   	F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,      F,      ERROR,
 /*F4*/	F4,	    F4,	    F4,	    F4,	    F,	    F4,	    F4,	    F4,	    F4,	    F4,	    F4,	    F4,	    F4,	    F4,	    F4,	    F4,	    F4,	    F4,	    F4,	    F4,	    F4,	    F4,	    F4,	    F4,     F4,     ERROR,
-/*F5*/	F,	    F,	    F,	    ERROR,	ERROR,	ERROR,	ERROR,	F,	    ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	F,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,  F,      ERROR,
-/*F6*/	F,	    F,	    F,	    ERROR,	ERROR,	F,	    ERROR,	F,	    ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	F,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,  F,      ERROR,
-/*F7*/	F,	    F,	    F,	    ERROR,	F,	    ERROR,	ERROR,	F,	    ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	F,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,  F,      ERROR,
+/*F5*/	F,	    F,	    F,	    ERROR,	ERROR,	ERROR,	ERROR,	F,	    ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	F,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	    F,	    ERROR,	ERROR,	ERROR,  F,      ERROR,
+/*F6*/	F,	    F,	    F,	    ERROR,	ERROR,	F,	    ERROR,	F,	    ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	F,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	    F,	    ERROR,	ERROR,	ERROR,  F,      ERROR,
+/*F7*/	F,	    F,	    F,	    ERROR,	F,	    ERROR,	ERROR,	F,	    ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	F,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	    F,	    ERROR,	ERROR,	ERROR,  F,      ERROR,
 /*F8*/	F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F9,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,      F,  ERROR,
 /*F9*/	F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F10,	F9,	    F9,	    F9,	    F9,   	F9,	    F9,	    F9,	    F9,	    F9,	    F9,   	F9,	    F9,	    F9,  	F9,     F9,     F9,     
 /*F10*/	F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F0,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,	    F9,     F9,     F9,
-/*F11*/	F,   	F,	    F,	    ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	F12,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,  F,  ERROR,
+/*F11*/	F,   	F,	    F,	    ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	F12,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	F,	    ERROR,	ERROR,	ERROR,  F,  ERROR,
 /*F12*/	F,	    ERROR,	F,	    ERROR,	F,	    ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,  ERROR,  ERROR,
 /*F13*/	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	F,	    ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,	ERROR,  ERROR,  ERROR,
 /*F14*/	F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    ERROR,	F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,	    F,    	F,	    F,	    F,	    F,      F,      ERROR,     
@@ -3195,7 +3255,7 @@ void aplicar_algoritmo_pilas(){
             apilar(&pila_while, elem_while);
         }
         //condicion simple
-        else if((strcmp(tira_polaca[j].tag,"#comparator_while\n")==0) && (strcmp(tira_polaca[j+3].tag,"#comparator_while\n")!=0) && (strcmp(tira_polaca[j+1].cell,";NOT;")!=0)){
+        else if((j>=3) && (strcmp(tira_polaca[j].tag,"#comparator_while\n")==0) && (strcmp(tira_polaca[j+4].tag,"#comparator_while\n")!=0) && (strcmp(tira_polaca[j+4].tag,"#space\n")!=0) && (strcmp(tira_polaca[j-3].tag,"#asm-comparator\n")!=0)){
             //printf("COMPARATOR WHILE\n");
             position_wh++; // primer incremento --> es 0
             int indice_tira_aux = 2 + atoi(tira_polaca[j].index);
@@ -3204,10 +3264,10 @@ void aplicar_algoritmo_pilas(){
             elem_while.posicion = j;  // guarda la posicion actual
             apilar(&pila_while, elem_while);
         }
-        //and/or
-        else if((strcmp(tira_polaca[j].tag,"#comparator_while\n")==0) && (strcmp(tira_polaca[j+3].tag,"#comparator_while\n")==0)&& (strcmp(tira_polaca[j+4].cell,";AND;")==0) || (strcmp(tira_polaca[j+4].cell,";OR;")==0)){
+        //AND/OR
+        else if((strcmp(tira_polaca[j].tag,"#comparator_while\n")==0) && (strcmp(tira_polaca[j+4].tag,"#comparator_while\n")==0)&&(strcmp(tira_polaca[j+6].cell,";AND;")==0)||(strcmp(tira_polaca[j+6].cell,";OR;")==0)){
             position_wh++; // primer incremento --> es 0
-            int indice_tira_aux = 6 + atoi(tira_polaca[j].index);
+            int indice_tira_aux = 7 + atoi(tira_polaca[j].index);
             elem_while = tira_wh[position_wh].registro;  // guardamos el elemento registro
             elem_while.dato = indice_tira_aux;
             elem_while.posicion = j;  // guarda la posicion actual
@@ -3257,37 +3317,43 @@ void aplicar_algoritmo_pilas(){
     for(int j=0; j<indice_tira; j++) {
         tam = tamano(pila_if);
         if(strcmp(tira_polaca[j].cell,";IF_I;")==0){
+            printf("COMPARATOR IF I\n");
             position_if++; // primer incremento --> es 0
             //printf("lei el inicio de un if en celda %s +1\n",tira_polaca[j].index);
             int indice_tira_aux = 1 + atoi(tira_polaca[j].index);
-            //printf("Indice tiene el valor = %d\n",indice_tira_aux);
+            printf("\n\nIndice tiene el valor = %d\n",indice_tira_aux);
             elem_if = tira_if[position_if].registro;  // guardamos el elemento registro
             elem_if.dato = indice_tira_aux;
             elem_if.posicion = j;  // guarda la posicion actual
             apilar(&pila_if, elem_if);
         }
         //condicion simple
-        else if((strcmp(tira_polaca[j].tag,"#comparator_if\n")==0) && (strcmp(tira_polaca[j+3].tag,"#comparator_if\n")!=0) && (strcmp(tira_polaca[j+3].tag,"#space\n")!=0)){ 
-            //printf("COMPARATOR IF\n");
+        else if( (j>=3) && (strcmp(tira_polaca[j].tag,"#comparator_if\n")==0) && (strcmp(tira_polaca[j+4].tag,"#comparator_if\n")!=0) && (strcmp(tira_polaca[j+4].tag,"#space\n")!=0) && (strcmp(tira_polaca[j-3].tag,"#asm-comparator\n")!=0)){ 
+            printf("COMPARATOR IF SIMPLE\n");
             position_if++; // primer incremento --> es 0
             int indice_tira_aux = 2 + atoi(tira_polaca[j].index);
+            printf("\n\nIndice tiene el valor = %d\n",indice_tira_aux);
             elem_if = tira_if[position_if].registro;  // guardamos el elemento registro
             elem_if.dato = indice_tira_aux;
             elem_if.posicion = j;  // guarda la posicion actual
             apilar(&pila_if, elem_if);
         }
         //AND/OR
-        else if((strcmp(tira_polaca[j].tag,"#comparator_if\n")==0) && (strcmp(tira_polaca[j+3].tag,"#comparator_if\n")==0) && (strcmp(tira_polaca[j+4].cell,";AND;")==0) || (strcmp(tira_polaca[j+4].cell,";OR;")==0)){
+        else if((strcmp(tira_polaca[j].tag,"#comparator_if\n")==0) && (strcmp(tira_polaca[j+4].tag,"#comparator_if\n")==0) &&((strcmp(tira_polaca[j+6].cell,";AND;")==0) || (strcmp(tira_polaca[j+6].cell,";OR;")==0)) ){
+            printf("COMPARATOR IF AND\n");
             position_if++; // primer incremento --> es 0
-            int indice_tira_aux = 6 + atoi(tira_polaca[j].index);
+            int indice_tira_aux = 7 + atoi(tira_polaca[j].index);
+            printf("\n\n\nindice_tira_aux es: %d\n\n\n", indice_tira_aux);
             elem_if = tira_if[position_if].registro;  // guardamos el elemento registro
             elem_if.dato = indice_tira_aux;
             elem_if.posicion = j;  // guarda la posicion actual
+            printf("\n\n\nelem_if.dato es: %d\n\n\n", elem_if.dato);
             apilar(&pila_if, elem_if);
-            printf("QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ indice tira aux= %d", indice_tira_aux);
+            printf("QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ indice tira aux= %d\n", indice_tira_aux);
         }
         //not
         else if((strcmp(tira_polaca[j].tag,"#comparator_if\n")==0) && (strcmp(tira_polaca[j+1].cell,";NOT;")==0)){
+            printf("COMPARATOR IF NOT\n");
             position_if++; // primer incremento --> es 0
             int indice_tira_aux = 3 + atoi(tira_polaca[j].index);
             elem_if = tira_if[position_if].registro;  // guardamos el elemento registro
@@ -3296,7 +3362,7 @@ void aplicar_algoritmo_pilas(){
             apilar(&pila_if, elem_if);
         }
         else if(strcmp(tira_polaca[j].cell,";IF_F;")==0){
-            //printf("FIN IF\n");
+            printf("COMPARATOR  FIN IF\n");
             int indice_tira_aux = 1 + atoi(tira_polaca[j].index);
             aux_z_if= retornar_tope(&pila_if , &elemento_tope_if);
             printf("aux_z_if es %d:\n",aux_z_if);
@@ -3316,7 +3382,7 @@ void aplicar_algoritmo_pilas(){
             elem_if.posicion = j;  // guarda la posicion actual
             apilar(&pila_if, elem_if);
         }else if (strcmp(tira_polaca[j].cell,";ELSE_F;")==0){
-            //printf("FIN ELSE\n");
+            printf("FIN ELSE\n");
             int indice_tira_aux = 1 + atoi(tira_polaca[j].index);
             aux_z_if= retornar_tope(&pila_if , &elemento_tope_if);
             //printf("aux_z_if es %d:\n",aux_z_if);
@@ -3569,7 +3635,7 @@ void actualizarTS(char type[],int num_tipo){
     
     while(1)
     { // se ejecuta hasta encontrar un enddeclare
-        fgets(linea, 300, input);  // leemos cada fila del fichero input.txt
+        fgets(linea, 300, input);  // leemos cada fila del fichero prueba.txt
         arreglo_int = insertSpaWhite(linea);
 
         printf("Linea de fichero input es: %s\n",linea);
@@ -3737,20 +3803,38 @@ void printTiraPolaca(){  // <--- ACA HAY QUE COMPROBAR TIPOS. SE llama en la f()
         }
         for(int v=0;v<indice_tira;v++){
             if(strcmp(tira_polaca[v].tag,"#stringg\n") == 0){
-                    strcpy(tira_polaca[v].tag,"#string");
+                    strcpy(tira_polaca[v].tag,"#string\n");
             }
+           
+            
         }
         // printeo en el archivo
         for(int itp=0; itp<indice_tira; itp++) {
                 //tira_polaca[itp].tag[strlen(tira_polaca[itp].tag)-1] = ' ';
                 //printf("¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿%s po\n", tira_polaca[itp].tag);
-
+            if(strcmp(tira_polaca[itp-1].tag,"#string ") == 0){
+                    fprintf(repre_intermedia, "\n");
+                        fflush(repre_intermedia);
+            }
+            else if(strcmp(tira_polaca[itp-1].tag,"#string") == 0){
+                    fprintf(repre_intermedia, "\n");
+                    fflush(repre_intermedia);
+            }
+                
                 if((tira_polaca[itp].cell[1] == '$')&&(tira_polaca[itp].tag[1] != 's')) {
                     fprintf(repre_intermedia, "%s\t%s\t%s\n", tira_polaca[itp].index, tira_polaca[itp].cell, tira_polaca[itp].tag);
                     fflush(repre_intermedia);
+                    if(strcmp(tira_polaca[itp+1].cell,";GET;")==0){
+                        fprintf(repre_intermedia, "\n");
+                        fflush(repre_intermedia);
+                    }
                 }else{
                     fprintf(repre_intermedia, "%s\t%s\t%s", tira_polaca[itp].index, tira_polaca[itp].cell, tira_polaca[itp].tag);
                     fflush(repre_intermedia);
+                    if((strcmp(tira_polaca[itp+1].cell,";PUT;")==0)&&(tira_polaca[itp].tag[1]!='s')){
+                        fprintf(repre_intermedia, "\n");
+                        fflush(repre_intermedia);
+                    }
                 }
           
         }
@@ -3893,14 +3977,26 @@ void verificar_tipos(){
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void generarAssembler(){
     char auxiliarN[30]={0};  // auxiliar que guarda el nombre de TS
+    char auxiliarN2[30]={0};    // auxiliar para nombre en .data constantes string "cadena" --> $_cadena
     char auxiliarT[3]={0};   // auxiliar que guarda el tipo de TS
-    char auxiliarV[30]={0};  // auxiliar que guarda el valor de TS
+    char auxiliarV[40]={0};  // auxiliar que guarda el valor de TS
     char auxiliarCV[30]={0};  // auxiliar que representa los valores de la celda de Tira Polaca
     char auxiliarCI[30]={0};  // auxiliar que representa los ids de la celda de Tira Polaca
+    char auxiliarORWH[30]={0}; // auxiliar para marcar inicio de cuerpo de while, en condicion OR de while
     int  auxiliarPosAMult = 0; // auxiliar posicion de donde se encuentra el ultimo id la asignacion multiple
     int flagmult = 0; // bandera para obtener la posicion del ultimo id de asignacion multiple ya que lee desde el ultimo al primer id de la asignacion multiple
     int data1=0;
     int auxI=0;
+    int auxConc=0;
+    int auxStrMul=0;
+
+    // variables para if anidados
+    char * aux_cell; 
+    char comp_cell[40];
+    char f_else_cell[40];
+    char f_if_cell[40];
+    char f_wh_cell[40];
+    int indice_cell_aux;
 
     fprintf (final_asm, "include macros2.asm\n");
     fflush(final_asm);
@@ -3918,7 +4014,9 @@ void generarAssembler(){
     fprintf (final_asm, "MAXTEXTSIZE equ 50\n\n");
     fflush(final_asm); 
 
-    for(int i=0;i<position_TS;i++){
+    //.DATA
+    for(int i=0;i<position_TS;i++)
+    {
         //para sacar comillas de nombre de var cstring
         if(dinamic_TS[i].nombre[1]=='"'){  
             auxiliarN[0]='$';
@@ -3945,11 +4043,17 @@ void generarAssembler(){
         else if(strstr(dinamic_TS[i].tipo,"string") != NULL ){
             strcpy(auxiliarT,"db");
             if (strcmp(dinamic_TS[i].valor,"-")==0){
-                strcpy(auxiliarV,"MAXTEXTSIZE dup (?),'$'");
+                strcpy(auxiliarV,"0Dh, 0Ah, MAXTEXTSIZE dup (?),'$'");
             }else if(strcmp(dinamic_TS[i].valor,"-")!=0){
                 strcpy(auxiliarV,dinamic_TS[i].valor);
                 auxiliarV[strlen(dinamic_TS[i].valor)-1]='$'; 
-                auxiliarV[strlen(dinamic_TS[i].valor)]='"';            
+                auxiliarV[strlen(dinamic_TS[i].valor)]='"';
+                auxiliarN2[0]='$';
+                auxiliarN2[1]='_';
+                for(int p=1;p<strlen(auxiliarN);p++){
+                    auxiliarN2[p+1]=auxiliarN[p];  // $_cadena  $cadena
+                }
+                strcpy(auxiliarN, auxiliarN2);          
             }
         }
         
@@ -3958,12 +4062,27 @@ void generarAssembler(){
         
         //limpio vectores
         for(int k=0;k<30;k++){
-            auxiliarV[k]='\0'; // se usa en TS
             auxiliarN[k]='\0'; // se usa en Ts
             auxiliarCV[k]='\0'; // se usa en TP
             auxiliarCI[k]='\0'; // se usa en TP
+            auxiliarN2[k]='\0'; // se usa en TP
+        }
+        //limpio vectores
+        for(int k=0;k<40;k++){
+            auxiliarV[k]='\0'; // se usa en TS
         }
     }
+
+    fprintf (final_asm, "$_aux1 db 0Dh, 0Ah, MAXTEXTSIZE dup (?),'$'");
+    fflush(final_asm); 
+
+    // Variables para numeros NEGATIVOS
+    fprintf (final_asm, "\n_200m dd 2.00\n");
+    fflush(final_asm);
+    fprintf (final_asm, "_300m dd 3.00\n");
+    fflush(final_asm);
+    fprintf (final_asm, "_100m dd ?\n");
+    fflush(final_asm);
 
     //ZONA CODIGO PRINCIPAL DE ASM
     fprintf (final_asm, "\n");
@@ -3979,6 +4098,9 @@ void generarAssembler(){
     
     fprintf (final_asm, "\n\n");
     fflush(final_asm);
+
+    fprintf (final_asm, "START:\n");
+    fflush(final_asm);
     
     //codigo principal
     fprintf (final_asm, "mov AX,@DATA\n");
@@ -3989,37 +4111,149 @@ void generarAssembler(){
     fflush(final_asm); 
 
     // zona recorrido de la tira polaca para completar la seccion .CODE
-    for(int j=0; j<indice_tira; j++) {
-        
-        // ***** NOTA: ***** las operaciones +,-,* y / deben ir dentro en las expresiones de las asignaciones programadas a acontinuacion
-        
+    for(int j=0; j<indice_tira; j++) 
+    {            
         // Asignaciones fuera del IF y WHILE
-        if(strcmp(tira_polaca[j].cell, ";=;") == 0)
-        {  // primero, hay que preguntar si es asignacion simple
-            if(strcmp(tira_polaca[j+2].cell, ";=;") != 0)
-            {  // si en la posicion actual + 2 posiciones NO encuentra un operador =
+        if(strcmp(tira_polaca[j].cell, ";=;") == 0){  
+            if(strcmp(tira_polaca[j-2].cell,";++;")==0){
+                       /*mov si,OFFSET cad1 ; apunta el origen a la primer cadena
+                        mov di,OFFSET aux1 ; apunta el destino a la variable auxiliar
+                        call COPIAR ; realiza la copia.
+                        
+                        mov si,OFFSET cad2 ; apunta el origen a la segunda cadena
+                        mov di,OFFSET aux1 ; apunta el destino a la variable auxiliar
+                        call CONCAT ; concatena la segunda cadena al auxiliar
+                       
+                        mov si,OFFSET aux1 ; apunta el origen al auxiliar
+                        mov di,OFFSET cad3 ;apunta el destino a la cadena 3
+                        call COPIAR ; copia los strings*/
+                        strcpy(auxiliarCV, tira_polaca[j-4].cell);
+                        if(tira_polaca[j-4].cell[1]=='"'){
+                            fprintf (final_asm, "mov si,OFFSET $_%s\n", skipPesosC(skipComillasC(skipPointsC(auxiliarCV))));
+                            fflush(final_asm);
+                        }
+                        else {
+                            fprintf (final_asm, "mov si,OFFSET $%s\n", skipPesosC(skipComillasC(skipPointsC(auxiliarCV))));
+                            fflush(final_asm);
+                        }
+                        fprintf (final_asm, "mov di,OFFSET $_aux1\n");
+                        fflush(final_asm);
+                        fprintf (final_asm, "call COPIAR\n");
+                        fflush(final_asm);
+
+                        strcpy(auxiliarCV, tira_polaca[j-3].cell);
+                        if(tira_polaca[j-3].cell[1]=='"'){
+                            fprintf (final_asm, "mov si,OFFSET $_%s\n", skipPesosC(skipComillasC(skipPointsC(auxiliarCV))));
+                            fflush(final_asm);
+                        }
+                        else{
+                            fprintf (final_asm, "mov si,OFFSET $%s\n", skipPesosC(skipComillasC(skipPointsC(auxiliarCV))));
+                            fflush(final_asm);
+                        }
+                        fprintf (final_asm, "mov di,OFFSET $_aux1\n");
+                        fflush(final_asm);
+                        fprintf (final_asm, "call CONCAT\n");
+                        fflush(final_asm);
+
+                        fprintf (final_asm, "mov si,OFFSET $_aux1\n");
+                        fflush(final_asm);
+                        strcpy(auxiliarCI, tira_polaca[j-1].cell);
+                        fprintf (final_asm, "mov di,OFFSET %s\n", skipPointsC(auxiliarCI));
+                        fflush(final_asm);
+                        fprintf (final_asm, "call COPIAR\n");
+                        fflush(final_asm);
+                        auxConc=j;
+                        while(strcmp(tira_polaca[auxConc+2].cell,";=;")==0){
+                            if((tira_polaca[auxConc+1].tag[1] == 's') && (strcmp(tira_polaca[auxConc+2].cell, ";=;")==0)){ // si es string
+                                    strcpy(auxiliarCV, tira_polaca[auxConc-1].cell);
+                                    if(tira_polaca[auxConc-1].cell[1]=='"'){     
+                                        fprintf (final_asm, "mov si,OFFSET $_%s\n", skipPesosC(skipComillasC(skipPointsC(auxiliarCV))));
+                                        fflush(final_asm);
+                                    }
+                                    else{
+                                        fprintf (final_asm, "mov si,OFFSET $%s\n", skipPesosC(skipComillasC(skipPointsC(auxiliarCV))));
+                                        fflush(final_asm);
+                                    }
+                                        strcpy(auxiliarCI, tira_polaca[auxConc+1].cell);
+                                        fprintf (final_asm, "mov di,OFFSET %s\n", skipPointsC(auxiliarCI));
+                                        fflush(final_asm);
+                                        fprintf (final_asm, "call COPIAR\n");
+                                        fflush(final_asm);
+                                    }
+                                    else if((tira_polaca[auxConc-1].tag[1] == 'c')&& (strcmp(tira_polaca[auxiliarPosAMult].tag, "#operator\n")==0) && (strcmp(tira_polaca[auxiliarPosAMult+2].cell, ";=;")==0)){  // si es cstring
+                                        strcpy(auxiliarCV, tira_polaca[auxConc-1].cell);
+                                        fprintf (final_asm, "mov si,OFFSET $_%s\n", skipPesosC(skipComillasC(skipPointsC(auxiliarCV))));
+                                        fflush(final_asm);
+                                       
+                                        strcpy(auxiliarCI, tira_polaca[auxConc+1].cell);
+                                        fprintf (final_asm, "mov di,OFFSET %s\n", skipPointsC(auxiliarCI));
+                                        fflush(final_asm);
+                                        fprintf (final_asm, "call COPIAR\n");
+                                        fflush(final_asm);
+                                    }
+                                    auxConc= auxConc+2;
+
+                        }
+
+                        
+                       
+            }
+            else if(strcmp(tira_polaca[j+2].cell, ";=;") != 0){  
+                // si en la posicion actual + 2 posiciones NO encuentra un operador =
                 // pregunta si se trata de la asignacion mas simple, es decir, donde a una variable se le asigna una cte o un id
                 if(strcmp(tira_polaca[j-2].tag, "#operator\n") != 0)
                 { // pregunta si no hay un 'operator' en 2 posiciones mas abajo de la actual
                     //entonces al tratarse de la asignacion mas simple de todas, averiguo que tipo de dato es
                     if(tira_polaca[j-2].tag[1] == 'i'){  //si es entero
-                        strcpy(auxiliarCV, tira_polaca[j-2].cell); // guarda el valor de la celda ;value;
-                        fprintf (final_asm, "fld\t$%s\n",skipPointsC(auxiliarCV));
-                        fflush(final_asm);
-                        strcpy(auxiliarCI, tira_polaca[j-1].cell); // guarda el id de la celda ;$id;
-                        fprintf (final_asm, "fstp\t%s\n", skipPointsC(auxiliarCI)); // en posicion actual -1 siempre encuentra el id que almacena lo del lado derecha
-                        fflush(final_asm);
+                        if(tira_polaca[j-2].cell[1] == '-') {
+                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                            fflush(final_asm);
+                            strcpy(auxiliarCV, tira_polaca[j-2].cell); // guarda el valor de la celda ;value;
+                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                            fflush(final_asm);
+                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                            fflush(final_asm);
+                            strcpy(auxiliarCI, tira_polaca[j-1].cell); // guarda el id de la celda ;$id;
+                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(skipPesosC(skipPointsC(auxiliarCI)))); // en posicion actual -1 siempre encuentra el id que almacena lo del lado derecha
+                            fflush(final_asm);
+                        }else{
+                            strcpy(auxiliarCV, tira_polaca[j-2].cell); // guarda el valor de la celda ;value;
+                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                            fflush(final_asm);
+                            strcpy(auxiliarCI, tira_polaca[j-1].cell); // guarda el id de la celda ;$id;
+                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(skipPesosC(skipPointsC(auxiliarCI)))); // en posicion actual -1 siempre encuentra el id que almacena lo del lado derecha
+                            fflush(final_asm);
+                        }
                     }else if(tira_polaca[j-2].tag[1] == 'r'){ // si es real
-                        strcpy(auxiliarCV, tira_polaca[j-2].cell); // guarda el valor de la celda ;value;
-                        fprintf (final_asm, "fld\t$%s\n", changeRealC(skipPointsC(auxiliarCV)));
-                        fflush(final_asm);
-                        strcpy(auxiliarCI, tira_polaca[j-1].cell); // guarda el id de la celda ;$id;
-                        fprintf (final_asm, "fstp\t%s\n", skipPointsC(auxiliarCI)); // en posicion actual -1 siempre encuentra el id que almacena lo del lado derecha
-                        fflush(final_asm);
+                        if(tira_polaca[j-2].cell[1] == '-') {
+                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                            fflush(final_asm);
+                            strcpy(auxiliarCV, tira_polaca[j-2].cell); // guarda el valor de la celda ;value;
+                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                            fflush(final_asm);
+                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                            fflush(final_asm);
+                            strcpy(auxiliarCI, tira_polaca[j-1].cell); // guarda el id de la celda ;$id;
+                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(skipPesosC(skipPointsC(auxiliarCI)))); // en posicion actual -1 siempre encuentra el id que almacena lo del lado derecha
+                            fflush(final_asm);
+                        }else{
+                            strcpy(auxiliarCV, tira_polaca[j-2].cell); // guarda el valor de la celda ;value;
+                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                            fflush(final_asm);
+                            strcpy(auxiliarCI, tira_polaca[j-1].cell); // guarda el id de la celda ;$id;
+                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(skipPesosC(skipPointsC(auxiliarCI)))); // en posicion actual -1 siempre encuentra el id que almacena lo del lado derecha
+                            fflush(final_asm);
+                        }
                     }else if(tira_polaca[j-2].tag[1] == 's'){ // si es string
                         strcpy(auxiliarCV, tira_polaca[j-2].cell);
-                        fprintf (final_asm, "mov si,OFFSET $%s\n", skipComillasC(skipPointsC(auxiliarCV)));
-                        fflush(final_asm);
+                        if(tira_polaca[j-2].cell[1]=='"'){     
+                            fprintf (final_asm, "mov si,OFFSET $_%s\n", skipPesosC(skipComillasC(skipPointsC(auxiliarCV))));
+                            fflush(final_asm);
+                        }
+                        else{
+                            fprintf (final_asm, "mov si,OFFSET $%s\n", skipPesosC(skipComillasC(skipPointsC(auxiliarCV))));
+                            fflush(final_asm);
+                        }
                         strcpy(auxiliarCI, tira_polaca[j-1].cell);
                         fprintf (final_asm, "mov di,OFFSET %s\n", skipPointsC(auxiliarCI));
                         fflush(final_asm);
@@ -4028,49 +4262,99 @@ void generarAssembler(){
                     
                     }else if(tira_polaca[j-2].tag[1] == 'c'){  // si es cstring
                         strcpy(auxiliarCV, tira_polaca[j-2].cell);
-                        fprintf (final_asm, "mov si,OFFSET %s\n", skipPointsC(auxiliarCV));
-                        fflush(final_asm);
+                        //if(tira_polaca[j-2].cell[1]=='"'){
+                            
+                            fprintf (final_asm, "mov si,OFFSET $_%s\n", skipPesosC(skipComillasC(skipPointsC(auxiliarCV))));
+                            fflush(final_asm);
+                        //}
+                       // else{
+                            //fprintf (final_asm, "mov si,OFFSET $%s\n", skipPesosC(skipPointsC(auxiliarCV)));
+                            //fflush(final_asm);
+                       // }
                         strcpy(auxiliarCI, tira_polaca[j-1].cell);
                         fprintf (final_asm, "mov di,OFFSET %s\n", skipPointsC(auxiliarCI));
                         fflush(final_asm);
                         fprintf (final_asm, "call COPIAR\n");
-                        fflush(final_asm);
-                        
+                        fflush(final_asm);  
                     }
-                }else if(strcmp(tira_polaca[j-2].cell, ";=;") != 0) // para que NO se filtre el ultimo = de asignacion multiple
+                }
+                else if(strcmp(tira_polaca[j-2].cell, ";=;") != 0) // para que NO se filtre el ultimo = de asignacion multiple
                 { // es una asignacion simple, pero con expresion del lado derecho
                     printf("\n");
+                    
+                    fflush(final_asm);
                     for(int paes=j-1; paes>=0; paes--){  // pams = posicion asignacion expresion simple. se recorre solo dos posiciones
                         if((strcmp(tira_polaca[paes].cell,";IF_I;")!=0)&&
                         (strcmp(tira_polaca[paes].cell,";IF_F;")!=0)&&
                         (strcmp(tira_polaca[paes].cell,";WH_I;")!=0)&&
                         (strcmp(tira_polaca[paes].cell,";WH_F;")!=0)&&
                         (strcmp(tira_polaca[paes].cell,";ELSE_F;")!=0)&&
+                        (strcmp(tira_polaca[paes].cell,";PUT;")!=0)&&
+                        (strcmp(tira_polaca[paes].cell,";GET;")!=0)&&
                         (strcmp(tira_polaca[paes].cell,";=;")!=0)&&
                         (strcmp(tira_polaca[paes].tag,"#space\n")!=0))     
                         {
                             printf("Estoy en asignacion simple con expresion, pasa por el indice: %s\n", tira_polaca[paes].index);
                             
                         }else{
-                            printf("paes es: %d\n", paes);
                             auxI = paes + 1 ;
+                            break;
+                        }
+                        
+                    
+                            printf("paes es: %d\n", paes);
+                            
                             //printf("\n\n\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<auxI :%i\n\n\n",auxI);
                             //printf("\n\n\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<j-2 :%i\n\n\n",(j-2));
                             for(auxI;auxI<=j-2;auxI++){
+                                
                                 printf("\n\n\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<estoy en for de expresion\n\n");
                                 printf("tira_polaca[auxI].tag %s\n\n",tira_polaca[auxI].tag);
                                 
                                 if(strcmp(tira_polaca[auxI].tag,"#operator\n")!=0){
-                                    //apilo
-                                    if(tira_polaca[auxI].tag[1] == 'r'){ // si es real
-                                        strcpy(auxiliarCV, tira_polaca[auxI].cell); // guarda el valor de la celda ;value;
-                                        fprintf (final_asm, "fld\t$%s\n", changeRealC(skipPointsC(auxiliarCV)));
-                                        fflush(final_asm);
-                                    }else if(tira_polaca[auxI].tag[1] == 'i'){
-                                        strcpy(auxiliarCV, tira_polaca[auxI].cell);
-                                        fprintf (final_asm, "fld\t$%s\n",skipPointsC(auxiliarCV));
-                                        fflush(final_asm);
-                                    }                        
+                                    if(tira_polaca[auxI].cell[1] == '-') {
+                                        if(tira_polaca[auxI].tag[1] == 'r'){ // si es real
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[auxI].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+
+                                            strcpy(auxiliarCV, tira_polaca[auxI].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);
+
+                                        }else if(tira_polaca[auxI].tag[1] == 'i'){
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[auxI].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            strcpy(auxiliarCV, tira_polaca[auxI].cell);
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                        }
+                                    }else{
+                                        //apilo
+                                        if(tira_polaca_copia[auxI].tag[1] == 'r'){ // si es real
+                                            strcpy(auxiliarCV, tira_polaca_copia[auxI].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);
+                                        }else if(tira_polaca_copia[auxI].tag[1] == 'i'){
+                                            strcpy(auxiliarCV, tira_polaca_copia[auxI].cell);
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                        }
+                                    }                         
                                 }
                                 
                                 if((strcmp(tira_polaca[auxI].cell, ";+;") == 0)||(strcmp(tira_polaca[auxI].cell, ";/;") == 0)||(strcmp(tira_polaca[auxI].cell, ";-;") == 0)||(strcmp(tira_polaca[auxI].cell, ";*;") == 0)){
@@ -4105,15 +4389,20 @@ void generarAssembler(){
                                         //printf("encontre division\n\n");          
                                         fprintf (final_asm, "fdiv\n");
                                         fflush(final_asm);
+                                        
                                         //printf("operador div en el indice: %s\n", tira_polaca[j].index);
                                     }  //  * Fin Division *
                                     //desapilo con ultimos 2 valores
-                                    fprintf (final_asm, "ffree 1\n");
-                                    fflush(final_asm);
                                 }
+  
                             }
+                            strcpy(auxiliarCV, tira_polaca[j-1].cell); 
+                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                            fflush(final_asm);
+                            fprintf (final_asm, "ffree st(1)\n");
+                            fflush(final_asm);
                             break; //salgo del bucle for ya que forme la expresion simple
-                        }
+                        
                     }
                     printf("\n\n");
                 }
@@ -4128,27 +4417,91 @@ void generarAssembler(){
                         (strcmp(tira_polaca[paem].cell,";WH_F;")!=0)&&
                         (strcmp(tira_polaca[paem].cell,";ELSE_F;")!=0)&&
                         (strcmp(tira_polaca[paem].cell,";=;")!=0)&&
+                        (strcmp(tira_polaca[paem].cell,";PUT;")!=0)&&
+                        (strcmp(tira_polaca[paem].cell,";GET;")!=0)&&
                         (strcmp(tira_polaca[paem].tag,"#space\n")!=0))
                         {
                             printf("Estoy en asignacion multiple con expresion, pasa por el indice: %s\n", tira_polaca[paem].index);
-                        }else
-                        {
+                        }else{
                             int auxiliarMt = paem+1; // guarda la posicion donde termina la expresion
                             printf("La expresion termina en: %d\n", auxiliarMt);
                             
                             // bucle for que resuelve la expresion de la asignacion multiple
                             for(auxiliarMt; auxiliarMt<= auxiliarPosAMult-1; auxiliarMt++){
+            
                                 if(strcmp(tira_polaca[auxiliarMt].tag,"#operator\n")!=0){ // si es distinto a operator, es decir a: +, -,*,/,=,etc
                                     //apilo
                                     if(tira_polaca[auxiliarMt].tag[1] == 'r'){ // si es real
-                                        strcpy(auxiliarCV, tira_polaca[auxiliarMt].cell); // guarda el valor de la celda ;value;
-                                        fprintf (final_asm, "fld\t$%s\n", changeRealC(skipPointsC(auxiliarCV)));
-                                        fflush(final_asm);
+
+                                        if(tira_polaca[auxiliarMt].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[auxiliarMt].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                                        }else{
+                                            strcpy(auxiliarCV, tira_polaca[auxiliarMt].cell);
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);
+                                        }
+
                                     }else if(tira_polaca[auxiliarMt].tag[1] == 'i'){ // si es entero
+                                        
+                                        if(tira_polaca[auxiliarMt].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[auxiliarMt].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                                        }else{
+                                            strcpy(auxiliarCV, tira_polaca[auxiliarMt].cell);
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                        }
+                                    }else if(tira_polaca[auxiliarMt].tag[1] == 's'){ // si es string
                                         strcpy(auxiliarCV, tira_polaca[auxiliarMt].cell);
-                                        fprintf (final_asm, "fld\t$%s\n",skipPointsC(auxiliarCV));
+                                        if(tira_polaca[auxiliarMt].cell[1]=='"'){     
+                                            fprintf (final_asm, "mov si,OFFSET $_%s\n", skipPesosC(skipComillasC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                        }
+                                        else{
+                                            fprintf (final_asm, "mov si,OFFSET $%s\n", skipPesosC(skipComillasC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                        }
+                                        strcpy(auxiliarCI, tira_polaca[auxiliarMt+1].cell);
+                                        fprintf (final_asm, "mov di,OFFSET %s\n", skipPointsC(auxiliarCI));
                                         fflush(final_asm);
-                                    }                        
+                                        fprintf (final_asm, "call COPIAR\n");
+                                        fflush(final_asm);
+                                    }
+                                    else if(tira_polaca[auxiliarMt].tag[1] == 'c'){  // si es cstring
+                                        strcpy(auxiliarCV, tira_polaca[auxiliarMt].cell);
+                                        fprintf (final_asm, "mov si,OFFSET $_%s\n", skipPesosC(skipComillasC(skipPointsC(auxiliarCV))));
+                                        fflush(final_asm);
+                                       
+                                        strcpy(auxiliarCI, tira_polaca[auxiliarMt+1].cell);
+                                        fprintf (final_asm, "mov di,OFFSET %s\n", skipPointsC(auxiliarCI));
+                                        fflush(final_asm);
+                                        fprintf (final_asm, "call COPIAR\n");
+                                        fflush(final_asm);
+                                    }
+                                                      
                                 }
                                 // Si es operador de +,-,*,/
                                 if((strcmp(tira_polaca[auxiliarMt].cell, ";+;") == 0)||(strcmp(tira_polaca[auxiliarMt].cell, ";/;") == 0)||(strcmp(tira_polaca[auxiliarMt].cell, ";-;") == 0)||(strcmp(tira_polaca[auxiliarMt].cell, ";*;") == 0))
@@ -4186,24 +4539,53 @@ void generarAssembler(){
                                         //printf("operador div en el indice: %s\n", tira_polaca[j].index);
                                     }  //  * Fin Division *
                                     //desapilo con ultimos 2 valores
-                                    fprintf (final_asm, "ffree 1\n");
+                                    fprintf (final_asm, "ffree st(1)\n");
                                     fflush(final_asm);
                                 }
+
                             } // * * FIN del bucle for que resuelve la expresion de la asignacion multiple
 
                              // bucle for que resuelve los ids de la asignacion multiple
                             for(auxiliarPosAMult; auxiliarPosAMult<= j; auxiliarPosAMult++){
                                 //printf("Estoy resolviendo los ids en el indice: %d\n",auxiliarPosAMult );
  
-                                if(strcmp(tira_polaca[auxiliarPosAMult].tag, "#operator\n") == 0){
+                                if((strcmp(tira_polaca[auxiliarPosAMult].tag, "#operator\n") == 0)&& ( (tira_polaca[auxiliarPosAMult-1].tag[1]=='i') || (tira_polaca[auxiliarPosAMult-1].tag[1]=='r') )){
                                     strcpy(auxiliarCI, tira_polaca[auxiliarPosAMult-1].cell); // guarda el id de la celda ;$id;
-                                    fprintf (final_asm, "fstp\t%s\n", skipPointsC(auxiliarCI)); // en posicion actual -1 siempre encuentra el id que almacena lo del lado derecho
+                                    fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(skipPesosC(skipPointsC(auxiliarCI)))); // en posicion actual -1 siempre encuentra el id que almacena lo del lado derecho
                                     fflush(final_asm);
-                                    fprintf (final_asm, "fld\t\t%s\n", skipPointsC(auxiliarCI)); // en posicion actual -1 siempre encuentra el id que almacena lo del lado derecho
+                                    fprintf (final_asm, "fld\t\t$%s\n", skipMenosOP(skipPesosC(skipPointsC(auxiliarCI)))); // en posicion actual -1 siempre encuentra el id que almacena lo del lado derecho
                                     fflush(final_asm);
                                 }
+                                else if((strcmp(tira_polaca[auxiliarPosAMult].tag, "#operator\n") == 0)&&(tira_polaca[auxiliarPosAMult-1].tag[1] == 's') && (strcmp(tira_polaca[auxiliarPosAMult+2].cell, ";=;")==0)){ // si es string
+                                        strcpy(auxiliarCV, tira_polaca[auxiliarPosAMult-1].cell);
+                                        if(tira_polaca[auxiliarPosAMult-1].cell[1]=='"'){     
+                                            fprintf (final_asm, "mov si,OFFSET $_%s\n", skipPesosC(skipComillasC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                        }
+                                        else{
+                                            fprintf (final_asm, "mov si,OFFSET $%s\n", skipPesosC(skipComillasC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                        }
+                                        strcpy(auxiliarCI, tira_polaca[auxiliarPosAMult+1].cell);
+                                        fprintf (final_asm, "mov di,OFFSET %s\n", skipPointsC(auxiliarCI));
+                                        fflush(final_asm);
+                                        fprintf (final_asm, "call COPIAR\n");
+                                        fflush(final_asm);
+                                    }
+                                    else if((tira_polaca[auxiliarPosAMult-1].tag[1] == 'c')&& (strcmp(tira_polaca[auxiliarPosAMult].tag, "#operator\n")==0) && (strcmp(tira_polaca[auxiliarPosAMult+2].cell, ";=;")==0)){  // si es cstring
+                                        strcpy(auxiliarCV, tira_polaca[auxiliarPosAMult-1].cell);
+                                        fprintf (final_asm, "mov si,OFFSET $_%s\n", skipPesosC(skipComillasC(skipPointsC(auxiliarCV))));
+                                        fflush(final_asm);
+                                       
+                                        strcpy(auxiliarCI, tira_polaca[auxiliarPosAMult+1].cell);
+                                        fprintf (final_asm, "mov di,OFFSET %s\n", skipPointsC(auxiliarCI));
+                                        fflush(final_asm);
+                                        fprintf (final_asm, "call COPIAR\n");
+                                        fflush(final_asm);
+                                    }
                             }
-                            fprintf (final_asm, "ffree 1\nffree 0\n");
+                            
+                            fprintf (final_asm, "ffree st(1)\nffree st(0)\n");
                             fflush(final_asm);
                             break; //salgo del bucle for ya que forme la asignacion multiple
                         }
@@ -4211,163 +4593,1465 @@ void generarAssembler(){
                     printf("\n\n");
                     flagmult=0;
                 }
-            }else if(flagmult == 0){ // es una asignacion multiple. prendo el flag
+            }
+            else if(flagmult == 0){ // es una asignacion multiple. prendo el flag
                 flagmult = 1;
                 auxiliarPosAMult = j-1;
                 printf("se activo el flag, posicion ultimo id asignacion multiple: %d\n",auxiliarPosAMult);
             }
+            
         }
          //  * Fin Asignaciones *
 
 
-        /// IFS
+        ///////////////////////////////////////////////////////////////////////////////////////////
+        // I  F
+        ////////////
         if(strcmp(tira_polaca[j].cell, ";IF_I;") == 0)
-        {
-            if(strcmp(tira_polaca[j+6].cell, ";CMP;") != 0){
+        {    
+            strcpy(comp_cell, tira_polaca_copia[j].cell);
+            printf("comp_cell es: %s\n", comp_cell);
+
+            aux_cell = strtok(tira_polaca_copia[j].cell, ";IF_I"); // obtengo el numero de if
+            //  para los fin de else
+            strcpy(f_else_cell, ";ELSE_F");
+            strcat(f_else_cell, aux_cell);
+            strcat(f_else_cell, ";"); //  guarda ;ELSE_F1;
+            printf("f_else_cell es: %s\n", f_else_cell);
+            
+            // para los fin de if
+            strcpy(f_if_cell, ";IF_F");
+            strcat(f_if_cell, aux_cell);
+            strcat(f_if_cell, ";"); //  guarda x ejemplo --> ;IF_F1;
+            printf("f_if_cell es: %s\n",f_if_cell);
+            
+            
+            if(strcmp(tira_polaca[j+7].cell, ";CMP;") != 0)
+            {
              //////////////////////////////////////////////////////////copio operandos 
-                if(tira_polaca[j+1].tag[1] == 'r'){ // si es real
-                    strcpy(auxiliarCV, tira_polaca[j+1].cell); // guarda el valor de la celda ;value;
-                    fprintf (final_asm, "fld\t$%s\n", changeRealC(skipPointsC(auxiliarCV)));
-                    fflush(final_asm);
+                if(tira_polaca[j+1].tag[1] == 'r'){ // si es real    
+                    if(tira_polaca[j+1].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[j+1].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                    }else{
+                        strcpy(auxiliarCV, tira_polaca[j+1].cell); // guarda el valor de la celda ;value;
+                        fprintf (final_asm, "fld\t$%s\n", skipMenosOP(skipPesosC(changeRealC(skipPointsC(auxiliarCV)))));
+                        fflush(final_asm);
+                    }
+                      
                 }else if(tira_polaca[j+1].tag[1] == 'i'){
-                    strcpy(auxiliarCV, tira_polaca[j+1].cell);
-                    fprintf (final_asm, "fld\t$%s\n",skipPointsC(auxiliarCV));
-                    fflush(final_asm);
+                    if(tira_polaca[j+1].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[j+1].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                    }
+                    else{
+                        strcpy(auxiliarCV, tira_polaca[j+1].cell);
+                        fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                        fflush(final_asm);
+                    }
                 }
 
                 if(tira_polaca[j+2].tag[1] == 'r'){ // si es real
-                    strcpy(auxiliarCV, tira_polaca[j+2].cell); // guarda el valor de la celda ;value;
-                    fprintf (final_asm, "fld\t$%s\n", changeRealC(skipPointsC(auxiliarCV)));
-                    fflush(final_asm);
+
+                    if(tira_polaca[j+2].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[j+2].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                    }
+                    else{
+                        strcpy(auxiliarCV, tira_polaca[j+2].cell); // guarda el valor de la celda ;value;
+                        fprintf (final_asm, "fld\t$%s\n", skipMenosOP(skipPesosC(changeRealC(skipPointsC(auxiliarCV)))));
+                        fflush(final_asm);
+                    }
                 }else if(tira_polaca[j+2].tag[1] == 'i'){
+                    if(tira_polaca[j+2].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[j+2].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                    }
+                    else{
                     strcpy(auxiliarCV, tira_polaca[j+2].cell);
-                    fprintf (final_asm, "fld\t$%s\n",skipPointsC(auxiliarCV));
+                    fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
                     fflush(final_asm);
+                    }
                 }
 
                 fprintf (final_asm, "fxch\nfcom\nfstsw ax\nsahf\n");
                 fflush(final_asm); 
             //////////////////////////////////////////////////////////
+                
+            ////////////////////////////////////////////////////////// pregunto por comparador   ------
+                if(strcmp(tira_polaca[j+4].cell, ";BLE;") == 0){  //OPERADOR mayor
+                    fprintf (final_asm, "jna %s\n\n", skipPointsC(f_if_cell));
+                    fflush(final_asm); 
+                    fprintf (final_asm, "%s: ;codigo del then\n\n", skipPointsC(tira_polaca_copia[j].cell));
+                    fflush(final_asm);
+                }
+                else if(strcmp(tira_polaca[j+4].cell, ";BGE;") == 0){ //menor
+                    fprintf (final_asm, "jnb %s\n\n",skipPointsC(f_if_cell));
+                    fflush(final_asm); 
+                    fprintf (final_asm, "%s: ;codigo del then\n\n", skipPointsC(tira_polaca_copia[j].cell));
+                    fflush(final_asm);
 
-            ////////////////////////////////////////////////////////// pregunto por comparador
-                if(strcmp(tira_polaca[j+4].cell, ";BLE;") != 0){  //mayor
-                    fprintf (final_asm, "jnbe else_part\nthen_part:  ;codigo del then\n");
-                    fflush(final_asm);
                 }
-                else if(strcmp(tira_polaca[j+4].cell, ";BGE;") != 0){ //menor
-                    fprintf (final_asm, "jnae else_part\nthen_part:  ;codigo del then\n");
-                    fflush(final_asm);
-
+                else if(strcmp(tira_polaca[j+4].cell, ";BGT;") == 0){  // menor igual
+                    fprintf (final_asm, "jnbe %s\n\n", skipPointsC(f_if_cell));
+                    fflush(final_asm); 
+                    fprintf (final_asm, "%s: ;codigo del then\n\n", skipPointsC(tira_polaca_copia[j].cell));
+                    fflush(final_asm); 
                 }
-                else if(strcmp(tira_polaca[j+4].cell, ";BGT;") != 0){  // menor igual
-                    fprintf (final_asm, "jna else_part\nthen_part:  ;codigo del then\n");
-                    fflush(final_asm);
+                else if(strcmp(tira_polaca[j+4].cell, ";BLT;") == 0){ //mayor igual
+                    fprintf (final_asm, "jnae %s\n\n", skipPointsC(f_if_cell));
+                    fflush(final_asm); 
+                    fprintf (final_asm, "%s: ;codigo del then\n\n", skipPointsC(tira_polaca_copia[j].cell));
+                    fflush(final_asm); 
                 }
-                else if(strcmp(tira_polaca[j+4].cell, ";BLT;") != 0){ //mayor igual
-                    fprintf (final_asm, "jnb else_part\nthen_part:  ;codigo del then\n");
-                    fflush(final_asm);
+                else if(strcmp(tira_polaca[j+4].cell, ";BNE;") == 0){ //igual
+                    fprintf (final_asm, "jne %s\n\n", skipPointsC(f_if_cell));
+                    fflush(final_asm); 
+                    fprintf (final_asm, "%s: ;codigo del then\n\n", skipPointsC(tira_polaca_copia[j].cell));
+                    fflush(final_asm); 
                 }
-                else if(strcmp(tira_polaca[j+4].cell, ";BEQ;") != 0){ //igual
-                    fprintf (final_asm, "je  else_part\nthen_part:  ;codigo del then\n");
-                    fflush(final_asm);
-                }
-                else if(strcmp(tira_polaca[j+4].cell, ";BNE;") != 0){ //distinto
-                    fprintf (final_asm, "jne else_part\nthen_part:  ;codigo del then\n");
-                    fflush(final_asm);
+                else if(strcmp(tira_polaca[j+4].cell, ";BEQ;") == 0){ //distinto
+                    fprintf (final_asm, "je %s\n\n", skipPointsC(f_if_cell));
+                    fflush(final_asm); 
+                    fprintf (final_asm, "%s: ;codigo del then\n\n", skipPointsC(tira_polaca_copia[j].cell));
+                    fflush(final_asm); 
                 }
                 ////////////////////////////////////////////////////////////
+                j=j+4; //nueva linea par if
+            }  
+            
+            // AND y OR
+            else if (strcmp(tira_polaca[j+7].cell, ";CMP;") == 0){  // Aca va el codigo del AND, OR y ¿NOT? para los IFS
+                //                                                      AND DEL IF
+                if(strcmp(tira_polaca[j+9].cell, ";AND;") == 0){
+                    j = j+9;
+                    printf("\n\nEs una condicion con AND, en el indice %d\n\n", j);
+
+                    ///     c om p a r a c i o n    1
+                    
+                    // primer operando
+                    if(tira_polaca[j-8].tag[1] == 'r'){ // si es real
+                         if(tira_polaca[j-8].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[j-8].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                        }
+                        else{
+                            strcpy(auxiliarCV, tira_polaca[j-8].cell); // guarda el valor de la celda ;value;
+                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(skipPesosC(changeRealC(skipPointsC(auxiliarCV)))));
+                            fflush(final_asm);
+                        }
+                    }else if(tira_polaca[j-8].tag[1] == 'i'){
+                        if(tira_polaca[j-8].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[j-8].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                        }
+                        else{
+                            strcpy(auxiliarCV, tira_polaca[j-8].cell);
+                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                            fflush(final_asm);
+                        }
+                    }
+
+                    // segundo operando
+                    if(tira_polaca[j-7].tag[1] == 'r'){ // si es real
+                        if(tira_polaca[j-7].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[j-7].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                        }
+                        else{
+                            strcpy(auxiliarCV, tira_polaca[j-7].cell); // guarda el valor de la celda ;value;
+                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(skipPesosC(changeRealC(skipPointsC(auxiliarCV)))));
+                            fflush(final_asm);
+                        }
+                    }else if(tira_polaca[j-7].tag[1] == 'i'){
+                        if(tira_polaca[j-7].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[j-7].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                        }
+                        else{
+                            strcpy(auxiliarCV, tira_polaca[j-7].cell);
+                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                            fflush(final_asm);
+                        }
+                    }
+                    
+                    fprintf (final_asm, "fxch\nfcom\nfstsw ax\nsahf\n");
+                    fflush(final_asm); 
+                    
+                    // Simbolo comparador No. 1
+                    if(strcmp(tira_polaca[j-5].cell, ";BLE;") == 0){  //mayor
+                        fprintf (final_asm, "jna %s\n\n",skipPointsC(f_if_cell));
+                        fflush(final_asm);
+                    }
+                    else if(strcmp(tira_polaca[j-5].cell, ";BGE;") == 0){ //menor
+                        fprintf (final_asm, "jnb %s\n\n",skipPointsC(f_if_cell));
+                        fflush(final_asm);
+                    }
+                    else if(strcmp(tira_polaca[j-5].cell, ";BGT;") == 0){  // menor igual
+                        fprintf (final_asm, "jnbe %s\n\n",skipPointsC(f_if_cell));
+                        fflush(final_asm);
+                    }
+                    else if(strcmp(tira_polaca[j-5].cell, ";BLT;") == 0){ //mayor igual
+                        fprintf (final_asm, "jnae %s\n\n",skipPointsC(f_if_cell));
+                        fflush(final_asm);
+                    }
+                    else if(strcmp(tira_polaca[j-5].cell, ";BNE;") == 0){ //igual
+                        fprintf (final_asm, "jne %s\n\n",skipPointsC(f_if_cell));
+                        fflush(final_asm);
+                    }
+                    else if(strcmp(tira_polaca[j-5].cell, ";BEQ;") == 0){ //distinto
+                        fprintf (final_asm, "je %s\n\n",skipPointsC(f_if_cell));
+                        fflush(final_asm);
+                    }
+
+                    ///     c om p a r a c i o n    2
+
+                    // primer operando
+                    if(tira_polaca[j-4].tag[1] == 'r'){ // si es real
+                        if(tira_polaca[j-4].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[j-4].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                        }
+                        else{
+                            strcpy(auxiliarCV, tira_polaca[j-4].cell); // guarda el valor de la celda ;value;
+                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(skipPesosC(changeRealC(skipPointsC(auxiliarCV)))));
+                            fflush(final_asm);
+                        }
+                    }else if(tira_polaca[j-4].tag[1] == 'i'){
+                        if(tira_polaca[j-4].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[j-4].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                        }
+                        else{
+                            strcpy(auxiliarCV, tira_polaca[j-4].cell);
+                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                            fflush(final_asm);
+                        }
+                    }
+
+                    // segundo operando
+                    if(tira_polaca[j-3].tag[1] == 'r'){ // si es real
+                        if(tira_polaca[j-3].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[j-3].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                        }
+                        else{
+                            strcpy(auxiliarCV, tira_polaca[j-3].cell); // guarda el valor de la celda ;value;
+                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(skipPesosC(changeRealC(skipPointsC(auxiliarCV)))));
+                            fflush(final_asm);
+                        }
+                    }else if(tira_polaca[j-3].tag[1] == 'i'){
+                        if(tira_polaca[j-3].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[j-3].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                        }
+                        else{
+                            strcpy(auxiliarCV, tira_polaca[j-3].cell);
+                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                            fflush(final_asm);
+                        }
+                    }
+                    
+                    fprintf (final_asm, "fxch\nfcom\nfstsw ax\nsahf\n");
+                    fflush(final_asm);
+                    // Simbolo comparador No. 2
+                    if(strcmp(tira_polaca[j-1].cell, ";BLE;") == 0){  //mayor
+                        fprintf (final_asm, "jna %s\n",skipPointsC(f_if_cell));
+                        fflush(final_asm);
+                        //fprintf (final_asm, "%s: ;codigo del then\n\n", skipPointsC(tira_polaca_copia[j-9].cell));
+                        //fflush(final_asm);
+                    }
+                    else if(strcmp(tira_polaca[j-1].cell, ";BGE;") == 0){ //menor
+                        fprintf (final_asm, "jnb %s\n",skipPointsC(f_if_cell));
+                        fflush(final_asm);
+                        //fprintf (final_asm, "%s: ;codigo del then\n\n", skipPointsC(tira_polaca_copia[j-9].cell));
+                        //fflush(final_asm);
+                    }
+                    else if(strcmp(tira_polaca[j-1].cell, ";BGT;") == 0){  // menor igual
+                        fprintf (final_asm, "jnbe %s\n",skipPointsC(f_if_cell));
+                        fflush(final_asm);
+                        //fprintf (final_asm, "%s: ;codigo del then\n\n", skipPointsC(tira_polaca_copia[j-9].cell));
+                        //fflush(final_asm);
+                    }
+                    else if(strcmp(tira_polaca[j-1].cell, ";BLT;") == 0){ //mayor igual
+                        fprintf (final_asm, "jnae %s\n",skipPointsC(f_if_cell));
+                        fflush(final_asm);
+                        //fprintf (final_asm, "%s: ;codigo del then\n\n", skipPointsC(tira_polaca_copia[j-9].cell));
+                        //fflush(final_asm);
+                    }
+                    else if(strcmp(tira_polaca[j-1].cell, ";BNE;") == 0){ //igual
+                        fprintf (final_asm, "jne %s\n",skipPointsC(f_if_cell));
+                        fflush(final_asm);
+                        //fprintf (final_asm, "%s: ;codigo del then\n\n", skipPointsC(tira_polaca_copia[j-9].cell));
+                        //fflush(final_asm);
+                    }
+                    else if(strcmp(tira_polaca[j-1].cell, ";BEQ;") == 0){ //distinto
+                        fprintf (final_asm, "je %s\n",skipPointsC(f_if_cell));
+                        fflush(final_asm);
+                        //fprintf (final_asm, "%s: ;codigo del then\n\n", skipPointsC(tira_polaca_copia[j-9].cell));
+                        //fflush(final_asm);
+                    }
+                }
+                // OR DEL IF
+                else if(strcmp(tira_polaca[j+9].cell, ";OR;") == 0){ 
+                    j = j+9;
+                    printf("\n\nEs una condicion con OR, en el indice %d\n\n", j);
+
+                    ///     c om p a r a c i o n    1
+                    
+                    // primer operando
+                    if(tira_polaca[j-8].tag[1] == 'r'){ // si es real
+                        if(tira_polaca[j-8].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[j-8].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                        }
+                        else{
+                            strcpy(auxiliarCV, tira_polaca[j-8].cell); // guarda el valor de la celda ;value;
+                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(skipPesosC(changeRealC(skipPointsC(auxiliarCV)))));
+                            fflush(final_asm);
+                        }
+                    }else if(tira_polaca[j-8].tag[1] == 'i'){
+                        if(tira_polaca[j-8].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[j-8].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                        }
+                        else{
+                            strcpy(auxiliarCV, tira_polaca[j-8].cell);
+                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                            fflush(final_asm);
+                        }
+                    }
+
+                    // segundo operando
+                    if(tira_polaca[j-7].tag[1] == 'r'){ // si es real
+                        if(tira_polaca[j-7].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[j-7].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                        }
+                        else{
+                            strcpy(auxiliarCV, tira_polaca[j-7].cell); // guarda el valor de la celda ;value;
+                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(skipPesosC(changeRealC(skipPointsC(auxiliarCV)))));
+                            fflush(final_asm);
+                        }
+                    }else if(tira_polaca[j-7].tag[1] == 'i'){
+                        if(tira_polaca[j-7].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[j-7].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                        }
+                        else{
+                            strcpy(auxiliarCV, tira_polaca[j-7].cell);
+                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                            fflush(final_asm);
+                        }
+                    }
+                    
+                    fprintf (final_asm, "fxch\nfcom\nfstsw ax\nsahf\n");
+                    fflush(final_asm); 
+                    
+                    // Simbolo comparador No. 1                                     estos saltan por VERDADERO
+                    if(strcmp(tira_polaca[j-5].cell, ";BLE;") == 0){  //mayor           A>7 jna
+                        strcpy(auxiliarCV, tira_polaca_copia[j-9].cell); // guarda el valor de la celda ;value;
+                        fprintf (final_asm, "ja %s\n\n",skipPointsC(auxiliarCV));
+                        fflush(final_asm);
+                    }
+                    else if(strcmp(tira_polaca[j-5].cell, ";BGE;") == 0){ //menor       A<7 jnb
+                        strcpy(auxiliarCV, tira_polaca_copia[j-9].cell);
+                        fprintf (final_asm, "jb %s\n\n",skipPointsC(auxiliarCV));
+                        fflush(final_asm);
+                    }
+                    else if(strcmp(tira_polaca[j-5].cell, ";BGT;") == 0){  // menor igual   jnbe 
+                        strcpy(auxiliarCV, tira_polaca_copia[j-9].cell);
+                        fprintf (final_asm, "jna %s\n\n",skipPointsC(auxiliarCV));
+                        fflush(final_asm);
+                    }
+                    else if(strcmp(tira_polaca[j-5].cell, ";BLT;") == 0){ //mayor igual     jnae
+                        strcpy(auxiliarCV, tira_polaca_copia[j-9].cell);
+                        fprintf (final_asm, "jnb %s\n\n",skipPointsC(auxiliarCV));
+                        fflush(final_asm);
+                    }
+                    else if(strcmp(tira_polaca[j-5].cell, ";BNE;") == 0){ //igual   jne
+                        strcpy(auxiliarCV, tira_polaca_copia[j-9].cell);
+                        fprintf (final_asm, "je %s\n\n",skipPointsC(auxiliarCV));
+                        fflush(final_asm);
+                    }
+                    else if(strcmp(tira_polaca[j-5].cell, ";BEQ;") == 0){ //distinto    je
+                        strcpy(auxiliarCV, tira_polaca_copia[j-9].cell);
+                        fprintf (final_asm, "jne %s\n\n",skipPointsC(auxiliarCV));
+                        fflush(final_asm);
+                    }
+
+                    ///     c om p a r a c i o n    2
+
+                    // primer operando
+                    if(tira_polaca[j-4].tag[1] == 'r'){ // si es real
+                        if(tira_polaca[j-4].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[j-4].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                        }
+                        else{
+                            strcpy(auxiliarCV, tira_polaca[j-4].cell); // guarda el valor de la celda ;value;
+                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(skipPesosC(changeRealC(skipPointsC(auxiliarCV)))));
+                            fflush(final_asm);
+                        }
+                    }else if(tira_polaca[j-4].tag[1] == 'i'){
+                        if(tira_polaca[j-4].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[j-4].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                        }
+                        else{
+                            strcpy(auxiliarCV, tira_polaca[j-4].cell);
+                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                            fflush(final_asm);
+                        }
+                    }
+
+                    // segundo operando
+                    if(tira_polaca[j-3].tag[1] == 'r'){ // si es real
+                        if(tira_polaca[j-3].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[j-3].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                        }
+                        else{
+                            strcpy(auxiliarCV, tira_polaca[j-3].cell); // guarda el valor de la celda ;value;
+                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(skipPesosC(changeRealC(skipPointsC(auxiliarCV)))));
+                            fflush(final_asm);
+                        }
+                    }else if(tira_polaca[j-3].tag[1] == 'i'){
+                        if(tira_polaca[j-3].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[j-3].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                        }
+                        else{
+                            strcpy(auxiliarCV, tira_polaca[j-3].cell);
+                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                            fflush(final_asm);
+                        }
+                    }
+                    
+                    fprintf (final_asm, "fxch\nfcom\nfstsw ax\nsahf\n");
+                    fflush(final_asm);
+                    // Simbolo comparador No. 2
+                    if(strcmp(tira_polaca[j-1].cell, ";BLE;") == 0){  //mayor
+                        fprintf (final_asm, "jna %s\n",skipPointsC(f_if_cell));
+                        fflush(final_asm);
+                        fprintf (final_asm, "%s: ;codigo del then\n\n", skipPointsC(tira_polaca_copia[j-9].cell));
+                        fflush(final_asm);
+                    }
+                    else if(strcmp(tira_polaca[j-1].cell, ";BGE;") == 0){ //menor
+                        fprintf (final_asm, "jnb %s\n",skipPointsC(f_if_cell));
+                        fflush(final_asm);
+                        fprintf (final_asm, "%s: ;codigo del then\n\n", skipPointsC(tira_polaca_copia[j-9].cell));
+                        fflush(final_asm);
+                    }
+                    else if(strcmp(tira_polaca[j-1].cell, ";BGT;") == 0){  // menor igual
+                        fprintf (final_asm, "jnbe %s\n",skipPointsC(f_if_cell));
+                        fflush(final_asm);
+                        fprintf (final_asm, "%s: ;codigo del then\n\n", skipPointsC(tira_polaca_copia[j-9].cell));
+                        fflush(final_asm);
+                    }
+                    else if(strcmp(tira_polaca[j-1].cell, ";BLT;") == 0){ //mayor igual
+                        fprintf (final_asm, "jnae %s\n",skipPointsC(f_if_cell));
+                        fflush(final_asm);
+                        fprintf (final_asm, "%s: ;codigo del then\n\n", skipPointsC(tira_polaca_copia[j-9].cell));
+                        fflush(final_asm);
+                    }
+                    else if(strcmp(tira_polaca[j-1].cell, ";BNE;") == 0){ //igual
+                        fprintf (final_asm, "jne %s\n",skipPointsC(f_if_cell));
+                        fflush(final_asm);
+                        fprintf (final_asm, "%s: ;codigo del then\n\n", skipPointsC(tira_polaca_copia[j-9].cell));
+                        fflush(final_asm);
+                    }
+                    else if(strcmp(tira_polaca[j-1].cell, ";BEQ;") == 0){ //distinto
+                        fprintf (final_asm, "je %s\n",skipPointsC(f_if_cell));
+                        fflush(final_asm);
+                        fprintf (final_asm, "%s: ;codigo del then\n\n", skipPointsC(tira_polaca_copia[j-9].cell));
+                        fflush(final_asm);
+                    }
+
+                }
+
+               
             }
 
-            j=j+4;
+            //j=j+4;   llega al indice donde estan los comparadores
             
-        } //  * Fin If_I *
+        } //  * Fin IF_I *
 
         if(strcmp(tira_polaca[j].cell, ";IF_F;") == 0){
-            fprintf (final_asm, "jmp end_if\nelse_part: ;codigo del else\n");
+            int number = atoi(skipPointsC(tira_polaca_copia[j-2].cell)) - 1;
+            //printf("NNNNNNumber es %d\n",number);
+            fprintf (final_asm, "jmp %s\n\n", skipPointsC(tira_polaca_copia[number].cell));
+            fflush(final_asm); 
+            fprintf (final_asm, "%s: ;codigo del else\n\n", skipPointsC(tira_polaca_copia[j].cell));
             fflush(final_asm); 
         }
 
         if(strcmp(tira_polaca[j].cell, ";ELSE_F;") == 0){
-            fprintf (final_asm, "end_if:\n");
+            fprintf (final_asm, "%s:\n", skipPointsC(tira_polaca_copia[j].cell));
             fflush(final_asm); 
         }
 
-        //while
+        ///////////////////////////////////////////////////////////////////////////////////////////
+        // W  H I L E
+        ////////////
         if(strcmp(tira_polaca[j].cell, ";WH_I;") == 0){
-            if(strcmp(tira_polaca[j+6].cell, ";CMP;") != 0){
-                fprintf (final_asm, "_EtiquetaW:\n");
+            //////////////////////////////////////////////////////////copio operandos 
+            strcpy(comp_cell, tira_polaca_copia[j].cell);
+            printf("comp_cell es: %s\n", comp_cell);
+
+            aux_cell = strtok(tira_polaca_copia[j].cell, ";WH_I"); // obtengo el numero de if
+            //  para los fin de else
+            strcpy(f_wh_cell, ";WH_F");
+            strcat(f_wh_cell, aux_cell);
+            strcat(f_wh_cell, ";"); //  guarda ;WH_F1;
+            printf("f_wh_cell es: %s\n", f_wh_cell);
+
+            if(strcmp(tira_polaca[j+7].cell, ";CMP;") != 0)
+            {
+                // ;WHI_I(N);
+                fprintf (final_asm, "%s:\n",skipPointsC(tira_polaca_copia[j].cell) );
                 fflush(final_asm);
                 //////////////////////////////////////////////////////////copio operandos 
                 if(tira_polaca[j+1].tag[1] == 'r'){ // si es real
-                    strcpy(auxiliarCV, tira_polaca[j+1].cell); // guarda el valor de la celda ;value;
-                    fprintf (final_asm, "fld\t$%s\n", changeRealC(skipPointsC(auxiliarCV)));
-                    fflush(final_asm);
+                    if(tira_polaca[j+1].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[j+1].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                    }
+                    else{
+                        strcpy(auxiliarCV, tira_polaca[j+1].cell); // guarda el valor de la celda ;value;
+                        fprintf (final_asm, "fld\t$%s\n", skipMenosOP(skipPesosC(changeRealC(skipPointsC(auxiliarCV)))));
+                        fflush(final_asm);
+                    }
                 }else if(tira_polaca[j+1].tag[1] == 'i'){
-                    strcpy(auxiliarCV, tira_polaca[j+1].cell);
-                    fprintf (final_asm, "fld\t$%s\n",skipPointsC(auxiliarCV));
-                    fflush(final_asm);
+                    if(tira_polaca[j+1].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[j+1].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                    }
+                    else{
+                        strcpy(auxiliarCV, tira_polaca[j+1].cell);
+                        fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                        fflush(final_asm);
+                    }
                 }
 
                 if(tira_polaca[j+2].tag[1] == 'r'){ // si es real
-                    strcpy(auxiliarCV, tira_polaca[j+2].cell); // guarda el valor de la celda ;value;
-                    fprintf (final_asm, "fld\t$%s\n", changeRealC(skipPointsC(auxiliarCV)));
-                    fflush(final_asm);
+                    if(tira_polaca[j+2].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[j+2].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                    }
+                    else{
+                        strcpy(auxiliarCV, tira_polaca[j+2].cell); // guarda el valor de la celda ;value;
+                        fprintf (final_asm, "fld\t$%s\n", skipMenosOP(skipPesosC(changeRealC(skipPointsC(auxiliarCV)))));
+                        fflush(final_asm);
+                    }
                 }else if(tira_polaca[j+2].tag[1] == 'i'){
-                    strcpy(auxiliarCV, tira_polaca[j+2].cell);
-                    fprintf (final_asm, "fld\t$%s\n",skipPointsC(auxiliarCV));
-                    fflush(final_asm);
+                    if(tira_polaca[j+2].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[j+2].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                    }
+                    else{
+                        strcpy(auxiliarCV, tira_polaca[j+2].cell);
+                        fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                        fflush(final_asm);
+                    }
                 }
 
                 fprintf (final_asm, "fxch\nfcom\nfstsw ax\nsahf\nffree\n");
                 fflush(final_asm); 
-            //////////////////////////////////////////////////////////
+                //////////////////////////////////////////////////////////
 
-             if(strcmp(tira_polaca[j+4].cell, ";BLE;") != 0){  //mayor
-                    fprintf (final_asm, "jnbe _EtiquetaF\n");
+                if(strcmp(tira_polaca[j+4].cell, ";BLE;") == 0){  //mayor
+                    fprintf (final_asm, "jna %s\n",skipPointsC(f_wh_cell));
                     fflush(final_asm);
                 }
-                else if(strcmp(tira_polaca[j+4].cell, ";BGE;") != 0){ //menor
-                    fprintf (final_asm, "jnae _EtiquetaF\n");
+                else if(strcmp(tira_polaca[j+4].cell, ";BGE;") == 0){ //menor
+                    fprintf (final_asm, "jnb %s\n",skipPointsC(f_wh_cell));
                     fflush(final_asm);
 
                 }
-                else if(strcmp(tira_polaca[j+4].cell, ";BGT;") != 0){  // menor igual
-                    fprintf (final_asm, "jna _EtiquetaF\n");
+                else if(strcmp(tira_polaca[j+4].cell, ";BGT;") == 0){  // menor igual
+                    fprintf (final_asm, "jnbe %s\n",skipPointsC(f_wh_cell));
                     fflush(final_asm);
                 }
-                else if(strcmp(tira_polaca[j+4].cell, ";BLT;") != 0){ //mayor igual
-                    fprintf (final_asm, "jnb _EtiquetaF\n");
+                else if(strcmp(tira_polaca[j+4].cell, ";BLT;") == 0){ //mayor igual
+                    fprintf (final_asm, "jnae %s\n",skipPointsC(f_wh_cell));
                     fflush(final_asm);
                 }
-                else if(strcmp(tira_polaca[j+4].cell, ";BEQ;") != 0){ //igual
-                    fprintf (final_asm, "je  _EtiquetaF\n");
+                else if(strcmp(tira_polaca[j+4].cell, ";BNE;") == 0){ //igual
+                    fprintf (final_asm, "jne %s\n",skipPointsC(f_wh_cell));
                     fflush(final_asm);
                 }
-                else if(strcmp(tira_polaca[j+4].cell, ";BNE;") != 0){ //distinto
-                    fprintf (final_asm, "jne _EtiquetaF\n");
+                else if(strcmp(tira_polaca[j+4].cell, ";BEQ;") == 0){ //distinto
+                    fprintf (final_asm, "je %s\n",skipPointsC(f_wh_cell));
                     fflush(final_asm);
+                }
+            } else if (strcmp(tira_polaca[j+7].cell, ";CMP;") == 0){  
+                // Aca va el codigo del AND, OR y ¿NOT? para los whiles
+                //AND DEL WHILE
+                if(strcmp(tira_polaca[j+9].cell, ";AND;") == 0){
+                    printf("\n\nEs una condicion con AND, en el indice %d\n\n", j+9);
+                    
+                    j = j+9;
+                    // ;WHI_I(Num);
+                    fprintf (final_asm, "%s:\n",skipPointsC(tira_polaca_copia[j-9].cell) );
+                    fflush(final_asm);
+                    ///     c om p a r a c i o n    1
+                    
+                    // primer operando
+                    if(tira_polaca[j-8].tag[1] == 'r'){ // si es real
+                        if(tira_polaca[j-8].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[j-8].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                        }
+                        else{
+                            strcpy(auxiliarCV, tira_polaca[j-8].cell); // guarda el valor de la celda ;value;
+                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(skipPesosC(changeRealC(skipPointsC(auxiliarCV)))));
+                            fflush(final_asm);
+                        }
+                    }else if(tira_polaca[j-8].tag[1] == 'i'){
+                        if(tira_polaca[j-8].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[j-8].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                        }
+                        else{
+                            strcpy(auxiliarCV, tira_polaca[j-8].cell);
+                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                            fflush(final_asm);
+                        }
+                    }
+
+                    // segundo operando
+                    if(tira_polaca[j-7].tag[1] == 'r'){ // si es real
+                        if(tira_polaca[j-7].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[j-7].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                        }
+                        else{
+                            strcpy(auxiliarCV, tira_polaca[j-7].cell); // guarda el valor de la celda ;value;
+                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(skipPesosC(changeRealC(skipPointsC(auxiliarCV)))));
+                            fflush(final_asm);
+                        }
+                    }else if(tira_polaca[j-7].tag[1] == 'i'){
+                        if(tira_polaca[j-7].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[j-7].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                        }
+                        else{
+                            strcpy(auxiliarCV, tira_polaca[j-7].cell);
+                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                            fflush(final_asm);
+                        }
+                    }
+                    
+                    fprintf (final_asm, "fxch\nfcom\nfstsw ax\nsahf\n");
+                    fflush(final_asm); 
+                    
+                    // Simbolo comparador No. 1
+                    if(strcmp(tira_polaca[j-5].cell, ";BLE;") == 0){  //mayor
+                        fprintf (final_asm, "jna %s\n",skipPointsC(f_wh_cell));
+                        fflush(final_asm);
+                    }
+                    else if(strcmp(tira_polaca[j-5].cell, ";BGE;") == 0){ //menor
+                        fprintf (final_asm, "jnb %s\n",skipPointsC(f_wh_cell));
+                        fflush(final_asm);
+
+                    }
+                    else if(strcmp(tira_polaca[j-5].cell, ";BGT;") == 0){  // menor igual
+                        fprintf (final_asm, "jnbe %s\n",skipPointsC(f_wh_cell));
+                        fflush(final_asm);
+                    }
+                    else if(strcmp(tira_polaca[j-5].cell, ";BLT;") == 0){ //mayor igual
+                        fprintf (final_asm, "jnae %s\n",skipPointsC(f_wh_cell));
+                        fflush(final_asm);
+                    }
+                    else if(strcmp(tira_polaca[j-5].cell, ";BNE;") == 0){ //igual
+                        fprintf (final_asm, "jne %s\n",skipPointsC(f_wh_cell));
+                        fflush(final_asm);
+                    }
+                    else if(strcmp(tira_polaca[j-5].cell, ";BEQ;") == 0){ //distinto
+                        fprintf (final_asm, "je %s\n",skipPointsC(f_wh_cell));
+                        fflush(final_asm);
+                    }
+
+                    ///     c om p a r a c i o n    2
+
+                    // primer operando
+                    if(tira_polaca[j-4].tag[1] == 'r'){ // si es real
+                        if(tira_polaca[j-4].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[j-4].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                        }
+                        else{
+                            strcpy(auxiliarCV, tira_polaca[j-4].cell); // guarda el valor de la celda ;value;
+                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(skipPesosC(changeRealC(skipPointsC(auxiliarCV)))));
+                            fflush(final_asm);
+                        }
+                    }else if(tira_polaca[j-4].tag[1] == 'i'){
+                        if(tira_polaca[j-4].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[j-4].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                        }
+                        else{
+                        strcpy(auxiliarCV, tira_polaca[j-4].cell);
+                        fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                        fflush(final_asm);
+                        }
+                    }
+
+                    // segundo operando
+                    if(tira_polaca[j-3].tag[1] == 'r'){ // si es real
+                        if(tira_polaca[j-3].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[j-3].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                        }
+                        else{
+                            strcpy(auxiliarCV, tira_polaca[j-3].cell); // guarda el valor de la celda ;value;
+                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(skipPesosC(changeRealC(skipPointsC(auxiliarCV)))));
+                            fflush(final_asm);
+                        }
+                    }else if(tira_polaca[j-3].tag[1] == 'i'){
+                        if(tira_polaca[j-3].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[j-3].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                        }
+                        else{
+                            strcpy(auxiliarCV, tira_polaca[j-3].cell);
+                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                            fflush(final_asm);
+                        }
+                    }
+                    
+                    fprintf (final_asm, "fxch\nfcom\nfstsw ax\nsahf\n");
+                    fflush(final_asm);
+                    // Simbolo comparador No. 2
+                    if(strcmp(tira_polaca[j-1].cell, ";BLE;") == 0){  //mayor
+                        fprintf (final_asm, "jna %s\n",skipPointsC(f_wh_cell));
+                        fflush(final_asm);
+                    }
+                    else if(strcmp(tira_polaca[j-1].cell, ";BGE;") == 0){ //menor
+                        fprintf (final_asm, "jnb %s\n",skipPointsC(f_wh_cell));
+                        fflush(final_asm);
+
+                    }
+                    else if(strcmp(tira_polaca[j-1].cell, ";BGT;") == 0){  // menor igual
+                        fprintf (final_asm, "jnbe %s\n",skipPointsC(f_wh_cell));
+                        fflush(final_asm);
+                    }
+                    else if(strcmp(tira_polaca[j-1].cell, ";BLT;") == 0){ //mayor igual
+                        fprintf (final_asm, "jnae %s\n",skipPointsC(f_wh_cell));
+                        fflush(final_asm);
+                    }
+                    else if(strcmp(tira_polaca[j-1].cell, ";BNE;") == 0){ //igual
+                        fprintf (final_asm, "jne %s\n",skipPointsC(f_wh_cell));
+                        fflush(final_asm);
+                    }
+                    else if(strcmp(tira_polaca[j-1].cell, ";BEQ;") == 0){ //distinto
+                        fprintf (final_asm, "je %s\n",skipPointsC(f_wh_cell));
+                        fflush(final_asm);
+                    }
+                } 
+                // OR DEL WHILE
+                else if(strcmp(tira_polaca[j+9].cell, ";OR;") == 0){
+                    printf("\n\nEs una condicion con OR, en el indice %d\n\n", j+9);
+                    
+                    j = j+9;
+                    // ;WHI_I(Num);
+                    fprintf (final_asm, "%s:\n",skipPointsC(tira_polaca_copia[j-9].cell) );
+                    fflush(final_asm);
+                    ///     c om p a r a c i o n    1
+                    
+                    // primer operando
+                    if(tira_polaca[j-8].tag[1] == 'r'){ // si es real
+                        if(tira_polaca[j-8].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[j-8].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                        }
+                        else{
+                            strcpy(auxiliarCV, tira_polaca[j-8].cell); // guarda el valor de la celda ;value;
+                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(skipPesosC(changeRealC(skipPointsC(auxiliarCV)))));
+                            fflush(final_asm);
+                        }
+                    }else if(tira_polaca[j-8].tag[1] == 'i'){
+                        if(tira_polaca[j-8].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[j-8].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                        }
+                        else{
+                            strcpy(auxiliarCV, tira_polaca[j-8].cell);
+                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                            fflush(final_asm);
+                        }
+                    }
+
+                    // segundo operando
+                    if(tira_polaca[j-7].tag[1] == 'r'){ // si es real
+                        if(tira_polaca[j-7].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[j-7].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                        }
+                        else{
+                            strcpy(auxiliarCV, tira_polaca[j-7].cell); // guarda el valor de la celda ;value;
+                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(skipPesosC(changeRealC(skipPointsC(auxiliarCV)))));
+                            fflush(final_asm);
+                        }
+                    }else if(tira_polaca[j-7].tag[1] == 'i'){
+                        if(tira_polaca[j-7].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[j-7].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                        }
+                        else{
+                            strcpy(auxiliarCV, tira_polaca[j-7].cell);
+                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                            fflush(final_asm);
+                        }
+                    }
+                    
+                    fprintf (final_asm, "fxch\nfcom\nfstsw ax\nsahf\n");
+                    fflush(final_asm); 
+                    
+                    strcpy(auxiliarORWH, f_wh_cell);
+                    strcat(auxiliarORWH,"x");
+                    // Simbolo comparador No. 1                                         SALTO X VERDADERO
+                    if(strcmp(tira_polaca[j-5].cell, ";BLE;") == 0){  //mayor            jna
+                        fprintf (final_asm, "ja %s\n",skipPointsC(auxiliarORWH));
+                        fflush(final_asm);
+                    }
+                    else if(strcmp(tira_polaca[j-5].cell, ";BGE;") == 0){ //menor       jnb
+                        fprintf (final_asm, "jb %s\n",skipPointsC(auxiliarORWH));
+                        fflush(final_asm);
+
+                    }
+                    else if(strcmp(tira_polaca[j-5].cell, ";BGT;") == 0){  // menor igual   jnbe
+                        fprintf (final_asm, "jna %s\n",skipPointsC(auxiliarORWH));
+                        fflush(final_asm);
+                    }
+                    else if(strcmp(tira_polaca[j-5].cell, ";BLT;") == 0){ //mayor igual     jnae
+                        fprintf (final_asm, "jnb %s\n",skipPointsC(auxiliarORWH));
+                        fflush(final_asm);
+                    }
+                    else if(strcmp(tira_polaca[j-5].cell, ";BNE;") == 0){ //igual           jne
+                        fprintf (final_asm, "je %s\n",skipPointsC(auxiliarORWH));
+                        fflush(final_asm);
+                    }
+                    else if(strcmp(tira_polaca[j-5].cell, ";BEQ;") == 0){ //distinto        je
+                        fprintf (final_asm, "jne %s\n",skipPointsC(auxiliarORWH));
+                        fflush(final_asm);
+                    }
+
+                    ///     c om p a r a c i o n    2
+
+                    // primer operando
+                    if(tira_polaca[j-4].tag[1] == 'r'){ // si es real
+                        if(tira_polaca[j-4].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[j-4].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                        }
+                        else{
+                            strcpy(auxiliarCV, tira_polaca[j-4].cell); // guarda el valor de la celda ;value;
+                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(skipPesosC(changeRealC(skipPointsC(auxiliarCV)))));
+                            fflush(final_asm);
+                        }
+                    }else if(tira_polaca[j-4].tag[1] == 'i'){
+                        if(tira_polaca[j-4].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[j-4].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                        }
+                        else{
+                            strcpy(auxiliarCV, tira_polaca[j-4].cell);
+                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                            fflush(final_asm);
+                        }
+                    }
+
+                    // segundo operando
+                    if(tira_polaca[j-3].tag[1] == 'r'){ // si es real
+                        if(tira_polaca[j-3].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[j-3].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                        }
+                        else{
+                            strcpy(auxiliarCV, tira_polaca[j-3].cell); // guarda el valor de la celda ;value;
+                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(skipPesosC(changeRealC(skipPointsC(auxiliarCV)))));
+                            fflush(final_asm);
+                        }
+                    }else if(tira_polaca[j-3].tag[1] == 'i'){
+                        if(tira_polaca[j-3].cell[1] == '-') {
+                                            fprintf (final_asm, "FLD _200m\nFLD _300m\nFSUB\nFFREE st(1)\nFSTP _100m\nFFREE st(0)\n");
+                                            fflush(final_asm);
+                                            strcpy(auxiliarCV, tira_polaca[j-3].cell); // guarda el valor de la celda ;value;
+                                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                                            fflush(final_asm);
+                                            fprintf (final_asm, "FLD _100m\nFMUL\nFFREE st(1)\n");
+                                            fflush(final_asm);
+
+                                            fprintf (final_asm, "fstp\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm); 
+                                            
+                                            fprintf (final_asm, "fld\t$%s\n", skipMenosOP(changeRealC(skipPesosC(skipPointsC(auxiliarCV)))));
+                                            fflush(final_asm);                                  
+                        }
+                        else{
+                            strcpy(auxiliarCV, tira_polaca[j-3].cell);
+                            fprintf (final_asm, "fld\t$%s\n",skipMenosOP(skipPesosC(skipPointsC(auxiliarCV))));
+                            fflush(final_asm);
+                        }
+                    }
+                    
+                    fprintf (final_asm, "fxch\nfcom\nfstsw ax\nsahf\n");
+                    fflush(final_asm);
+                    // Simbolo comparador No. 2
+                    if(strcmp(tira_polaca[j-1].cell, ";BLE;") == 0){  //mayor
+                        fprintf (final_asm, "jna %s\n",skipPointsC(f_wh_cell));
+                        fflush(final_asm);
+                        fprintf(final_asm, "%s:\n",skipPointsC(auxiliarORWH));
+                        fflush(final_asm);
+                    }
+                    else if(strcmp(tira_polaca[j-1].cell, ";BGE;") == 0){ //menor
+                        fprintf (final_asm, "jnb %s\n",skipPointsC(f_wh_cell));
+                        fflush(final_asm);
+                        fprintf(final_asm, "%s:\n",skipPointsC(auxiliarORWH));
+                        fflush(final_asm);
+                    }
+                    else if(strcmp(tira_polaca[j-1].cell, ";BGT;") == 0){  // menor igual
+                        fprintf (final_asm, "jnbe %s\n",skipPointsC(f_wh_cell));
+                        fflush(final_asm);
+                        fprintf(final_asm, "%s:\n",skipPointsC(auxiliarORWH));
+                        fflush(final_asm);
+                    }
+                    else if(strcmp(tira_polaca[j-1].cell, ";BLT;") == 0){ //mayor igual
+                        fprintf (final_asm, "jnae %s\n",skipPointsC(f_wh_cell));
+                        fflush(final_asm);
+                        fprintf(final_asm, "%s:\n",skipPointsC(auxiliarORWH));
+                        fflush(final_asm);
+                    }
+                    else if(strcmp(tira_polaca[j-1].cell, ";BNE;") == 0){ //igual
+                        fprintf (final_asm, "jne %s\n",skipPointsC(f_wh_cell));
+                        fflush(final_asm);
+                        fprintf(final_asm, "%s:\n",skipPointsC(auxiliarORWH));
+                        fflush(final_asm);
+                    }
+                    else if(strcmp(tira_polaca[j-1].cell, ";BEQ;") == 0){ //distinto
+                        fprintf (final_asm, "je %s\n",skipPointsC(f_wh_cell));
+                        fflush(final_asm);
+                        fprintf(final_asm, "%s:\n",skipPointsC(auxiliarORWH));
+                        fflush(final_asm);
+                    }
+
+
                 }
             }
 
-            j=j+4;
-                ////////////////////////////////////////////////////////////
+            //j=j+4; // llega al indice donde estan los comparadores
+            ////////////////////////////////////////////////////////////
         }
 
         if(strcmp(tira_polaca[j].cell, ";WH_F;") == 0){
-            fprintf (final_asm, "jmp _EtiquetaW\n_EtiquetaF:\n");
+            int number2 = atoi(skipPointsC(tira_polaca_copia[j-2].cell)) - 1;
+            fprintf (final_asm, "jmp %s\n\n", skipPointsC(tira_polaca_copia[number2].cell));
+            fflush(final_asm); 
+            fprintf (final_asm, "%s: ;fin de while\n\n", skipPointsC(tira_polaca_copia[j].cell));
             fflush(final_asm); 
         }
 
-    }
+        if((strcmp(tira_polaca[j].tag, "#inicio_if\n") == 0)||(strcmp(tira_polaca[j].tag, "#inicio_wh\n") == 0)||
+          (strcmp(tira_polaca[j].tag, "#fin_wh\n") == 0)||(strcmp(tira_polaca[j].tag, "#fin_if\n") == 0))
+        {
+            printf("  -- > Celda encontrada es: %s\n", tira_polaca[j].cell);
+        }
+
+        // PUT
+        if(strcmp(tira_polaca[j].cell, ";PUT;") == 0){
+            if((tira_polaca[j-1].tag[1]== 's')||(tira_polaca[j-1].tag[1]== 'c')){ // strings o csctrings
+                fprintf (final_asm, "mov ah, 9\n");
+                fflush(final_asm);
+                strcpy(auxiliarCV, tira_polaca[j-1].cell);
+                if(tira_polaca[j-1].cell[1] == '"'){
+                        fprintf (final_asm, "mov DX,OFFSET $_%s\n", skipPesosC(skipComillasC(skipPointsC(auxiliarCV))));
+                        fflush(final_asm);
+                }
+                else{
+                    fprintf (final_asm, "mov DX,OFFSET $%s\n", skipPesosC(skipComillasC(skipPointsC(auxiliarCV))));
+                    fflush(final_asm); 
+                } 
+                fprintf (final_asm, "int 21h\n");
+                fflush(final_asm); 
+                fprintf (final_asm, "MOV AH,02H\nMOV DL,0AH\nINT 21H\n");
+                fflush(final_asm); 
+            }
+            else if((tira_polaca[j-1].tag[1]== 'i')||(tira_polaca[j-1].tag[1]== 'r')){  // digito reales
+                strcpy(auxiliarCV, tira_polaca[j-1].cell);
+                fprintf (final_asm, "DisplayFloat $%s, 2\n", skipPesosC(changeRealC(skipPointsC(auxiliarCV))));
+                fflush(final_asm); 
+                fprintf (final_asm, "MOV AH,02H\nMOV DL,0AH\nINT 21H\n");
+                fflush(final_asm); 
+            }
+        }
+
+        //GET
+        if(strcmp(tira_polaca[j].cell, ";GET;") == 0){
+            //mov ah,3fh (funcion scanf)
+            //mov bx,00
+            //mov cx,100 (la longitud maxima de la cadena a tomar)
+            //mov dx, offset[var] (variable donde se guarda)
+            //int 21h
+            fprintf (final_asm, "mov ah, 3fh    ;REALIZO EL GET\n");
+            fflush(final_asm); 
+            fprintf (final_asm, "mov bx,00\n");
+            fflush(final_asm);
+            fprintf (final_asm, "mov cx,100\n");
+            fflush(final_asm);
+            fprintf (final_asm, "mov dx, offset[$%s]\n",skipPesosC(skipPointsC(tira_polaca[j-1].cell)));
+            fflush(final_asm); 
+            fprintf (final_asm, "int 21h\n");
+            fflush(final_asm); 
+
+            //para comprobar que se guardo correctamente
+            fprintf (final_asm, "mov ah, 9      ;IMPRIMO PARA VER SI GUARDÓ CORRECTAMENTE\n");
+            fflush(final_asm); 
+            fprintf (final_asm, "mov DX,OFFSET $%s\n", skipPesosC(skipComillasC(tira_polaca[j-1].cell)));
+            fflush(final_asm);
+            fprintf (final_asm, "int 21h\n");
+            fflush(final_asm);
+
+        }
     
-     // FIN FOR
+    }// FIN FOR
 
     //INSTRUCCIONES DE FIN DE ASM
     fprintf (final_asm, "\nmov ax,4c00h\n");
     fflush(final_asm);
     fprintf (final_asm, "int 21h\n");
     fflush(final_asm); 
-    fprintf (final_asm, "End\n");
+    fprintf (final_asm, "End START\n");
     fflush(final_asm);
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -4411,6 +6095,46 @@ char * skipComillasC(char string []){
     return string;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
+char * skipPesosC(char celda_tira []){
+    char aux_celda_tira[30] = {0}; // omito los ;
+    int index_aux=-1;
+    int lt=0;
+
+    // limpio vector
+    for(lt=0; lt<30; lt++){
+        aux_celda_tira[lt] = '\0';
+    }
+
+    for(lt=0; lt<strlen(celda_tira); lt++){
+        if(celda_tira[lt] != '$'){
+            index_aux++;
+            aux_celda_tira[index_aux] = celda_tira[lt];
+        }
+    }
+    strcpy(celda_tira, aux_celda_tira);
+    return celda_tira;
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+char * skipMenosOP(char celda_tira []){
+    char aux_celda_tira[30] = {0}; // omito los ;
+    int index_aux=-1;
+    int lt=0;
+
+    // limpio vector
+    for(lt=0; lt<30; lt++){
+        aux_celda_tira[lt] = '\0';
+    }
+
+    for(lt=0; lt<strlen(celda_tira); lt++){
+        if(celda_tira[lt] != '-'){
+            index_aux++;
+            aux_celda_tira[index_aux] = celda_tira[lt];
+        }
+    }
+    strcpy(celda_tira, aux_celda_tira);
+    return celda_tira;
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
 char * changeRealC(char stringR []){
     char aux_string[30] = {0}; // omito los ;
     int index_aux=-1;
@@ -4437,49 +6161,75 @@ char * changeRealC(char stringR []){
     strcpy(stringR,aux_string);
     return stringR;
 }
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 void contar_if_wh(){
     char aux[40]={0};
     int if_pila[40]={0};
+    int if_pila2[40]={0};
     int wh_pila[40]={0};
     int cont_if=0;
+    int cont_if2=0;
     int cont_wh=0;
     int indice_if=0;
+    int indice_if2=0;
     int indice_wh=0;
 
+    tira_polaca_copia = (tira*)malloc(indice_tira*sizeof(tira));
+    if(tira_polaca_copia==NULL){
+        printf("No se asignó memoria correctamente para tira_polaca\n");
+    }
+
+    // Lleno la copia de la tira polaca original
+    for(int ind_t=0; ind_t<indice_tira; ind_t++){
+        strcpy(tira_polaca_copia[ind_t].index, tira_polaca[ind_t].index);
+        strcpy(tira_polaca_copia[ind_t].cell, tira_polaca[ind_t].cell);
+        strcpy(tira_polaca_copia[ind_t].tag, tira_polaca[ind_t].tag);
+    }
 
     for(int i=0; i<indice_tira;i++){
-        if(strcmp(tira_polaca[i].cell,";IF_I;")==0){
+        if(strcmp(tira_polaca_copia[i].cell,";IF_I;")==0){
             cont_if++;
             indice_if++;
+            cont_if2++;
+            indice_if2++;
             sprintf(aux,"%d",cont_if);
-            strcpy(tira_polaca[i].cell,";IF_I");
-            strcat(tira_polaca[i].cell,aux);
-            strcat(tira_polaca[i].cell,";");
-            if_pila[indice_if-1]=cont_if;           
+            strcpy(tira_polaca_copia[i].cell,";IF_I");
+            strcat(tira_polaca_copia[i].cell,aux);
+            strcat(tira_polaca_copia[i].cell,";");
+            if_pila[indice_if-1]=cont_if; 
+            if_pila2[indice_if2-1]=cont_if2;           
         }
-        if(strcmp(tira_polaca[i].cell,";WH_I;")==0){
+        if(strcmp(tira_polaca_copia[i].cell,";WH_I;")==0){
             cont_wh++;
             indice_wh++;
             sprintf(aux,"%d",cont_wh);
-            strcpy(tira_polaca[i].cell,";WH_I");
-            strcat(tira_polaca[i].cell,aux);
-            strcat(tira_polaca[i].cell,";");
+            strcpy(tira_polaca_copia[i].cell,";WH_I");
+            strcat(tira_polaca_copia[i].cell,aux);
+            strcat(tira_polaca_copia[i].cell,";");
             wh_pila[indice_wh-1]=cont_wh;
         }
-        if(strcmp(tira_polaca[i].cell,";ELSE_F;")==0){
+        if(strcmp(tira_polaca_copia[i].cell,";ELSE_F;")==0){
             sprintf(aux,"%d",if_pila[indice_if-1]);
-            strcpy(tira_polaca[i].cell,";ELSE_F");
-            strcat(tira_polaca[i].cell,aux);
-            strcat(tira_polaca[i].cell,";");
+            strcpy(tira_polaca_copia[i].cell,";ELSE_F");
+            strcat(tira_polaca_copia[i].cell,aux);
+            strcat(tira_polaca_copia[i].cell,";");
             if_pila[indice_if-1]='\0';
             indice_if--;      
         }
-        if(strcmp(tira_polaca[i].cell,";WH_F;")==0){
+        if(strcmp(tira_polaca_copia[i].cell,";IF_F;")==0){
+            sprintf(aux,"%d",if_pila2[indice_if2-1]);
+            strcpy(tira_polaca_copia[i].cell,";IF_F");
+            strcat(tira_polaca_copia[i].cell,aux);
+            strcat(tira_polaca_copia[i].cell,";");
+            if_pila2[indice_if2-1]='\0';
+            indice_if2--;           
+        }
+        if(strcmp(tira_polaca_copia[i].cell,";WH_F;")==0){
             sprintf(aux,"%d",wh_pila[indice_wh-1]);
-            strcpy(tira_polaca[i].cell,";WH_F");
-            strcat(tira_polaca[i].cell,aux);
-            strcat(tira_polaca[i].cell,";");
+            strcpy(tira_polaca_copia[i].cell,";WH_F");
+            strcat(tira_polaca_copia[i].cell,aux);
+            strcat(tira_polaca_copia[i].cell,";");
             wh_pila[indice_wh-1]='\0';
             indice_wh--;           
         }
@@ -4491,5 +6241,10 @@ void contar_if_wh(){
     printf("\n Cantidad de ifs: %d\n",cont_if) ;   
     printf("\n Cantidad de wh: %d\n",cont_wh) ;
     mostrar_polaca();    
-    printTiraPolaca();          
+    //printTiraPolaca(); 
+
+     // Muestro la copia de la tira polaca original
+     for(int ind_t=0; ind_t<indice_tira; ind_t++){
+         printf("tira copia es: %s\t%s\t%s\n", tira_polaca_copia[ind_t].index,tira_polaca_copia[ind_t].cell,tira_polaca_copia[ind_t].tag);
+     }
 }
